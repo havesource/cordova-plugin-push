@@ -78,13 +78,6 @@ public class PushHandlerActivity extends Activity implements PushConstants {
     if (extras != null) {
       Bundle originalExtras = extras.getBundle(PUSH_BUNDLE);
 
-      if (originalExtras == null) {
-        originalExtras = extras;
-        originalExtras.remove(FROM);
-        originalExtras.remove(MESSAGE_ID);
-        originalExtras.remove(COLLAPSE_KEY);
-      }
-
       originalExtras.putBoolean(FOREGROUND, false);
       originalExtras.putBoolean(COLDSTART, !isPushPluginActive);
       originalExtras.putBoolean(DISMISSED, extras.getBoolean(DISMISSED));
