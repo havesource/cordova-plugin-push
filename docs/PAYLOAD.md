@@ -7,6 +7,7 @@
     - [Using AWS-SNS with GCM](#using-aws-sns-with-gcm)
     - [Message Received in JavaScript](#message-received-in-javascript)
   - [iOS Message Format](#ios-message-format)
+    - [Speical Format for Critical Alerts](#speical-format-for-critical-alerts)
     - [Using AWS-SNS with APNS](#using-aws-sns-with-apns)
     - [Message Received in JavaScript](#message-received-in-javascript-1)
 - [Android Behaviour](#android-behaviour)
@@ -177,8 +178,9 @@ The JSON message can contain the following fields, see [Apple developer docs](ht
 
 ### Speical Format for Critical Alerts
 
-Since iOS 12 it's possible to send critical alerts to the users device. A critical alert will popup and play sound even when device is in DND Mode or muted. This functionallity is mainly to be used by health Apps to inform about critical states.
-Instead of the name of the sound you have to send a dictionary containing further information about critical
+Since iOS 12, it's possible to send critical alerts to the user's device. A critical alert will popup and play sound even when device is in DND mode or muted. This functionallity is mainly to be used by health apps to inform about critical states.
+
+Instead of the name of the sound, you have to send a dictionary containing further information about critical.
 
 ```json
 {
@@ -195,10 +197,10 @@ Instead of the name of the sound you have to send a dictionary containing furthe
     "category": "identifier", // Provide this key with a string value that represents the notification’s type
     "thread-id": "id", // Provide this key with a string value that represents the app-specific identifier for grouping notifications
     "sound": {
-		"critical" : 1, // When 1, the notification is handled as a critical one. The sound is played aloud even when device is in dnd mode or muted
-		"name" : "default", // play default sound, or custom sound, see [iOS Sound](#sound-1) section
-		"volume" : 1.0 // Optional: Volume. Value can between 0.0 (silent) and 1.0 (full volume)
-	}
+      "critical" : 1, // When 1, the notification is handled as a critical one. The sound is played aloud even when device is in dnd mode or muted
+      "name" : "default", // play default sound, or custom sound, see [iOS Sound](#sound-1) section
+      "volume" : 1.0 // Optional: Volume. Value can between 0.0 (silent) and 1.0 (full volume)
+    }
   },
   "notId": 1,
   "custom_key1": "value1",
