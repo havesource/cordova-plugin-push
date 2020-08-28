@@ -160,7 +160,7 @@ To make the two work together, you need to migrate your GCM project from Google 
 
 _Note:_ No changes on the back-end side are needed: [even though recommended](https://developers.google.com/cloud-messaging/android/android-migrate-fcm#update_server_endpoints), it isn't yet required and sending messages through GCM gateway should work just fine.
 
-_Note:_ The `FCM_VERSION` must be greater than or equal to 7.1.0 and less than or equal to 18.0.0.
+_Note:_ The `FCM_VERSION` must be greater than or equal to 17.1.0 and less than or equal to 18.0.0.
 
 ### Common errors
 
