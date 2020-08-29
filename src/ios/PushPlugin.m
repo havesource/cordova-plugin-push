@@ -28,7 +28,11 @@
 
 #import "PushPlugin.h"
 #import "AppDelegate+notification.h"
+
 @import Firebase;
+@import FirebaseCore;
+@import FirebaseInstanceID;
+@import FirebaseMessaging;
 
 @implementation PushPlugin : CDVPlugin
 
