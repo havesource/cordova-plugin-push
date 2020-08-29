@@ -112,10 +112,8 @@
     <framework src="PushKit.framework"/>
 
     <podspec>
-      <config>
-        <!-- <source url="https://cdn.cocoapods.org"/>
-        <source url="https://github.com/CocoaPods/Specs.git"/> -->
-      </config>
+      <!-- keep empty `config` object to prevent `cordova-common` install issues.-->
+      <config></config>
       <pods use-frameworks="true">
         <pod name="Firebase/Messaging" spec="~> 6.31.0" />
       </pods>
