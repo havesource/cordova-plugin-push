@@ -17,9 +17,9 @@ Before we can start submitting code contributions, we setup locally a workspace 
 1. [Fork](https://help.github.com/articles/fork-a-repo/) this repo by following the GitHub's "[Fork a repo](https://help.github.com/articles/fork-a-repo/)" quickstart guide.
 2. [Clone](https://help.github.com/articles/cloning-a-repository/) the newly forked repo locally.
 
-  ```bash
-  git clone git@github.com:your-username/phonegap-plugin-push.git
-  ```
+    ```bash
+    git clone git@github.com:your-username/phonegap-plugin-push.git
+    ```
 
 ## Make First Codde Contribution
 
