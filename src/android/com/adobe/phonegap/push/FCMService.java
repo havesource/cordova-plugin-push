@@ -202,9 +202,15 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
    * Replace alternate keys with our canonical value
    */
   private String normalizeKey (String key, String messageKey, String titleKey, Bundle newExtras) {
-    if (key.equals(BODY) || key.equals(ALERT) || key.equals(MP_MESSAGE) || key.equals(
-      GCM_NOTIFICATION_BODY)
-      || key.equals(TWILIO_BODY) || key.equals(messageKey) || key.equals(AWS_PINPOINT_BODY)) {
+    if (
+      key.equals(BODY)
+        || key.equals(ALERT)
+        || key.equals(MP_MESSAGE)
+        || key.equals(GCM_NOTIFICATION_BODY)
+        || key.equals(TWILIO_BODY)
+        || key.equals(messageKey)
+        || key.equals(AWS_PINPOINT_BODY)
+    ) {
       return MESSAGE;
     } else if (key.equals(TWILIO_TITLE) || key.equals(SUBJECT) || key.equals(titleKey)) {
       return TITLE;
@@ -596,26 +602,36 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
 
             if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.M) {
               Log.d(LOG_TAG, "push activity for notId " + notId);
-              pIntent = PendingIntent.getActivity(this, uniquePendingIntentRequestCode, intent,
-                                                  PendingIntent.FLAG_ONE_SHOT
+              pIntent = PendingIntent.getActivity(
+                this,
+                uniquePendingIntentRequestCode,
+                intent,
+                PendingIntent.FLAG_ONE_SHOT
               );
             } else {
               Log.d(LOG_TAG, "push receiver for notId " + notId);
-              pIntent = PendingIntent.getBroadcast(this, uniquePendingIntentRequestCode, intent,
-                                                   PendingIntent.FLAG_ONE_SHOT
+              pIntent = PendingIntent.getBroadcast(
+                this,
+                uniquePendingIntentRequestCode,
+                intent,
+                PendingIntent.FLAG_ONE_SHOT
               );
             }
           } else if (foreground) {
             intent = new Intent(this, PushHandlerActivity.class);
             updateIntent(intent, action.getString(CALLBACK), extras, foreground, notId);
-            pIntent = PendingIntent.getActivity(this, uniquePendingIntentRequestCode, intent,
-                                                PendingIntent.FLAG_UPDATE_CURRENT
+            pIntent = PendingIntent.getActivity(
+              this, uniquePendingIntentRequestCode,
+              intent,
+              PendingIntent.FLAG_UPDATE_CURRENT
             );
           } else {
             intent = new Intent(this, BackgroundActionButtonHandler.class);
             updateIntent(intent, action.getString(CALLBACK), extras, foreground, notId);
-            pIntent = PendingIntent.getBroadcast(this, uniquePendingIntentRequestCode, intent,
-                                                 PendingIntent.FLAG_UPDATE_CURRENT
+            pIntent = PendingIntent.getBroadcast(
+              this, uniquePendingIntentRequestCode,
+              intent,
+              PendingIntent.FLAG_UPDATE_CURRENT
             );
           }
 
@@ -673,7 +689,10 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
     if (visibilityStr != null) {
       try {
         Integer visibility = Integer.parseInt(visibilityStr);
-        if (visibility >= NotificationCompat.VISIBILITY_SECRET && visibility <= NotificationCompat.VISIBILITY_PUBLIC) {
+        if (
+          visibility >= NotificationCompat.VISIBILITY_SECRET
+            && visibility <= NotificationCompat.VISIBILITY_PUBLIC
+        ) {
           mBuilder.setVisibility(visibility);
         } else {
           Log.e(LOG_TAG, "Visibility parameter must be between -1 and 1");
@@ -691,14 +710,20 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
   ) {
     String vibrationPattern = extras.getString(VIBRATION_PATTERN);
     if (vibrationPattern != null) {
-      String[] items = vibrationPattern.replaceAll("\\[", "").replaceAll("\\]", "").split(",");
+      String[] items = vibrationPattern
+        .replaceAll("\\[", "")
+        .replaceAll("\\]", "")
+        .split(",");
+
       long[] results = new long[ items.length ];
+
       for (int i = 0; i < items.length; i++) {
         try {
           results[ i ] = Long.parseLong(items[ i ].trim());
         } catch (NumberFormatException nfe) {
         }
       }
+
       mBuilder.setVibrate(results);
     } else {
       if (vibrateOption) {
@@ -813,7 +838,11 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
     String ledColor = extras.getString(LED_COLOR);
     if (ledColor != null) {
       // Converts parse Int Array from ledColor
-      String[] items = ledColor.replaceAll("\\[", "").replaceAll("\\]", "").split(",");
+      String[] items = ledColor
+        .replaceAll("\\[", "")
+        .replaceAll("\\]", "")
+        .split(",");
+
       int[] results = new int[ items.length ];
       for (int i = 0; i < items.length; i++) {
         try {
@@ -838,7 +867,10 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
     if (priorityStr != null) {
       try {
         Integer priority = Integer.parseInt(priorityStr);
-        if (priority >= NotificationCompat.PRIORITY_MIN && priority <= NotificationCompat.PRIORITY_MAX) {
+        if (
+          priority >= NotificationCompat.PRIORITY_MIN
+            && priority <= NotificationCompat.PRIORITY_MAX
+        ) {
           mBuilder.setPriority(priority);
         } else {
           Log.e(LOG_TAG, "Priority parameter must be between -2 and 2");
