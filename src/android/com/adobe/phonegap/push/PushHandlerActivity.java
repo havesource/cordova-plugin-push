@@ -20,7 +20,7 @@ public class PushHandlerActivity extends Activity implements PushConstants {
    * @see android.app.Activity#onCreate(android.os.Bundle)
    */
   @Override
-  public void onCreate(Bundle savedInstanceState) {
+  public void onCreate (Bundle savedInstanceState) {
     FCMService gcm = new FCMService();
 
     Intent intent = getIntent();
@@ -71,7 +71,7 @@ public class PushHandlerActivity extends Activity implements PushConstants {
    * Takes the pushBundle extras from the intent,
    * and sends it through to the PushPlugin for processing.
    */
-  private boolean processPushBundle(boolean isPushPluginActive, Intent intent) {
+  private boolean processPushBundle (boolean isPushPluginActive, Intent intent) {
     Bundle extras = getIntent().getExtras();
     Bundle remoteInput = null;
 
@@ -99,7 +99,7 @@ public class PushHandlerActivity extends Activity implements PushConstants {
   /**
    * Forces the main activity to re-launch if it's unloaded.
    */
-  private void forceMainActivityReload(boolean startOnBackground) {
+  private void forceMainActivityReload (boolean startOnBackground) {
     PackageManager pm = getPackageManager();
     Intent launchIntent = pm.getLaunchIntentForPackage(getApplicationContext().getPackageName());
 
@@ -118,9 +118,10 @@ public class PushHandlerActivity extends Activity implements PushConstants {
   }
 
   @Override
-  protected void onResume() {
+  protected void onResume () {
     super.onResume();
-    final NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+    final NotificationManager notificationManager = (NotificationManager) this.getSystemService(
+        Context.NOTIFICATION_SERVICE);
     notificationManager.cancelAll();
   }
 }

@@ -10,7 +10,7 @@ public class PushDismissedHandler extends BroadcastReceiver implements PushConst
   private static String LOG_TAG = "Push_DismissedHandler";
 
   @Override
-  public void onReceive(Context context, Intent intent) {
+  public void onReceive (Context context, Intent intent) {
     Bundle extras = intent.getExtras();
     FCMService fcm = new FCMService();
     String action = intent.getAction();

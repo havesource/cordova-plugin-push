@@ -12,7 +12,7 @@ public class BackgroundActionButtonHandler extends BroadcastReceiver implements 
   private static String LOG_TAG = "Push_BGActionButton";
 
   @Override
-  public void onReceive(Context context, Intent intent) {
+  public void onReceive (Context context, Intent intent) {
     Bundle extras = intent.getExtras();
     Log.d(LOG_TAG, "BackgroundActionButtonHandler = " + extras);
 
