@@ -121,7 +121,7 @@ public class PushHandlerActivity extends Activity implements PushConstants {
   protected void onResume () {
     super.onResume();
     final NotificationManager notificationManager = (NotificationManager) this.getSystemService(
-        Context.NOTIFICATION_SERVICE);
+      Context.NOTIFICATION_SERVICE);
     notificationManager.cancelAll();
   }
 }

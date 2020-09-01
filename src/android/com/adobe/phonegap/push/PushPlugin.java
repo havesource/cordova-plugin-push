@@ -63,7 +63,7 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
     // only call on Android O and above
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       final NotificationManager notificationManager = (NotificationManager) cordova.getActivity()
-          .getSystemService(Context.NOTIFICATION_SERVICE);
+        .getSystemService(Context.NOTIFICATION_SERVICE);
       List<NotificationChannel> notificationChannels = notificationManager.getNotificationChannels();
       for (NotificationChannel notificationChannel : notificationChannels) {
         JSONObject channel = new JSONObject();
@@ -80,7 +80,7 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
     // only call on Android O and above
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       final NotificationManager notificationManager = (NotificationManager) cordova.getActivity()
-          .getSystemService(Context.NOTIFICATION_SERVICE);
+        .getSystemService(Context.NOTIFICATION_SERVICE);
       notificationManager.deleteNotificationChannel(channelId);
     }
   }
@@ -90,13 +90,13 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
     // only call on Android O and above
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       final NotificationManager notificationManager = (NotificationManager) cordova.getActivity()
-          .getSystemService(Context.NOTIFICATION_SERVICE);
+        .getSystemService(Context.NOTIFICATION_SERVICE);
 
       String packageName = getApplicationContext().getPackageName();
       NotificationChannel mChannel = new NotificationChannel(
-          channel.getString(CHANNEL_ID),
-          channel.optString(CHANNEL_DESCRIPTION, ""),
-          channel.optInt(CHANNEL_IMPORTANCE, NotificationManager.IMPORTANCE_DEFAULT)
+        channel.getString(CHANNEL_ID),
+        channel.optString(CHANNEL_DESCRIPTION, ""),
+        channel.optInt(CHANNEL_IMPORTANCE, NotificationManager.IMPORTANCE_DEFAULT)
       );
 
       int lightColor = channel.optInt(CHANNEL_LIGHT_COLOR, -1);
@@ -113,8 +113,8 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
 
       String sound = channel.optString(SOUND, "default");
       AudioAttributes audioAttributes = new AudioAttributes.Builder()
-          .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-          .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE).build();
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE).build();
       if (SOUND_RINGTONE.equals(sound)) {
         mChannel.setSound(android.provider.Settings.System.DEFAULT_RINGTONE_URI, audioAttributes);
       } else if (sound != null && sound.isEmpty()) {
@@ -126,8 +126,8 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
         mChannel.setSound(soundUri, audioAttributes);
       } else {
         mChannel.setSound(
-            android.provider.Settings.System.DEFAULT_NOTIFICATION_URI,
-            audioAttributes
+          android.provider.Settings.System.DEFAULT_NOTIFICATION_URI,
+          audioAttributes
         );
       }
 
@@ -156,7 +156,7 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
     // only call on Android O and above
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       final NotificationManager notificationManager = (NotificationManager) cordova.getActivity()
-          .getSystemService(Context.NOTIFICATION_SERVICE);
+        .getSystemService(Context.NOTIFICATION_SERVICE);
       List<NotificationChannel> channels = notificationManager.getNotificationChannels();
 
       for (int i = 0; i < channels.size(); i++) {
@@ -177,9 +177,9 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
 
   @Override
   public boolean execute (
-      final String action,
-      final JSONArray data,
-      final CallbackContext callbackContext
+    final String action,
+    final JSONArray data,
+    final CallbackContext callbackContext
   ) {
     Log.v(LOG_TAG, "execute: action=" + action);
     gWebView = this.webView;
@@ -192,8 +192,8 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
 
           Log.v(LOG_TAG, "execute: data=" + data.toString());
           SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(
-              COM_ADOBE_PHONEGAP_PUSH,
-              Context.MODE_PRIVATE
+            COM_ADOBE_PHONEGAP_PUSH,
+            Context.MODE_PRIVATE
           );
           String token = null;
           String senderID = null;
@@ -297,8 +297,8 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
         public void run () {
           try {
             SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(
-                COM_ADOBE_PHONEGAP_PUSH,
-                Context.MODE_PRIVATE
+              COM_ADOBE_PHONEGAP_PUSH,
+              Context.MODE_PRIVATE
             );
             JSONArray topics = data.optJSONArray(0);
             if (topics != null && !"".equals(registration_id)) {
@@ -333,13 +333,13 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
           JSONObject jo = new JSONObject();
           try {
             Log.d(
-                LOG_TAG,
-                "has permission: " + NotificationManagerCompat.from(getApplicationContext())
-                    .areNotificationsEnabled()
+              LOG_TAG,
+              "has permission: " + NotificationManagerCompat.from(getApplicationContext())
+                .areNotificationsEnabled()
             );
             jo.put(
-                "isEnabled",
-                NotificationManagerCompat.from(getApplicationContext()).areNotificationsEnabled()
+              "isEnabled",
+              NotificationManagerCompat.from(getApplicationContext()).areNotificationsEnabled()
             );
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jo);
             pluginResult.setKeepCallback(true);
@@ -357,8 +357,8 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
           Log.v(LOG_TAG, "setApplicationIconBadgeNumber: data=" + data.toString());
           try {
             setApplicationIconBadgeNumber(
-                getApplicationContext(),
-                data.getJSONObject(0).getInt(BADGE)
+              getApplicationContext(),
+              data.getJSONObject(0).getInt(BADGE)
             );
           } catch (JSONException e) {
             callbackContext.error(e.getMessage());
@@ -519,7 +519,7 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
     }
 
     SharedPreferences.Editor editor = context.getSharedPreferences(BADGE, Context.MODE_PRIVATE)
-        .edit();
+      .edit();
     editor.putInt(BADGE, Math.max(badgeCount, 0));
     editor.apply();
   }
@@ -549,8 +549,8 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
     gWebView = null;
 
     SharedPreferences prefs = getApplicationContext().getSharedPreferences(
-        COM_ADOBE_PHONEGAP_PUSH,
-        Context.MODE_PRIVATE
+      COM_ADOBE_PHONEGAP_PUSH,
+      Context.MODE_PRIVATE
     );
     if (prefs.getBoolean(CLEAR_NOTIFICATIONS, true)) {
       clearAllNotifications();
@@ -559,15 +559,15 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
 
   private void clearAllNotifications () {
     final NotificationManager notificationManager = (NotificationManager) cordova.getActivity()
-        .getSystemService(Context.NOTIFICATION_SERVICE);
+      .getSystemService(Context.NOTIFICATION_SERVICE);
     notificationManager.cancelAll();
   }
 
   private void clearNotification (int id) {
     final NotificationManager notificationManager = (NotificationManager) cordova.getActivity()
-        .getSystemService(Context.NOTIFICATION_SERVICE);
+      .getSystemService(Context.NOTIFICATION_SERVICE);
     String appName = (String) this.cordova.getActivity().getPackageManager()
-        .getApplicationLabel(this.cordova.getActivity().getApplicationInfo());
+      .getApplicationLabel(this.cordova.getActivity().getApplicationInfo());
     notificationManager.cancel(appName, id);
   }
 
