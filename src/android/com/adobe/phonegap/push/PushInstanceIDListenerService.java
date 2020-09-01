@@ -22,17 +22,17 @@ public class PushInstanceIDListenerService extends FirebaseMessagingService impl
     super.onNewToken(s);
 
     FirebaseInstanceId.getInstance().getInstanceId()
-      .addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
-      @Override
-      public void onSuccess(InstanceIdResult instanceIdResult) {
-        // Get updated InstanceID token.
-        String refreshedToken = instanceIdResult.getToken();
+            .addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+              @Override
+              public void onSuccess(InstanceIdResult instanceIdResult) {
+                // Get updated InstanceID token.
+                String refreshedToken = instanceIdResult.getToken();
 
-        Log.d(LOG_TAG, "Refreshed token: " + refreshedToken);
+                Log.d(LOG_TAG, "Refreshed token: " + refreshedToken);
 
-        // TODO: Implement this method to send any registration to your app's servers.
-        //sendRegistrationToServer(refreshedToken);
-      }
-    });
+                // TODO: Implement this method to send any registration to your app's servers.
+                //sendRegistrationToServer(refreshedToken);
+              }
+            });
   }
 }
