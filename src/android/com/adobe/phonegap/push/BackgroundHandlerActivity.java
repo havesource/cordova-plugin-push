@@ -41,8 +41,8 @@ public class BackgroundHandlerActivity extends Activity implements PushConstants
     }
 
     boolean isPushPluginActive = PushPlugin.isActive();
-    boolean inline = processPushBundle(isPushPluginActive, intent);
 
+    processPushBundle(isPushPluginActive, intent);
     finish();
 
     if (!dismissed) {
