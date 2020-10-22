@@ -7,7 +7,6 @@
     - [Co-existing with Facebook Plugin](#co-existing-with-facebook-plugin)
     - [Co-existing with plugins that use Firebase](#co-existing-with-plugins-that-use-firebase)
     - [Common errors](#common-errors)
-      - [minSdkVersion === 14](#minsdkversion--14)
       - [Multidex](#multidex)
       - [More than one library with package name 'com.google.android.gms'](#more-than-one-library-with-package-name-comgoogleandroidgms)
   - [Browser details](#browser-details)
@@ -133,33 +132,6 @@ _Note:_ No changes on the back-end side are needed: [even though recommended](ht
 _Note:_ The `FCM_VERSION` must be greater than or equal to 17.1.0 and less than or equal to 18.0.0.
 
 ### Common errors
-
-#### minSdkVersion === 14
-
-If you have an issue compiling the app and you are getting an error similar to this:
-
-```
-* What went wrong:
-Execution failed for task ':processDebugManifest'.
-> Manifest merger failed : uses-sdk:minSdkVersion 14 cannot be smaller than version 15 declared in library .../platforms/android/build/intermediates/exploded-aar/com.facebook.android/facebook-android-sdk/4.6.0/AndroidManifest.xml
-  	Suggestion: use tools:overrideLibrary="com.facebook" to force usage
-```
-
-Then you can add the following entry into your config.xml file in the android platform tag:
-
-```xml
-<platform name="android">
-    <preference name="android-minSdkVersion" value="15"/>
- </platform>
-```
-
-or compile your project using the following command, if the solution above doesn't work for you. Basically add `-- --minSdkVersion=15` to the end of the command line (mind the extra `--`, it's needed):
-
-```bash
-cordova compile android -- --minSdkVersion=15
-cordova build android -- --minSdkVersion=15
-cordova run android -- --minSdkVersion=15
-```
 
 #### Multidex
 
