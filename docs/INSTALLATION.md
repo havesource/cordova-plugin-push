@@ -160,7 +160,7 @@ Common plugins to suffer from this outdated dependency management are plugins re
 
 #### More than one library with package name 'com.google.android.gms'
 
-When some other packages include `cordova-google-play-services` as a dependency, such as is the case with the `cordova-admob` and `cordova-plugin-analytics` plugins, it is impossible to also add the phonegap-plugin-push, for the following error will rise during the build process:
+When some other packages include `cordova-google-play-services` as a dependency, such as is the case with the `cordova-admob` and `cordova-plugin-analytics` plugins, it is impossible to also add the `@havesource/cordova-plugin-push`, for the following error will rise during the build process:
 
 ```
 :processDebugResources FAILED
