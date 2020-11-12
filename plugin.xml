@@ -91,6 +91,7 @@
   </platform>
 
   <platform name="ios">
+    <preference name="IOS_FIREBASE_MESSAGING_VERSION" default="~> 6.32.2"/>
     <config-file target="config.xml" parent="/*">
       <feature name="PushNotification">
         <param name="ios-package" value="PushPlugin"/>
@@ -124,7 +125,7 @@
         <source url="https://cdn.cocoapods.org/"/>
       </config>
       <pods>
-        <pod name="Firebase/Messaging" spec="~> 6.32.2" />
+        <pod name="Firebase/Messaging" spec="$IOS_FIREBASE_MESSAGING_VERSION" />
       </pods>
     </podspec>
   </platform>
