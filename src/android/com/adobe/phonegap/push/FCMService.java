@@ -432,7 +432,7 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
         if (channels.size() == 1) {
           channelID = channels.get(0).getId();
         } else {
-          channelID = extras.getString(ANDROID_CHANNEL_ID, DEFAULT_CHANNEL_ID);
+          channelID = DEFAULT_CHANNEL_ID;
         }
         Log.d(LOG_TAG, "Using channel ID = " + channelID);
         mBuilder = new NotificationCompat.Builder(context, channelID);
