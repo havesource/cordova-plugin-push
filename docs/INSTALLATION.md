@@ -25,6 +25,7 @@
 | Plugin version | Cordova CLI | Cordova Android | Cordova iOS | CocoaPods |
 | -------------- | ----------- | --------------- | ----------- | --------- |
 | 1.0.0          | 10.0.0      | 8.0.0           | 5.1.1       | 1.8.0     |
+| 2.0.0          | 10.0.0      | 8.0.0           | 6.0.0       | 1.8.0     |
 
 To install from the command line:
 
@@ -199,8 +200,8 @@ Firefox 46+
 
 **Cordova:**
 
-- `cordova-cli`: `9.0.0` or greater. Preferably `10.x`
-- `cordova-ios`: `5.1.1` or greater. Preferably `6.1.x`
+- `cordova-cli`: `10.0.0` or greater.
+- `cordova-ios`: `6.0.0` or greater. Preferably `6.1.x`
 
 ### Bitcode
 
@@ -210,11 +211,11 @@ If you are running into a problem where the linker is complaining about bit code
 ld: '<file.o>' does not contain bitcode. You must rebuild it with bitcode enabled (Xcode setting ENABLE_BITCODE), obtain an updated library from the vendor, or disable bitcode for this target. for architecture arm64 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 ```
 
-You have two options. The first is to [disable bitcode as per this StackOverflow answer](http://stackoverflow.com/a/32466484/41679) or [upgrade to cordova-ios 5.1.1 or greater](https://cordova.apache.org/announcements/2019/12/02/cordova-ios-release-5.1.1.html).
+You have two options. The first is to [disable bitcode as per this StackOverflow answer](http://stackoverflow.com/a/32466484/41679) or [upgrade to cordova-ios 6.0.0 or greater](https://cordova.apache.org/announcements/2020/06/01/cordova-ios-release-6.0.0.html).
 
 ```bash
 cordova platform rm ios
-cordova platform add ios@5.1.1
+cordova platform add ios@6.0.0
 ```
 
 ### CocoaPods
