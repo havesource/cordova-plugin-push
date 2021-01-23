@@ -14,8 +14,8 @@
 
   <engines>
     <engine name="cordova" version=">=10.0.0"/>
-    <engine name="cordova-android" version=">=8.0.0"/>
-    <engine name="cordova-ios" version=">=5.1.1"/>
+    <engine name="cordova-android" version=">=9.0.0"/>
+    <engine name="cordova-ios" version=">=6.1.1"/>
   </engines>
 
   <platform name="android">
@@ -91,6 +91,7 @@
   </platform>
 
   <platform name="ios">
+    <preference name="IOS_FIREBASE_MESSAGING_VERSION" default="~> 6.32.2"/>
     <config-file target="config.xml" parent="/*">
       <feature name="PushNotification">
         <param name="ios-package" value="PushPlugin"/>
@@ -120,9 +121,11 @@
 
     <podspec>
       <!-- keep empty `config` object to prevent `cordova-common` install issues.-->
-      <config></config>
-      <pods use-frameworks="true">
-        <pod name="Firebase/Messaging" spec="~> 6.32.2" />
+      <config>
+        <source url="https://cdn.cocoapods.org/"/>
+      </config>
+      <pods>
+        <pod name="Firebase/Messaging" spec="$IOS_FIREBASE_MESSAGING_VERSION" />
       </pods>
     </podspec>
   </platform>
