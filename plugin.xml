@@ -62,10 +62,10 @@
       <preference name="GradlePluginGoogleServicesVersion" value="4.2.0" />
     </config-file>
 
-    <preference name="ANDROID_SUPPORT_V13_VERSION" default="28.0.0"/>
+    <preference name="ANDROIDX_CORE_VERSION" default="1.3.+"/>
     <preference name="FCM_VERSION" default="18.+"/>
 
-    <framework src="com.android.support:support-v13:$ANDROID_SUPPORT_V13_VERSION"/>
+    <framework src="androidx.core:core:$ANDROIDX_CORE_VERSION" />
     <framework src="me.leolin:ShortcutBadger:1.1.17@aar"/>
     <framework src="com.google.firebase:firebase-messaging:$FCM_VERSION"/>
 
