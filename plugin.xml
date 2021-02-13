@@ -58,6 +58,7 @@
     </config-file>
 
     <config-file target="config.xml" parent="/*">
+      <preference name="AndroidXEnabled" value="true" />
       <preference name="GradlePluginGoogleServicesEnabled" value="true" />
       <preference name="GradlePluginGoogleServicesVersion" value="4.2.0" />
     </config-file>
