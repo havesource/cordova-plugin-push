@@ -78,6 +78,19 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
     [pushHandler didFailToRegisterForRemoteNotificationsWithError:error];
 }
 
+- (BOOL)isSilentNotification:(NSDictionary *)userInfo {
+    // do some convoluted logic to find out if this should be a silent push.
+    BOOL silent = NO;
+    id aps = [userInfo objectForKey:@"aps"];
+    id contentAvailable = [aps objectForKey:@"content-available"];
+    if ([contentAvailable isKindOfClass:[NSString class]] && [contentAvailable isEqualToString:@"1"]) {
+        silent = YES;
+    } else if ([contentAvailable isKindOfClass:[NSNumber class]]) {
+        silent = [contentAvailable integerValue] == 1;
+    }
+    return silent;
+}
+
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     NSLog(@"didReceiveNotification with fetchCompletionHandler");
 
@@ -85,18 +98,7 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
     if (application.applicationState != UIApplicationStateActive) {
 
         NSLog(@"app in-active");
-
-        // do some convoluted logic to find out if this should be a silent push.
-        long silent = 0;
-        id aps = [userInfo objectForKey:@"aps"];
-        id contentAvailable = [aps objectForKey:@"content-available"];
-        if ([contentAvailable isKindOfClass:[NSString class]] && [contentAvailable isEqualToString:@"1"]) {
-            silent = 1;
-        } else if ([contentAvailable isKindOfClass:[NSNumber class]]) {
-            silent = [contentAvailable integerValue];
-        }
-
-        if (silent == 1) {
+        if ([self isSilentNotification:userInfo]) {
             NSLog(@"this should be a silent push");
             void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -229,6 +231,12 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
         }
         case UIApplicationStateBackground:
         {
+            if (![self isSilentNotification:userInfo]) {
+                self.launchNotification = response.notification.request.content.userInfo;
+                self.coldstart = [NSNumber numberWithBool:NO];
+                break;
+            }
+
             void (^safeHandler)(void) = ^(void){
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completionHandler();
