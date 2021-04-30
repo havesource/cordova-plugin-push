@@ -72,7 +72,16 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       final NotificationManager notificationManager = (NotificationManager) cordova.getActivity()
         .getSystemService(Context.NOTIFICATION_SERVICE);
-      List<NotificationChannel> notificationChannels = notificationManager.getNotificationChannels();
+
+      List<NotificationChannel> notificationChannels = new ArrayList<>();
+
+      try {
+        notificationChannels = notificationManager.getNotificationChannels();
+      } catch (NullPointerException e) {
+        // Catch issue caused by "Attempt to invoke virtual method 'boolean android.app.NotificationChannel.isDeleted()' on a null object reference"
+        Log.e(LOG_TAG, "execute: Null Pointer Exception " + e.getMessage());
+      }
+
       for (NotificationChannel notificationChannel : notificationChannels) {
         JSONObject channel = new JSONObject();
         channel.put(CHANNEL_ID, notificationChannel.getId());
