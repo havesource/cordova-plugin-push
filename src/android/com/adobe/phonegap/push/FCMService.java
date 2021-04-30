@@ -427,7 +427,15 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
       if (channelID != null) {
         mBuilder = new NotificationCompat.Builder(context, channelID);
       } else {
-        List<NotificationChannel> channels = mNotificationManager.getNotificationChannels();
+
+        List<NotificationChannel> channels = new ArrayList<>();
+
+        try {
+          channels = mNotificationManager.getNotificationChannels();
+        } catch (NullPointerException e) {
+          // Catch issue caused by "Attempt to invoke virtual method 'boolean android.app.NotificationChannel.isDeleted()' on a null object reference"
+          Log.e(LOG_TAG, "execute: Null Pointer Exception " + e.getMessage());
+        }
 
         if (channels.size() == 1) {
           channelID = channels.get(0).getId();
