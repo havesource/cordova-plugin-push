@@ -10,7 +10,7 @@ There are multiple ways to contribute:
 * Improve Documentation
 * Contribute Code
 
-## Setup for Contributing Codde 
+## Setup for Contributing Code 
 
 Before we can start submitting code contributions, we setup locally a workspace where we can work on the code.
 
