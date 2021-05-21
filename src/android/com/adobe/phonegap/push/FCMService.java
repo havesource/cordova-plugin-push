@@ -87,7 +87,7 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
       extras.putString(entry.getKey(), entry.getValue());
     }
 
-    if (extras != null && isAvailableSender(from)) {
+    if (extras != null && from != null && isAvailableSender(from)) {
       Context applicationContext = getApplicationContext();
 
       SharedPreferences prefs = applicationContext.getSharedPreferences(

@@ -25,16 +25,16 @@ public class PushHandlerActivity extends Activity implements PushConstants {
 
     Intent intent = getIntent();
 
-    int notId = intent.getExtras().getInt(NOT_ID, 0);
+    int notId = intent.getIntExtra(NOT_ID, 0);
     Log.d(LOG_TAG, "not id = " + notId);
     gcm.setNotification(notId, "");
     super.onCreate(savedInstanceState);
     Log.v(LOG_TAG, "onCreate");
-    String callback = getIntent().getExtras().getString("callback");
+    String callback = intent.getStringExtra(CALLBACK);
     Log.d(LOG_TAG, "callback = " + callback);
-    boolean foreground = getIntent().getExtras().getBoolean("foreground", true);
-    boolean startOnBackground = getIntent().getExtras().getBoolean(START_IN_BACKGROUND, false);
-    boolean dismissed = getIntent().getExtras().getBoolean(DISMISSED, false);
+    boolean foreground = intent.getBooleanExtra(FOREGROUND, true);
+    boolean startOnBackground = intent.getBooleanExtra(START_IN_BACKGROUND, false);
+    boolean dismissed = intent.getBooleanExtra(DISMISSED, false);
     Log.d(LOG_TAG, "dismissed = " + dismissed);
 
     if (!startOnBackground) {
