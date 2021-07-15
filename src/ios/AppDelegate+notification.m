@@ -197,7 +197,13 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
     pushHandler.isInline = YES;
     [pushHandler notificationReceived];
 
-    completionHandler(UNNotificationPresentationOptionNone);
+    UNNotificationPresentationOptions presentationOption = UNNotificationPresentationOptionNone;
+    if (@available(iOS 10, *)) {
+        if(pushHandler.forceShow) {
+            presentationOption = UNNotificationPresentationOptionAlert;
+        }
+    }
+    completionHandler(presentationOption);
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center

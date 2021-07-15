@@ -31,7 +31,7 @@
 
 @import Firebase;
 @import FirebaseCore;
-@import FirebaseInstanceID;
+// @import FirebaseInstanceID;
 @import FirebaseMessaging;
 
 @implementation PushPlugin : CDVPlugin
@@ -44,6 +44,7 @@
 @synthesize notificationCallbackId;
 @synthesize callback;
 @synthesize clearBadge;
+@synthesize forceShow;
 @synthesize handlerObj;
 
 @synthesize usesFCM;
@@ -55,15 +56,15 @@
 
 -(void)initRegistration;
 {
-    [[FIRInstanceID instanceID] instanceIDWithHandler:^(FIRInstanceIDResult * _Nullable result, NSError * _Nullable error) {
+    [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
         if (error != nil) {
-            NSLog(@"Error fetching remote instance ID: %@", error);
+            NSLog(@"Error getting FCM registration token: %@", error);
         } else {
-            NSLog(@"Remote instance ID (FCM Registration) Token: %@", result.token);
+            NSLog(@"FCM registration token: %@", token);
 
-            [self setFcmRegistrationToken: result.token];
+            [self setFcmRegistrationToken: token];
 
-            NSString* message = [NSString stringWithFormat:@"Remote InstanceID token: %@", result.token];
+            NSString* message = [NSString stringWithFormat:@"Remote InstanceID token: %@", token];
 
             id topics = [self fcmTopics];
             if (topics != nil) {
@@ -74,9 +75,31 @@
                 }
             }
 
-            [self registerWithToken:result.token];
+            [self registerWithToken: token];
         }
     }];
+    // [[FIRInstanceID instanceID] instanceIDWithHandler:^(FIRInstanceIDResult * _Nullable result, NSError * _Nullable error) {
+    //     if (error != nil) {
+    //         NSLog(@"Error fetching remote instance ID: %@", error);
+    //     } else {
+    //         NSLog(@"Remote instance ID (FCM Registration) Token: %@", result.token);
+
+    //         [self setFcmRegistrationToken: result.token];
+
+    //         NSString* message = [NSString stringWithFormat:@"Remote InstanceID token: %@", result.token];
+
+    //         id topics = [self fcmTopics];
+    //         if (topics != nil) {
+    //             for (NSString *topic in topics) {
+    //                 NSLog(@"subscribe to topic: %@", topic);
+    //                 id pubSub = [FIRMessaging messaging];
+    //                 [pubSub subscribeToTopic:topic];
+    //             }
+    //         }
+
+    //         [self registerWithToken:result.token];
+    //     }
+    // }];
 }
 
 //  FCM refresh token
@@ -177,21 +200,21 @@
         }];
     } else {
         NSLog(@"Push Plugin VoIP missing or false");
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self selector:@selector(onTokenRefresh)
-         name:kFIRInstanceIDTokenRefreshNotification object:nil];
+        // [[NSNotificationCenter defaultCenter]
+        //  addObserver:self selector:@selector(onTokenRefresh)
+        //  name:kFIRInstanceIDTokenRefreshNotification object:nil];
 
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self selector:@selector(sendDataMessageFailure:)
-         name:FIRMessagingSendErrorNotification object:nil];
+        // [[NSNotificationCenter defaultCenter]
+        //  addObserver:self selector:@selector(sendDataMessageFailure:)
+        //  name:FIRMessagingSendErrorNotification object:nil];
 
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self selector:@selector(sendDataMessageSuccess:)
-         name:FIRMessagingSendSuccessNotification object:nil];
+        // [[NSNotificationCenter defaultCenter]
+        //  addObserver:self selector:@selector(sendDataMessageSuccess:)
+        //  name:FIRMessagingSendSuccessNotification object:nil];
 
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self selector:@selector(didDeleteMessagesOnServer)
-         name:FIRMessagingMessagesDeletedNotification object:nil];
+        // [[NSNotificationCenter defaultCenter]
+        //  addObserver:self selector:@selector(didDeleteMessagesOnServer)
+        //  name:FIRMessagingMessagesDeletedNotification object:nil];
 
         [self.commandDelegate runInBackground:^ {
             NSLog(@"Push Plugin register called");
@@ -207,6 +230,7 @@
             id alertArg = [iosOptions objectForKey:@"alert"];
             id criticalArg = [iosOptions objectForKey:@"critical"];
             id clearBadgeArg = [iosOptions objectForKey:@"clearBadge"];
+            id forceShowArg = [iosOptions objectForKey:@"forceShow"];
 
             if (([badgeArg isKindOfClass:[NSString class]] && [badgeArg isEqualToString:@"true"]) || [badgeArg boolValue])
             {
@@ -240,6 +264,14 @@
                 [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
             }
             NSLog(@"PushPlugin.register: clear badge is set to %d", clearBadge);
+
+            if (forceShowArg == nil || ([forceShowArg isKindOfClass:[NSString class]] && [forceShowArg isEqualToString:@"false"]) || ![forceShowArg boolValue]) {
+              NSLog(@"PushPlugin.register: setting forceShow to false");
+              forceShow = NO;
+            } else {
+              NSLog(@"PushPlugin.register: setting forceShow to true");
+              forceShow = YES;
+            }
 
             isInline = NO;
 
