@@ -67,7 +67,7 @@
     <preference name="FCM_VERSION" default="18.+"/>
 
     <framework src="androidx.core:core:$ANDROIDX_CORE_VERSION" />
-    <framework src="me.leolin:ShortcutBadger:1.1.17@aar"/>
+    <framework src="me.leolin:ShortcutBadger:1.1.22@aar"/>
     <framework src="com.google.firebase:firebase-messaging:$FCM_VERSION"/>
 
     <source-file src="src/android/com/adobe/phonegap/push/FCMService.java" target-dir="src/com/adobe/phonegap/push/"/>
