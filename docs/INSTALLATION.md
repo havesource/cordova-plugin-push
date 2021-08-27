@@ -2,6 +2,7 @@
 
 - [Installation](#installation)
   - [Installation Requirements](#installation-requirements)
+    - [Cordova Android 9.x & 8.x Specifics](#cordova-android-9x--8x-specifics)
     - [Cordova Android 8.x Specifics](#cordova-android-8x-specifics)
   - [Android details](#android-details)
     - [Co-existing with Facebook Plugin](#co-existing-with-facebook-plugin)
@@ -78,11 +79,27 @@ By default, on iOS, the plugin will register with APNS. If you want to use FCM o
 <plugin name="@havesource/cordova-plugin-push" spec="3.0.0" />
 ```
 
+### Cordova Android 9.x & 8.x Specifics
+
+**Using AndroidX Library:**
+
+As of version **3.0.0**, this plugin has migrated from Android Support Library to AndroidX. Since Cordova-Android 8.x and 9.x does not use the AndroidX library, you will need to install the [`cordova-plugin-androidx-adapter`](https://www.npmjs.com/package/cordova-plugin-androidx-adapter) plugin.
+
+This plugin will migrate any Android Support Library references to AndroidX. 
+
+Please note that this will migrate references in other plugins as well.
+
+If you are using **Cordova Android 8.x** please continue reading in the **Cordova Android 8.x Specifics** section.
+
 ### Cordova Android 8.x Specifics
 
-You will need to install the `cordova-support-google-services` plugin. This plugin enables the Google APIs and Firebase services for your Android application.
+**Adding Google Services Gradle Plugin Support:**
 
-If your application uses many plugins and references over 64K methods, you will need to enable multidex. If multidex is not enabled, your build should fail and you should see the following error:
+You will need to install the [`cordova-support-google-services`](https://www.npmjs.com/package/cordova-support-google-services) plugin. This plugin enables the Google APIs and Firebase services for your Android application.
+
+**Adding Multidex Support:**
+
+If your application uses many plugins and references over 64K methods, you will need to enable multidex. If multidex is disabled, your build might fail and display the following error:
 
 ```log
 trouble writing output:
@@ -90,9 +107,11 @@ Too many field references: 131000; max is 65536.
 You may try using --multi-dex option.
 ```
 
-To enable multidex, use the  `phonegap-plugin-multidex` plugin.
+To enable multidex, use the  [`phonegap-plugin-multidex`](https://www.npmjs.com/package/phonegap-plugin-multidex) plugin.
 
-These two plugins are only necessary for the Cordova Android 8.x releases.
+**AndroidX Support:**
+
+If you are using version **3.0.0** of this plugin with Cordova-Android 8.x, you will need to install the [`cordova-plugin-androidx`](https://www.npmjs.com/package/cordova-plugin-androidx) plugin. This plugin will enable AndroidX.
 
 ## Android details
 
