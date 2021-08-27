@@ -26,6 +26,7 @@
 | -------------- | ----------- | --------------- | ----------- | --------- |
 | 1.0.0          | 10.0.0      | 8.0.0           | 5.1.1       | 1.8.0     |
 | 2.0.0          | 10.0.0      | 8.0.0           | 6.0.0       | 1.8.0     |
+| 3.0.0          | 10.0.0      | 8.0.0           | 6.0.0       | 1.8.0     |
 
 To install from the command line:
 
@@ -74,7 +75,7 @@ By default, on iOS, the plugin will register with APNS. If you want to use FCM o
 > Note: You need to specify the SENDER_ID variable in your config.xml if you plan on installing/restoring plugins using the prepare method. The prepare method will skip installing the plugin otherwise.
 
 ```xml
-<plugin name="@havesource/cordova-plugin-push" spec="2.0.0" />
+<plugin name="@havesource/cordova-plugin-push" spec="3.0.0" />
 ```
 
 ### Cordova Android 8.x Specifics
