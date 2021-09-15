@@ -1,5 +1,7 @@
 # Cordova Plugin Push
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/422c67b5e70c4a0eadae7b9fc794d3c1)](https://app.codacy.com/gh/havesource/cordova-plugin-push?utm_source=github.com&utm_medium=referral&utm_content=havesource/cordova-plugin-push&utm_campaign=Badge_Grade_Settings)
+
 > Register and receive push notifications
 
 # What is this?
