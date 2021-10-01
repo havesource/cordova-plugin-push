@@ -1,6 +1,7 @@
 package com.adobe.phonegap.push;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -361,9 +362,6 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
     Log.d(LOG_TAG, "forceStart =[" + forceStart + "]");
 
     if ((message != null && message.length() != 0) || (title != null && title.length() != 0)) {
-
-      Log.d(LOG_TAG, "create notification");
-
       if (title == null || title.isEmpty()) {
         extras.putString(TITLE, getAppName(this));
       }
@@ -387,13 +385,16 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
   }
 
   public void createNotification (Context context, Bundle extras) {
+    Log.d(LOG_TAG, "create notification");
     NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     String appName = getAppName(this);
     String packageName = context.getPackageName();
     Resources resources = context.getResources();
-
+    boolean fullScreenIntent = extras.getString(FULL_SCREEN_NOTIFICATION, "").equals("1");
+    Log.d(LOG_TAG, "fullScreenIntent = " + fullScreenIntent);
     int notId = parseInt(NOT_ID, extras);
-    Intent notificationIntent = new Intent(this, PushHandlerActivity.class);
+    Class<? extends Activity> activityClass = fullScreenIntent ? FullScreenActivity.class : PushHandlerActivity.class;
+    Intent notificationIntent = new Intent(this, activityClass);
     notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     notificationIntent.putExtra(PUSH_BUNDLE, extras);
     notificationIntent.putExtra(NOT_ID, notId);
@@ -434,10 +435,9 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
         } else {
           channelID = DEFAULT_CHANNEL_ID;
         }
-        Log.d(LOG_TAG, "Using channel ID = " + channelID);
         mBuilder = new NotificationCompat.Builder(context, channelID);
       }
-
+      Log.d(LOG_TAG, "Using channel ID = " + channelID);
     } else {
       mBuilder = new NotificationCompat.Builder(context);
     }
@@ -448,6 +448,14 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
       .setContentIntent(contentIntent)
       .setDeleteIntent(deleteIntent)
       .setAutoCancel(true);
+
+    if (fullScreenIntent) {
+        mBuilder
+            .setFullScreenIntent(contentIntent, true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH);
+    } else {
+        mBuilder.setContentIntent(contentIntent);
+    }
 
     SharedPreferences prefs = context.getSharedPreferences(
       PushPlugin.COM_ADOBE_PHONEGAP_PUSH,

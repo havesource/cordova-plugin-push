@@ -103,4 +103,5 @@ public interface PushConstants {
   public static final String LIST_CHANNELS = "listChannels";
   public static final String CLEAR_NOTIFICATION = "clearNotification";
   public static final String MESSAGE_ID = "google.message_id";
+  public static final String FULL_SCREEN_NOTIFICATION = "full-screen-notification";
 }
