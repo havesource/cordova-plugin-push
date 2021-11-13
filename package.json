@@ -28,7 +28,7 @@
     "@babel/core": "^7.15.5",
     "@babel/eslint-parser": "^7.15.4",
     "@babel/preset-env": "^7.15.6",
-    "@cordova/eslint-config": "^3.0.0",
+    "@cordova/eslint-config": "^4.0.0",
     "babel-plugin-add-header-comment": "^1.0.3",
     "fs-extra": "^10.0.0",
     "jasmine": "^3.9.0",
