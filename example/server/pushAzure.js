@@ -3,11 +3,11 @@
 ** TodoItem product
 ** https://azure.microsoft.com/en-us/documentation/articles/app-service-mobile-cordova-get-started/
 */
-var azureMobileApps = require('azure-mobile-apps');
-var logger = require('azure-mobile-apps/src/logger');
+const azureMobileApps = require('azure-mobile-apps');
+const logger = require('azure-mobile-apps/src/logger');
 
 // Create a new table definition
-var table = azureMobileApps.table();
+const table = azureMobileApps.table();
 
 // In the TodoItem product, sends a push notification
 // when a new item inserted into the table.
@@ -19,7 +19,7 @@ table.insert(function (context) {
   // Define the push notification template payload.
   // Requires template specified in the client app. See
   // https://azure.microsoft.com/en-us/documentation/articles/app-service-mobile-cordova-get-started-push/
-  var payload = '{"message": "' + context.item.text + '" }';
+  const payload = '{"message": "' + context.item.text + '" }';
 
   // Execute the insert.  The insert returns the results as a Promise,
   // Do the push as a post-execute action within the promise flow.
