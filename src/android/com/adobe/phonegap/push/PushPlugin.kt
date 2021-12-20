@@ -25,6 +25,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.util.*
+import com.google.firebase.installations.FirebaseInstallations
 
 /**
  * Cordova Plugin Push
@@ -462,7 +463,16 @@ class PushPlugin : CordovaPlugin() {
         Log.v(TAG, formatLogMessage("senderID=$senderID"))
 
         try {
-          token = FirebaseMessaging.getInstance().getToken();
+        FirebaseInstallations.getInstance().getToken(/* forceRefresh */ true)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    token = task.result?.token
+                    Log.d("Installations", "Installation auth token: " + task.result?.token)
+                } else {
+                    Log.e("Installations", "Unable to get Installation auth token")
+                }
+            }
+          // token = FirebaseMessaging.getInstance().getToken();
         } catch (e: IllegalStateException) {
           Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
         }
