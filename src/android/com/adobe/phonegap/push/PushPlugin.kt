@@ -462,7 +462,7 @@ class PushPlugin : CordovaPlugin() {
         Log.v(TAG, formatLogMessage("senderID=$senderID"))
 
         try {
-          token = FirebaseMessaging.getToken();
+          token = FirebaseMessaging.getInstance().getToken();
         } catch (e: IllegalStateException) {
           Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
         }
