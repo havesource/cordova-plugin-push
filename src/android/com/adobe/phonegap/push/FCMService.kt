@@ -600,7 +600,7 @@ class FCMService : FirebaseMessagingService() {
         NotificationCompat.Builder(context, channelID)
       }
     } else {
-      return NotificationCompat.Builder(context)
+      return NotificationCompat.Builder(context, "channel_id")
     }
   }
 
@@ -1163,7 +1163,7 @@ class FCMService : FirebaseMessagingService() {
   }
 
   private fun fromHtml(source: String?): Spanned? {
-    return if (source != null) Html.fromHtml(source) else null
+    return if (source != null) HtmlCompat.fromHtml(source, HtmlCompat.FROM_HTML_MODE_LEGACY) else null;
   }
 
   private fun isAvailableSender(from: String?): Boolean {
