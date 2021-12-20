@@ -25,7 +25,6 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.util.*
-import com.google.firebase.installations.FirebaseInstallations
 
 /**
  * Cordova Plugin Push
