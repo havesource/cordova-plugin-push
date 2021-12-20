@@ -34,6 +34,7 @@ import java.net.URL
 import java.security.SecureRandom
 import java.util.*
 import androidx.core.text.HtmlCompat
+import androidx.core.app.NotificationCompat.WearableExtender;
 
 /**
  * Firebase Cloud Messaging Service Class
