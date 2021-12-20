@@ -33,6 +33,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.security.SecureRandom
 import java.util.*
+import androidx.core.text.HtmlCompat
 
 /**
  * Firebase Cloud Messaging Service Class
