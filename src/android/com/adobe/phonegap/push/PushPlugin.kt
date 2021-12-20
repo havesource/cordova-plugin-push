@@ -463,16 +463,7 @@ class PushPlugin : CordovaPlugin() {
         Log.v(TAG, formatLogMessage("senderID=$senderID"))
 
         try {
-        FirebaseInstallations.getInstance().getToken(/* forceRefresh */ true)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    token = task.result?.token
-                    Log.d("Installations", "Installation auth token: " + task.result?.token)
-                } else {
-                    Log.e("Installations", "Unable to get Installation auth token")
-                }
-            }
-          // token = FirebaseMessaging.getInstance().getToken();
+           token = FirebaseInstanceId.getInstance().token
         } catch (e: IllegalStateException) {
           Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
         }
