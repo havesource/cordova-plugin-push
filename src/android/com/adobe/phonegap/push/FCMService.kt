@@ -28,7 +28,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
-import java.io.NullPointerException
+import java.lang.java.lang.NullPointerException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -575,8 +575,8 @@ class FCMService : FirebaseMessagingService() {
      */
     createActions(extras, mBuilder, notId)
     mNotificationManager.notify(appName, notId, mBuilder.build())
-    } catch (NullPointerException e) {
-    Log.e(TAG, "execute: Null Pointer Exception " + e.getMessage());
+    } catch (e: NullPointerException) {
+    Log.e(TAG, "execute: Null Pointer Exception", e.localizedMessage);
     }
   }
 
