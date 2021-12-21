@@ -466,24 +466,22 @@ class PushPlugin : CordovaPlugin() {
 
         try {
            // token = FirebaseInstanceId.getInstance().token
-           FirebaseInstanceId.getInstance().getInstanceId()
-                                   .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                   @Override
-                   public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                       if (!task.isSuccessful()) {
-                           Log.w(TAG, "getInstanceId failed", task.getException());
-                           return;
+           FirebaseApp.getInstance()
+                   FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
+                       if(task.isSuccessful){
+                           val result = task.result
+                           if (result != null) {
+                               // Get new Instance ID token
+                                token = result!!.token
+                           } else {
+                               token = null
+                               Log.d("token", "Could not retrieve token")
+                           }
+                       } else {
+                           token = null
+                           Log.d("token", "Could not retrieve token")
                        }
-
-                       // Get new Instance ID token
-                        token = task.getResult().getToken();
-
-                       // Log and toast
-                     //  String msg = getString(R.string.msg_token_fmt, token);
-                       Log.d(TAG, msg);
-                    //   Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
                    }
-               });
         } catch (e: IllegalStateException) {
           Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
         }
