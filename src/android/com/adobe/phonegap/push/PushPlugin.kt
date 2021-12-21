@@ -473,7 +473,7 @@ class PushPlugin : CordovaPlugin() {
                            val result = task.result
                            if (result != null) {
                                // Get new Instance ID token
-                                token = result!!.token
+                                token = result.token
                            } else {
                                token = null
                                Log.d("token", "Could not retrieve token")
