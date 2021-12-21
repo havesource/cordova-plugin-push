@@ -25,6 +25,9 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.util.*
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 /**
  * Cordova Plugin Push
@@ -462,7 +465,25 @@ class PushPlugin : CordovaPlugin() {
         Log.v(TAG, formatLogMessage("senderID=$senderID"))
 
         try {
-           token = FirebaseInstanceId.getInstance().token
+           // token = FirebaseInstanceId.getInstance().token
+           FirebaseInstanceId.getInstance().getInstanceId()
+                                   .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                   @Override
+                   public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                       if (!task.isSuccessful()) {
+                           Log.w(TAG, "getInstanceId failed", task.getException());
+                           return;
+                       }
+
+                       // Get new Instance ID token
+                        token = task.getResult().getToken();
+
+                       // Log and toast
+                     //  String msg = getString(R.string.msg_token_fmt, token);
+                       Log.d(TAG, msg);
+                    //   Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                   }
+               });
         } catch (e: IllegalStateException) {
           Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
         }
