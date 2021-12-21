@@ -28,6 +28,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.io.NullPointerException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
