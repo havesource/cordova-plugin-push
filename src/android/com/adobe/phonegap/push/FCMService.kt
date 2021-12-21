@@ -436,6 +436,7 @@ class FCMService : FirebaseMessagingService() {
   }
 
   private fun createNotification(extras: Bundle?) {
+  try {
     val mNotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     val appName = getAppName(this)
     val notId = parseNotificationIdToInt(extras)
@@ -573,6 +574,9 @@ class FCMService : FirebaseMessagingService() {
      */
     createActions(extras, mBuilder, notId)
     mNotificationManager.notify(appName, notId, mBuilder.build())
+    } catch (NullPointerException e) {
+    Log.e(TAG, "execute: Null Pointer Exception " + e.getMessage());
+    }
   }
 
   private fun createNotificationBuilder(
