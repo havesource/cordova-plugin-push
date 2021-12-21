@@ -35,7 +35,7 @@ import java.net.URL
 import java.security.SecureRandom
 import java.util.*
 import androidx.core.text.HtmlCompat
-import androidx.core.app.NotificationCompat.WearableExtender;
+import androidx.core.app.NotificationCompat.WearableExtender
 
 /**
  * Firebase Cloud Messaging Service Class
@@ -576,7 +576,7 @@ class FCMService : FirebaseMessagingService() {
     createActions(extras, mBuilder, notId)
     mNotificationManager.notify(appName, notId, mBuilder.build())
     } catch (e: NullPointerException) {
-    Log.e(TAG, "execute: Null Pointer Exception");
+    Log.e(TAG, "execute: Null Pointer Exception in getchannels");
     }
   }
 

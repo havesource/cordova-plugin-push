@@ -25,10 +25,12 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.util.*
-import com.google.firebase.iid.InstanceIdResult;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.InstanceIdResult
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
+import java.lang.NullPointerException
+
 
 /**
  * Cordova Plugin Push
@@ -788,8 +790,12 @@ class PushPlugin : CordovaPlugin() {
    * Initialize
    */
   override fun initialize(cordova: CordovaInterface, webView: CordovaWebView) {
+  try {
     super.initialize(cordova, webView)
     isInForeground = true
+    } catch (e: NullPointerException) {
+        Log.e(TAG, "execute: Null Pointer Exception in pushplugin initialize");
+    }
   }
 
   /**

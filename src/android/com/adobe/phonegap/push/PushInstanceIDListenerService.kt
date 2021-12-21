@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.util.Log
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessagingService
+import java.lang.NullPointerException
+
 
 /**
  * Push InstanceID Listener Service
@@ -21,6 +23,7 @@ class PushInstanceIDListenerService : FirebaseMessagingService() {
    * @param token
    */
   override fun onNewToken(token: String) {
+  try {
     super.onNewToken(token)
     FirebaseInstanceId.getInstance().instanceId
       .addOnSuccessListener { instanceIdResult ->
@@ -30,6 +33,9 @@ class PushInstanceIDListenerService : FirebaseMessagingService() {
 
         // TODO: Implement this method to send any registration to your app's servers.
         //sendRegistrationToServer(refreshedToken);
+      }
+      } catch (e: NullPointerException) {
+      Log.e(TAG, "execute: Null Pointer Exception in pushplugin initialize");
       }
   }
 }
