@@ -469,6 +469,22 @@ class PushPlugin : CordovaPlugin() {
 
         try {
            // token = FirebaseInstanceId.getInstance().token
+           FirebaseApp.getInstance()
+            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
+                if(task.isSuccessful){
+                    val result = task.result
+                    if (result != null) {
+                        // Get new Instance ID token
+                         token = result.token
+                    } else {
+                        token = null
+                        Log.d("token", "Could not retrieve token")
+                    }
+                } else {
+                    token = null
+                    Log.d("token", "Could not retrieve token")
+                }
+            }
 
         } catch (e: IllegalStateException) {
           Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
