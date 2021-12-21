@@ -28,6 +28,7 @@ import java.util.*
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp
 
 /**
  * Cordova Plugin Push
