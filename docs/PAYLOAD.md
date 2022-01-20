@@ -7,7 +7,7 @@
     - [Using AWS-SNS with GCM](#using-aws-sns-with-gcm)
     - [Message Received in JavaScript](#message-received-in-javascript)
   - [iOS Message Format](#ios-message-format)
-    - [Speical Format for Critical Alerts](#speical-format-for-critical-alerts)
+    - [Special Format for Critical Alerts](#special-format-for-critical-alerts)
     - [Using AWS-SNS with APNS](#using-aws-sns-with-apns)
     - [Message Received in JavaScript](#message-received-in-javascript-1)
 - [Android Behaviour](#android-behaviour)
@@ -176,7 +176,7 @@ The JSON message can contain the following fields, see [Apple developer docs](ht
 }
 ```
 
-### Speical Format for Critical Alerts
+### Special Format for Critical Alerts
 
 Since iOS 12, it's possible to send critical alerts to the user's device. A critical alert will popup and play sound even when device is in DND mode or muted. This functionallity is mainly to be used by health apps to inform about critical states.
 
