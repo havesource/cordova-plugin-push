@@ -5,7 +5,7 @@
   "authors": [
     "Adobe PhoneGap Team"
   ],
-  "license": "APL",
+  "license": "MIT",
   "keywords": [
     "ecosystem:cordova",
     "ecosystem:phonegap",
