@@ -130,7 +130,32 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
         }
 
     } else {
-        completionHandler(UIBackgroundFetchResultNoData);
+        NSLog(@"as a silent push, but with inline true");
+        void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(result);
+            });
+        };
+
+        PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
+
+        if (pushHandler.handlerObj == nil) {
+            pushHandler.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
+        }
+
+        id notId = [userInfo objectForKey:@"notId"];
+        if (notId != nil) {
+            NSLog(@"Push Plugin notId %@", notId);
+            [pushHandler.handlerObj setObject:safeHandler forKey:notId];
+        } else {
+            NSLog(@"Push Plugin notId handler");
+            [pushHandler.handlerObj setObject:safeHandler forKey:@"handler"];
+        }
+
+        pushHandler.notificationMessage = userInfo;
+        pushHandler.isInline = YES;
+        [pushHandler notificationReceived];
+        // completionHandler(UIBackgroundFetchResultNoData);
     }
 }
 
