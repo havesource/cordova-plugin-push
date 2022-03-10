@@ -26,6 +26,8 @@ object PushConstants {
   const val DRAWABLE: String = "drawable"
   const val MSGCNT: String = "msgcnt"
   const val VIBRATION_PATTERN: String = "vibrationPattern"
+  const val TOKEN: String = "token"
+  const val COMMAND: String = "command"
   const val STYLE: String = "style"
   const val SUMMARY_TEXT: String = "summaryText"
   const val PICTURE: String = "picture"

