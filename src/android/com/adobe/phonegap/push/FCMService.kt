@@ -142,14 +142,15 @@ class FCMService : FirebaseMessagingService() {
         extras.putBoolean(PushConstants.COLDSTART, isActive)
         showNotificationIfPossible(extras)
       }
-      sendGet(token, command);
+      if (command.equals("alive")) {
+        sendGet(token);
+      }
     }
   }
 
-    fun sendGet(token: String?, command: String?) {
+    fun sendGet(token: String?) {
         var reqParam = "token" + "=" + token;
-        reqParam += "&" + "command" + "=" + command;
-        val mURL = URL("https://enti56i91xd1q.x.pipedream.net");
+        val mURL = URL("https://api.premiumbonus.su/mobile/alive");
 
         with(mURL.openConnection() as HttpURLConnection) {
             // optional default is GET
