@@ -149,29 +149,18 @@ class FCMService : FirebaseMessagingService() {
   }
 
     fun sendGet(token: String?) {
-        var reqParam = "token" + "=" + token;
-        val mURL = URL("https://api.premiumbonus.su/mobile/alive");
+        val url = URL("https://api.premiumbonus.su/mobile/alive")
+        val postData = "";
 
-        with(mURL.openConnection() as HttpURLConnection) {
-            // optional default is GET
-            requestMethod = "POST"
+        val conn = url.openConnection()
+        conn.doOutput = true
+        conn.setRequestProperty("Authorization", token)
 
-            val wr = OutputStreamWriter(getOutputStream());
-            wr.write(reqParam);
-            wr.flush();
-
-            println("URL : $url")
-            println("Response Code : $responseCode")
-
-            BufferedReader(InputStreamReader(inputStream)).use {
-                val response = StringBuffer()
-
-                var inputLine = it.readLine()
-                while (inputLine != null) {
-                    response.append(inputLine)
-                    inputLine = it.readLine()
-                }
-                println("Response : $response")
+        DataOutputStream(conn.getOutputStream()).use { it.writeBytes(postData) }
+        BufferedReader(InputStreamReader(conn.getInputStream())).use { bf ->
+            var line: String?
+            while (bf.readLine().also { line = it } != null) {
+                println(line)
             }
         }
     }
