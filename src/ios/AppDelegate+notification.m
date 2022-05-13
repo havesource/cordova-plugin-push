@@ -122,16 +122,43 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
             pushHandler.notificationMessage = userInfo;
             pushHandler.isInline = NO;
             [pushHandler notificationReceived];
-        } else {
-            NSLog(@"just put it in the shade");
-            //save it for later
-            self.launchNotification = userInfo;
-            completionHandler(UIBackgroundFetchResultNewData);
-        }
+ } else {
+          NSLog(@"app active");
+           PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
+           pushHandler.notificationMessage = userInfo;
+           pushHandler.isInline = YES;
+           [pushHandler notificationReceived];
 
+           completionHandler(UIBackgroundFetchResultNewData);
+        }
     } else {
-        completionHandler(UIBackgroundFetchResultNoData);
-    }
+              NSLog(@"as a silent push, but with inline true");
+              void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
+                  dispatch_async(dispatch_get_main_queue(), ^{
+                      completionHandler(result);
+                  });
+              };
+
+              PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
+
+              if (pushHandler.handlerObj == nil) {
+                  pushHandler.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
+              }
+
+              id notId = [userInfo objectForKey:@"notId"];
+              if (notId != nil) {
+                  NSLog(@"Push Plugin notId %@", notId);
+                  [pushHandler.handlerObj setObject:safeHandler forKey:notId];
+              } else {
+                  NSLog(@"Push Plugin notId handler");
+                  [pushHandler.handlerObj setObject:safeHandler forKey:@"handler"];
+              }
+
+              pushHandler.notificationMessage = userInfo;
+              pushHandler.isInline = YES;
+              [pushHandler notificationReceived];
+              // completionHandler(UIBackgroundFetchResultNoData);
+          }
 }
 
 - (void)checkUserHasRemoteNotificationsEnabledWithCompletionHandler:(nonnull void (^)(BOOL))completionHandler
