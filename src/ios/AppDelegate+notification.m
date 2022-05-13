@@ -122,10 +122,13 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
             pushHandler.notificationMessage = userInfo;
             pushHandler.isInline = NO;
             [pushHandler notificationReceived];
-        } else {
-            NSLog(@"just put it in the shade");
-            //save it for later
-            self.launchNotification = userInfo;
+        } else  {
+            NSLog(@"app active");
+            PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
+            pushHandler.notificationMessage = userInfo;
+            pushHandler.isInline = YES;
+            [pushHandler notificationReceived];
+
             completionHandler(UIBackgroundFetchResultNewData);
         }
 
