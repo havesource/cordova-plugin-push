@@ -34,9 +34,11 @@
       <uses-permission android:name="android.permission.VIBRATE"/>
       <uses-permission android:name="${applicationId}.permission.PushHandlerActivity"/>
       <permission android:name="${applicationId}.permission.PushHandlerActivity" android:protectionLevel="signature"></permission>
+      <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     </config-file>
 
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
+      <activity android:name="com.adobe.phonegap.push.FullScreenActivity" android:showOnLockScreen="true" android:turnScreenOn="true" android:theme="@android:style/Theme.DeviceDefault.NoActionBar"/>
       <activity android:name="com.adobe.phonegap.push.PushHandlerActivity" android:exported="true" android:permission="${applicationId}.permission.PushHandlerActivity"/>
       <activity android:name="com.adobe.phonegap.push.BackgroundHandlerActivity" android:exported="true" android:permission="${applicationId}.permission.BackgroundHandlerActivity">
         <intent-filter>
@@ -77,8 +79,9 @@
     <framework src="me.leolin:ShortcutBadger:1.1.22@aar"/>
     <framework src="com.google.firebase:firebase-messaging:$FCM_VERSION"/>
 
-    <source-file src="src/android/com/adobe/phonegap/push/FCMService.kt" target-dir="java/com/adobe/phonegap/push/"/>
     <source-file src="src/android/com/adobe/phonegap/push/PushConstants.kt" target-dir="java/com/adobe/phonegap/push/"/>
+    <source-file src="src/android/com/adobe/phonegap/push/FullScreenActivity.kt" target-dir="java/com/adobe/phonegap/push/"/>
+    <source-file src="src/android/com/adobe/phonegap/push/FCMService.kt" target-dir="java/com/adobe/phonegap/push/"/>
     <source-file src="src/android/com/adobe/phonegap/push/PushHandlerActivity.kt" target-dir="java/com/adobe/phonegap/push/"/>
     <source-file src="src/android/com/adobe/phonegap/push/BackgroundHandlerActivity.kt" target-dir="java/com/adobe/phonegap/push/"/>
     <source-file src="src/android/com/adobe/phonegap/push/PushInstanceIDListenerService.kt" target-dir="java/com/adobe/phonegap/push/"/>

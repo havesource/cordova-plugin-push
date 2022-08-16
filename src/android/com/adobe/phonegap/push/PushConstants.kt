@@ -110,4 +110,5 @@ object PushConstants {
   const val CLEAR_NOTIFICATION: String = "clearNotification"
   const val MESSAGE_ID: String = "google.message_id"
   const val IS_ENABLED: String = "isEnabled"
+  const val FULL_SCREEN_NOTIFICATION: String = "full-screen-notification"
 }
