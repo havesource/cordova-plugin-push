@@ -46,7 +46,7 @@ class FCMService : FirebaseMessagingService() {
     private val messageMap = HashMap<Int, ArrayList<String?>>()
 
     private val FLAG_MUTABLE = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      PendingIntent.FLAG_MUTABLE
+      PendingIntent.FLAG_ONE_SHOT
     } else {
       0
     }
