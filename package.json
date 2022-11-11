@@ -11,7 +11,7 @@
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
     "test": "npm run build && npm run lint && npm run jasmine"
   },
-  "repository": "github:havesource/cordova-plugin-push",
+  "repository": "https://github.com/PrashantTLC/cordova-plugin-push.git",
   "keywords": [
     "ecosystem:cordova",
     "cordova-ios",
@@ -21,8 +21,8 @@
   ],
   "author": "Erisu",
   "license": "MIT",
-  "bugs": "https://github.com/havesource/cordova-plugin-push/issues",
-  "homepage": "https://github.com/havesource/cordova-plugin-push#readme",
+  "bugs": "https://github.com/PrashantTLC/cordova-plugin-push/issues",
+  "homepage": "https://github.com/PrashantTLC/cordova-plugin-push#readme",
   "devDependencies": {
     "@babel/cli": "^7.15.4",
     "@babel/core": "^7.15.5",
@@ -57,7 +57,7 @@
   },
   "types": "./types/index.d.ts",
   "cordova": {
-    "id": "@havesource/cordova-plugin-push",
+    "id": "@PrashantTLC/cordova-plugin-push",
     "platforms": [
       "ios",
       "android",
