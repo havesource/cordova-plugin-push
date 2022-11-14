@@ -472,7 +472,7 @@ class FCMService : FirebaseMessagingService() {
       this,
       requestCode,
       notificationIntent,
-      PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+      PendingIntent.FLAG_MUTABLE
     )
     val dismissedNotificationIntent = Intent(
       this,
@@ -491,7 +491,7 @@ class FCMService : FirebaseMessagingService() {
       this,
       requestCode,
       dismissedNotificationIntent,
-      PendingIntent.FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+      PendingIntent.FLAG_MUTABLE
     )
 
     val mBuilder: NotificationCompat.Builder =
@@ -700,7 +700,7 @@ class FCMService : FirebaseMessagingService() {
                   this,
                   uniquePendingIntentRequestCode,
                   intent,
-                  PendingIntent.FLAG_ONE_SHOT or FLAG_MUTABLE
+                  PendingIntent.FLAG_MUTABLE
                 )
               } else {
                 Log.d(TAG, "push receiver for notId $notId")
@@ -709,7 +709,7 @@ class FCMService : FirebaseMessagingService() {
                   this,
                   uniquePendingIntentRequestCode,
                   intent,
-                  PendingIntent.FLAG_ONE_SHOT or FLAG_MUTABLE
+                  PendingIntent.FLAG_MUTABLE
                 )
               }
             }
@@ -720,7 +720,7 @@ class FCMService : FirebaseMessagingService() {
               pIntent = PendingIntent.getActivity(
                 this, uniquePendingIntentRequestCode,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+                PendingIntent.FLAG_MUTABLE
               )
             }
 
@@ -730,7 +730,7 @@ class FCMService : FirebaseMessagingService() {
               pIntent = PendingIntent.getBroadcast(
                 this, uniquePendingIntentRequestCode,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+                PendingIntent.FLAG_MUTABLE
               )
             }
           }
