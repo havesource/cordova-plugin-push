@@ -5,6 +5,7 @@ globals:
   cordova: true
 rules:
   indent: ["error", 2]
+  no-var: 0
 
 overrides:
   - files: [spec/**/*.js, example/server/**/*.js]

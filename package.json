@@ -1,7 +1,7 @@
 {
-  "name": "veoci-cordova-plugin-push",
-  "version": "1.0.4",
-  "description": "Register and receive push notifications. (Modified for specific fixes by Veoci team)",
+  "name": "@havesource/cordova-plugin-push",
+  "version": "4.0.0-dev.0",
+  "description": "Register and receive push notifications.",
   "scripts": {
     "build": "babel src/js --out-dir www",
     "build:watch": "nodemon -w ./src/js -e js -x npm run build",
@@ -24,20 +24,25 @@
   "bugs": "https://github.com/GreywallSoftware/cordova-plugin-push/issues",
   "homepage": "https://github.com/GreywallSoftware/cordova-plugin-push#readme",
   "devDependencies": {
-    "@babel/cli": "^7.12.10",
-    "@babel/core": "^7.12.10",
-    "@babel/eslint-parser": "^7.12.1",
-    "@babel/preset-env": "^7.12.11",
-    "@cordova/eslint-config": "^3.0.0",
+    "@babel/cli": "^7.15.4",
+    "@babel/core": "^7.15.5",
+    "@babel/eslint-parser": "^7.15.4",
+    "@babel/preset-env": "^7.15.6",
+    "@cordova/eslint-config": "^4.0.0",
     "babel-plugin-add-header-comment": "^1.0.3",
-    "fs-extra": "^9.1.0",
-    "jasmine": "^3.6.4",
-    "nodemon": "^2.0.7",
+    "fs-extra": "^10.0.0",
+    "jasmine": "^3.9.0",
+    "nodemon": "^2.0.12",
     "nopt": "^5.0.0",
     "xml2js": "^0.4.23"
   },
   "engines": {
     "cordovaDependencies": {
+      "3.0.0": {
+        "cordova": ">=10.0.0",
+        "cordova-android": ">=9.0.0",
+        "cordova-ios": ">=6.0.0"
+      },
       "2.0.0": {
         "cordova": ">=10.0.0",
         "cordova-android": ">=8.0.0",

@@ -69,7 +69,6 @@
 
 - (void)willSendDataMessageWithID:(NSString *)messageID error:(NSError *)error;
 - (void)didSendDataMessageWithID:(NSString *)messageID;
-- (void)didDeleteMessagesOnServer;
 
 // VoIP Features
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type;

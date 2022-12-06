@@ -1,5 +1,86 @@
 # Change Log
 
+## 3.0.1
+
+**Fixes:**
+
+* fix(android): add service exported flags w/ intent-filter (#173)
+* fix(android): processPushBundle flipped returned value (#160)
+* fix: doc typo (#159)
+
+**Chores:**
+
+* chore: correct Bower metadata to MIT license (#166)
+* chore(npm): rebuilt package-lock.json & fix audit
+
+**Docs:**
+
+* doc: add 2.x and 3.x to PLATFORM_SUPPORT.md
+
+## 3.0.0
+
+**Overview:**
+
+In this major release, there are many breaking changes to the Android platform. The primary changes in this release are dropping Android Support Library for AndroidX, updating the Google Services Gradle Plugin requirement, refactoring the code to Kotlin, and upgrading all other third-party libraries. See below for more details.
+
+---
+
+**Requirement Changes:**
+
+* Cordova-Android: 9.x
+
+---
+
+**Libraries & Dependencie Updates and Changes:**
+
+* Bumped `me.leolin:ShortcutBadger@1.1.22`
+* Bumped `Google Services Gradle Plugin@4.3.8`
+* Migrated from **Android Support Library** to **AndroidX**
+  * Added `androidx.core:core@1.6.+`
+
+---
+
+**Breaking:**
+
+* feat!(android): migrate source code to kotlin w/ refactors (#123)
+  * kotlin@1.5.20
+  * add before_compile hookscript for cordova-android 9.x support
+  * converted all java files to kotlin
+  * updted target-dir path for kotlin files
+  * refactored with improved null checks
+  * removed some duplicated code
+  * updated logging (more logging & better tagging)¥
+* feat!(android): bump platform requirements (#122)
+* feat!(android): bump me.leolin:ShortcutBadger@1.1.22 (#121)
+* feat!(android): bump Google Services Gradle Plugin@4.3.8 (#120)
+* feat!(android): Migrate to AndroidX (#119)
+  * feat!(android): migrate ASL to AndroidX
+  * feat!(android): swap framework support-v13 w/ androidx.core
+  * feat!(android): force AndroidXEnabled to true
+  * feat!(android): bump androidx.core:core@1.6.+
+  * doc(android): add androidx core version
+
+**Fixes:**
+
+* fix(docs): update TS type import to new package name (#109)
+
+**Chores:**
+
+* chore: rebuilt package-lock.json (#131)
+* chore: bump npm dev dependencies (#132) (#133)
+* chore(npm): bump devDep, rebuild package-lock & fix audit (#110)
+* chore(npm): bump devDep @cordova/eslint-config@^4.0.0 w/ fixes (#144)
+
+**CI:**
+
+* ci: remove old travis configs (#128)
+* ci: add codacy badge (#129)
+* ci: add gh-actions badge to readme (#130)
+
+**Docs:**
+
+* doc: fixed minor typo (#98)
+
 ## 2.0.0
 
 **Overview:**

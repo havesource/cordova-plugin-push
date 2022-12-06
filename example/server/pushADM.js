@@ -1,14 +1,14 @@
 
 // Client ID and Client Secret received from ADM
 // For more info, see: https://developer.amazon.com/public/apis/engage/device-messaging/tech-docs/02-obtaining-adm-credentials
-var CLIENT_ID = 'amzn1.application-oa2-client.8e838f6629554e26ae3f43a6c663cd60';
-var CLIENT_SECRET = '0af96083320f5d70dc4f358cc783ac65a22e78b297ba257df34d5f723f24543f';
+const CLIENT_ID = 'amzn1.application-oa2-client.8e838f6629554e26ae3f43a6c663cd60';
+const CLIENT_SECRET = '0af96083320f5d70dc4f358cc783ac65a22e78b297ba257df34d5f723f24543f';
 
 // Registration ID, received on device after it registers with ADM server
-var REGISTRATION_IDS = ['amzn1.adm-registration.v2.Y29tLmFtYXpvbi5EZXZpY2VNZXNzYWdpbmcuUmVnaXN0cmF0aW9uSWRFbmNyeXB0aW9uS2V5ITEhOE9rZ2h5TXlhVEFFczg2ejNWL3JMcmhTa255Uk5BclhBbE1XMFZzcnU1aFF6cTlvdU5FbVEwclZmdk5oTFBVRXVDN1luQlRSNnRVRUViREdQSlBvSzRNaXVRRUlyUy9NYWZCYS9VWTJUaGZwb3ZVTHhlRTM0MGhvampBK01hVktsMEhxakdmQStOSXRjUXBTQUhNU1NlVVVUVkFreVRhRTBCYktaQ2ZkUFdqSmIwcHgzRDhMQnllVXdxQ2EwdHNXRmFVNklYL0U4UXovcHg0K3Jjb25VbVFLRUVVOFVabnh4RDhjYmtIcHd1ZThiekorbGtzR2taMG95cC92Y3NtZytrcTRPNjhXUUpiZEk3QzFvQThBRTFWWXM2NHkyMjdYVGV5RlhhMWNHS0k9IW5GNEJMSXNleC9xbWpHSU52NnczY0E9PQ'];
+const REGISTRATION_IDS = ['amzn1.adm-registration.v2.Y29tLmFtYXpvbi5EZXZpY2VNZXNzYWdpbmcuUmVnaXN0cmF0aW9uSWRFbmNyeXB0aW9uS2V5ITEhOE9rZ2h5TXlhVEFFczg2ejNWL3JMcmhTa255Uk5BclhBbE1XMFZzcnU1aFF6cTlvdU5FbVEwclZmdk5oTFBVRXVDN1luQlRSNnRVRUViREdQSlBvSzRNaXVRRUlyUy9NYWZCYS9VWTJUaGZwb3ZVTHhlRTM0MGhvampBK01hVktsMEhxakdmQStOSXRjUXBTQUhNU1NlVVVUVkFreVRhRTBCYktaQ2ZkUFdqSmIwcHgzRDhMQnllVXdxQ2EwdHNXRmFVNklYL0U4UXovcHg0K3Jjb25VbVFLRUVVOFVabnh4RDhjYmtIcHd1ZThiekorbGtzR2taMG95cC92Y3NtZytrcTRPNjhXUUpiZEk3QzFvQThBRTFWWXM2NHkyMjdYVGV5RlhhMWNHS0k9IW5GNEJMSXNleC9xbWpHSU52NnczY0E9PQ'];
 
 // Message payload to be sent to client
-var payload = {
+const payload = {
   data: {
     message: 'PushPlugin works!!',
     sound: 'beep.wav',
@@ -22,8 +22,8 @@ var payload = {
 
 //* ********************************
 
-var https = require('https');
-var querystring = require('querystring');
+const https = require('https');
+const querystring = require('querystring');
 
 if (CLIENT_ID === '' || CLIENT_SECRET === '' || REGISTRATION_IDS.length === 0) {
   console.log('******************\nSetup Error: \nYou need to edit the pushADM.js file and enter your ADM credentials and device registration ID(s).\n******************');
@@ -32,8 +32,8 @@ if (CLIENT_ID === '' || CLIENT_SECRET === '' || REGISTRATION_IDS.length === 0) {
 
 // Get access token from server, and use it to post message to device
 getAccessToken(function (accessToken) {
-  for (var i = 0; i < REGISTRATION_IDS.length; i++) {
-    var registrationID = REGISTRATION_IDS[i];
+  for (let i = 0; i < REGISTRATION_IDS.length; i++) {
+    const registrationID = REGISTRATION_IDS[i];
 
     postMessage(accessToken, registrationID, payload);
   }
@@ -45,16 +45,16 @@ getAccessToken(function (accessToken) {
 function getAccessToken (callback) {
   console.log('Requesting access token from server...');
 
-  var credentials = {
+  const credentials = {
     scope: 'messaging:push',
     grant_type: 'client_credentials',
     client_id: CLIENT_ID,
     client_secret: CLIENT_SECRET
   };
 
-  var post_data = querystring.stringify(credentials);
+  const post_data = querystring.stringify(credentials);
 
-  var post_options = {
+  const post_options = {
     host: 'api.amazon.com',
     port: '443',
     path: '/auth/O2/token',
@@ -64,8 +64,8 @@ function getAccessToken (callback) {
     }
   };
 
-  var req = https.request(post_options, function (res) {
-    var data = '';
+  const req = https.request(post_options, function (res) {
+    let data = '';
 
     res.on('data', function (chunk) {
       data += chunk;
@@ -73,7 +73,7 @@ function getAccessToken (callback) {
 
     res.on('end', function () {
       console.log('\nAccess token response:', data);
-      var accessToken = JSON.parse(data).access_token;
+      const accessToken = JSON.parse(data).access_token;
       callback(accessToken);
     });
   });
@@ -96,11 +96,11 @@ function postMessage (accessToken, registrationID, payload) {
 
   console.log('\nSending message...');
 
-  var post_data = JSON.stringify(payload);
+  const post_data = JSON.stringify(payload);
 
-  var api_path = '/messaging/registrations/' + registrationID + '/messages';
+  const api_path = '/messaging/registrations/' + registrationID + '/messages';
 
-  var post_options = {
+  const post_options = {
     host: 'api.amazon.com',
     port: '443',
     path: api_path,
@@ -114,8 +114,8 @@ function postMessage (accessToken, registrationID, payload) {
     }
   };
 
-  var req = https.request(post_options, function (res) {
-    var data = '';
+  const req = https.request(post_options, function (res) {
+    let data = '';
 
     res.on('data', function (chunk) {
       data += chunk;

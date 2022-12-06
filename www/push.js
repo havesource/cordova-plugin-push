@@ -309,7 +309,7 @@ var PushNotification = /*#__PURE__*/function () {
         var callback = this.handlers[eventName][i];
 
         if (typeof callback === 'function') {
-          callback.apply(void 0, args); // eslint-disable-line standard/no-callback-literal
+          callback.apply(void 0, args); // eslint-disable-line node/no-callback-literal
         } else {
           console.log("event handler: ".concat(eventName, " must be a function"));
         }
