@@ -2,7 +2,7 @@
 
 - [Installation](#installation)
   - [Installation Requirements](#installation-requirements)
-    - [Cordova Android 8.x Specifics](#cordova-android-8x-specifics)
+    - [Cordova-Android 9.x Specifics](#cordova-android-9x-specifics)
   - [Android details](#android-details)
     - [Co-existing with Facebook Plugin](#co-existing-with-facebook-plugin)
     - [Co-existing with plugins that use Firebase](#co-existing-with-plugins-that-use-firebase)
@@ -26,6 +26,7 @@
 | -------------- | ----------- | --------------- | ----------- | --------- |
 | 1.0.0          | 10.0.0      | 8.0.0           | 5.1.1       | 1.8.0     |
 | 2.0.0          | 10.0.0      | 8.0.0           | 6.0.0       | 1.8.0     |
+| 3.0.0          | 10.0.0      | 9.0.0           | 6.0.0       | 1.8.0     |
 
 To install from the command line:
 
@@ -74,24 +75,20 @@ By default, on iOS, the plugin will register with APNS. If you want to use FCM o
 > Note: You need to specify the SENDER_ID variable in your config.xml if you plan on installing/restoring plugins using the prepare method. The prepare method will skip installing the plugin otherwise.
 
 ```xml
-<plugin name="@havesource/cordova-plugin-push" spec="2.0.0" />
+<plugin name="@havesource/cordova-plugin-push" spec="3.0.0" />
 ```
 
-### Cordova Android 8.x Specifics
+### Cordova-Android 9.x Specifics
 
-You will need to install the `cordova-support-google-services` plugin. This plugin enables the Google APIs and Firebase services for your Android application.
+**Using AndroidX Library:**
 
-If your application uses many plugins and references over 64K methods, you will need to enable multidex. If multidex is not enabled, your build should fail and you should see the following error:
+As of version **3.0.0**, this plugin has migrated from the Android Support Library to AndroidX. Since Cordova-Android 9.x does not use the AndroidX library by default, you will need to install the [`cordova-plugin-androidx-adapter`](https://www.npmjs.com/package/cordova-plugin-androidx-adapter) plugin.
 
-```log
-trouble writing output:
-Too many field references: 131000; max is 65536.
-You may try using --multi-dex option.
-```
+This plugin will migrate any Android Support Library references to AndroidX.
 
-To enable multidex, use the  `phonegap-plugin-multidex` plugin.
+Please note that this will also migrate references of other plugins.
 
-These two plugins are only necessary for the Cordova Android 8.x releases.
+If you are using **Cordova Android 8.x** please continue reading in the **Cordova Android 8.x Specifics** section.
 
 ## Android details
 
@@ -119,7 +116,7 @@ To make the two work together, you need to migrate your GCM project from Google 
   "cordova": {
     "plugins": {
       "@havesource/cordova-plugin-push": {
-        "ANDROID_SUPPORT_V13_VERSION": "28.0.0",
+        "ANDROIDX_CORE_VERSION": "1.6.+",
         "FCM_VERSION": "18.+"
       }
     },

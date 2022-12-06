@@ -278,7 +278,7 @@ class PushNotification {
     for (let i = 0, { length } = this.handlers[eventName]; i < length; i += 1) {
       const callback = this.handlers[eventName][i];
       if (typeof callback === 'function') {
-        callback(...args); // eslint-disable-line standard/no-callback-literal
+        callback(...args); // eslint-disable-line node/no-callback-literal
       } else {
         console.log(`event handler: ${eventName} must be a function`);
       }
