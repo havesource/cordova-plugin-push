@@ -1,6 +1,6 @@
 {
-  "name": "@havesource/cordova-plugin-push",
-  "version": "4.0.0-dev.0",
+  "name": "veoci-cordova-plugin-push",
+  "version": "1.6.0",
   "description": "Register and receive push notifications.",
   "scripts": {
     "build": "babel src/js --out-dir www",
