@@ -329,6 +329,7 @@ class FCMService : FirebaseMessagingService() {
               || data.has(PushConstants.TITLE)
               || data.has(messageKey)
               || data.has(titleKey)
+              || key == PushConstants.PARSE_COM_DATA
             ) {
               val jsonKeys = data.keys()
 
