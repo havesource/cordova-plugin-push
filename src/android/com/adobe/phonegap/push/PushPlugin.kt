@@ -7,6 +7,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources.NotFoundException
 import android.media.AudioAttributes
 import android.net.Uri
@@ -485,6 +486,12 @@ class PushPlugin : CordovaPlugin() {
 
           Log.v(TAG, formatLogMessage("onRegistered=$registration"))
 
+          val pnData = activity.intent.extras
+          if (pnData != null && pnData.containsKey("google.message_id")) {
+            pnData.putBoolean("tap", true)
+            sendExtras(pnData)
+          }
+
           val topics = jo.optJSONArray(PushConstants.TOPICS)
           subscribeToTopics(topics)
 
@@ -598,6 +605,16 @@ class PushPlugin : CordovaPlugin() {
         gCachedExtras.clear()
       }
     })
+  }
+
+  override fun onNewIntent(intent: Intent?) {
+    super.onNewIntent(intent)
+    intent?.extras?.let{ extras ->
+      if (extras.containsKey("google.message_id")) {
+        extras.putBoolean("tap", true)
+        sendExtras(extras)
+      }
+    }
   }
 
   private fun executeActionUnregister(data: JSONArray, callbackContext: CallbackContext) {
