@@ -181,17 +181,17 @@
          addObserver:self selector:@selector(onTokenRefresh)
          name:kFIRInstanceIDTokenRefreshNotification object:nil];
 
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self selector:@selector(sendDataMessageFailure:)
-         name:FIRMessagingSendErrorNotification object:nil];
+        // [[NSNotificationCenter defaultCenter]
+        //  addObserver:self selector:@selector(sendDataMessageFailure:)
+        //  name:FIRMessagingSendErrorNotification object:nil];
 
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self selector:@selector(sendDataMessageSuccess:)
-         name:FIRMessagingSendSuccessNotification object:nil];
+        // [[NSNotificationCenter defaultCenter]
+        //  addObserver:self selector:@selector(sendDataMessageSuccess:)
+        //  name:FIRMessagingSendSuccessNotification object:nil];
 
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self selector:@selector(didDeleteMessagesOnServer)
-         name:FIRMessagingMessagesDeletedNotification object:nil];
+        // [[NSNotificationCenter defaultCenter]
+        //  addObserver:self selector:@selector(didDeleteMessagesOnServer)
+        //  name:FIRMessagingMessagesDeletedNotification object:nil];
 
         [self.commandDelegate runInBackground:^ {
             NSLog(@"Push Plugin register called");
