@@ -1,5 +1,6 @@
 package com.adobe.phonegap.push
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
@@ -7,6 +8,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ContentResolver
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Resources.NotFoundException
 import android.media.AudioAttributes
 import android.net.Uri
@@ -14,8 +16,10 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
 import me.leolin.shortcutbadger.ShortcutBadger
@@ -211,6 +215,8 @@ class PushPlugin : CordovaPlugin() {
 
   private val appName: String
     get() = activity.packageManager.getApplicationLabel(activity.applicationInfo) as String
+
+  private lateinit var notificationPermissionCallbackContext: CallbackContext
 
   @TargetApi(26)
   @Throws(JSONException::class)
@@ -409,9 +415,11 @@ class PushPlugin : CordovaPlugin() {
       PushConstants.SET_APPLICATION_ICON_BADGE_NUMBER -> executeActionSetIconBadgeNumber(
         data, callbackContext
       )
+
       PushConstants.GET_APPLICATION_ICON_BADGE_NUMBER -> executeActionGetIconBadgeNumber(
         callbackContext
       )
+
       PushConstants.CLEAR_ALL_NOTIFICATIONS -> executeActionClearAllNotifications(callbackContext)
       PushConstants.SUBSCRIBE -> executeActionSubscribe(data, callbackContext)
       PushConstants.UNSUBSCRIBE -> executeActionUnsubscribe(data, callbackContext)
@@ -650,26 +658,74 @@ class PushPlugin : CordovaPlugin() {
 
     cordova.threadPool.execute {
       try {
-        val isNotificationEnabled = NotificationManagerCompat.from(applicationContext)
-          .areNotificationsEnabled()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(
+            applicationContext,
+            Manifest.permission.POST_NOTIFICATIONS
+          ) != PackageManager.PERMISSION_GRANTED
+        ) {
+          notificationPermissionCallbackContext = callbackContext
 
-        Log.d(TAG, formatLogMessage("Has Notification Permission: $isNotificationEnabled"))
+          ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            999
+          )
+        } else {
+          val isNotificationEnabled = checkIfNotificationsAreEnabled()
 
-        val jo = JSONObject().apply {
-          put(PushConstants.IS_ENABLED, isNotificationEnabled)
+          Log.d(TAG, formatLogMessage("Has Notification Permission: $isNotificationEnabled"))
+
+          val jo = JSONObject().apply {
+            put(PushConstants.IS_ENABLED, isNotificationEnabled)
+          }
+
+          val pluginResult = PluginResult(PluginResult.Status.OK, jo).apply {
+            keepCallback = true
+          }
+
+          callbackContext.sendPluginResult(pluginResult)
         }
-
-        val pluginResult = PluginResult(PluginResult.Status.OK, jo).apply {
-          keepCallback = true
-        }
-
-        callbackContext.sendPluginResult(pluginResult)
       } catch (e: UnknownError) {
         callbackContext.error(e.message)
       } catch (e: JSONException) {
         callbackContext.error(e.message)
       }
     }
+  }
+
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>?,
+    grantResults: IntArray?
+  ) {
+//    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+    if (requestCode == 999) {
+      if (grantResults?.get(0) == PackageManager.PERMISSION_GRANTED) {
+        val jo = JSONObject().apply {
+          put(PushConstants.IS_ENABLED, checkIfNotificationsAreEnabled())
+        }
+        val pluginResult = PluginResult(PluginResult.Status.OK, jo).apply {
+          keepCallback = true
+        }
+        notificationPermissionCallbackContext?.sendPluginResult(pluginResult)
+      } else {
+        val jo = JSONObject().apply {
+          put(PushConstants.IS_ENABLED, false)
+        }
+        val pluginResult = PluginResult(PluginResult.Status.OK, jo).apply {
+          keepCallback = true
+        }
+        notificationPermissionCallbackContext.sendPluginResult(pluginResult)
+      }
+    } else {
+      super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+  }
+
+  private fun checkIfNotificationsAreEnabled(): Boolean {
+    return NotificationManagerCompat.from(applicationContext)
+      .areNotificationsEnabled()
   }
 
   private fun executeActionSetIconBadgeNumber(data: JSONArray, callbackContext: CallbackContext) {
