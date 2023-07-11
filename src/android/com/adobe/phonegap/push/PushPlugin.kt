@@ -658,17 +658,12 @@ class PushPlugin : CordovaPlugin() {
 
     cordova.threadPool.execute {
       try {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(
-            applicationContext,
-            Manifest.permission.POST_NOTIFICATIONS
-          ) != PackageManager.PERMISSION_GRANTED
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !cordova.hasPermission(Manifest.permission.POST_NOTIFICATIONS)
         ) {
           notificationPermissionCallbackContext = callbackContext
-
-          ActivityCompat.requestPermissions(
-            activity,
-            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-            999
+          cordova.requestPermissions(
+            this, 999,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS)
           )
         } else {
           val isNotificationEnabled = checkIfNotificationsAreEnabled()
@@ -693,13 +688,11 @@ class PushPlugin : CordovaPlugin() {
     }
   }
 
-  override fun onRequestPermissionsResult(
+  override fun onRequestPermissionResult(
     requestCode: Int,
     permissions: Array<out String>?,
     grantResults: IntArray?
   ) {
-//    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
     if (requestCode == 999) {
       if (grantResults?.get(0) == PackageManager.PERMISSION_GRANTED) {
         val jo = JSONObject().apply {
@@ -716,10 +709,8 @@ class PushPlugin : CordovaPlugin() {
         val pluginResult = PluginResult(PluginResult.Status.OK, jo).apply {
           keepCallback = true
         }
-        notificationPermissionCallbackContext.sendPluginResult(pluginResult)
+        notificationPermissionCallbackContext?.sendPluginResult(pluginResult)
       }
-    } else {
-      super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
   }
 
