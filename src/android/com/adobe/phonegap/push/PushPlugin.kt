@@ -694,7 +694,7 @@ class PushPlugin : CordovaPlugin() {
     grantResults: IntArray?
   ) {
     if (requestCode == 999) {
-      if (grantResults?.get(0) == PackageManager.PERMISSION_GRANTED) {
+      if (grantResults != null && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
         val jo = JSONObject().apply {
           put(PushConstants.IS_ENABLED, checkIfNotificationsAreEnabled())
         }
