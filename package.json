@@ -24,17 +24,17 @@
   "bugs": "https://github.com/havesource/cordova-plugin-push/issues",
   "homepage": "https://github.com/havesource/cordova-plugin-push#readme",
   "devDependencies": {
-    "@babel/cli": "^7.15.4",
-    "@babel/core": "^7.15.5",
-    "@babel/eslint-parser": "^7.15.4",
-    "@babel/preset-env": "^7.15.6",
-    "@cordova/eslint-config": "^4.0.0",
+    "@babel/cli": "^7.22.10",
+    "@babel/core": "^7.22.11",
+    "@babel/eslint-parser": "^7.22.11",
+    "@babel/preset-env": "^7.22.14",
+    "@cordova/eslint-config": "^5.0.0",
     "babel-plugin-add-header-comment": "^1.0.3",
-    "fs-extra": "^10.0.0",
-    "jasmine": "^3.9.0",
-    "nodemon": "^2.0.12",
+    "fs-extra": "^10.1.0",
+    "jasmine": "^5.1.0",
+    "nodemon": "^3.0.1",
     "nopt": "^5.0.0",
-    "xml2js": "^0.4.23"
+    "xml2js": "^0.6.2"
   },
   "engines": {
     "cordovaDependencies": {
