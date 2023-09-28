@@ -12,7 +12,7 @@
   - [Browser details](#browser-details)
     - [Browser Support](#browser-support)
   - [iOS details](#ios-details)
-    - [System & Cordova Requirements](#system--cordova-requirements)
+    - [System \& Cordova Requirements](#system--cordova-requirements)
     - [Bitcode](#bitcode)
     - [CocoaPods](#cocoapods)
       - [Common CocoaPod Installation issues](#common-cocoapod-installation-issues)
@@ -27,6 +27,7 @@
 | 1.0.0          | 10.0.0      | 8.0.0           | 5.1.1       | 1.8.0     |
 | 2.0.0          | 10.0.0      | 8.0.0           | 6.0.0       | 1.8.0     |
 | 3.0.0          | 10.0.0      | 9.0.0           | 6.0.0       | 1.8.0     |
+| 4.0.0          | 10.0.0      | 12.0.0          | 6.0.0       | 1.8.0     |
 
 To install from the command line:
 
