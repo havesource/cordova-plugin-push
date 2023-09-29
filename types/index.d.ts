@@ -229,13 +229,6 @@ declare namespace PhonegapPluginPush {
 			 */
 			topics?: string[]
 		}
-
-		/**
-		 * Windows specific initialization options.
-		 */
-		windows?: {
-
-		}
 	}
 
 	interface CategoryArray {
@@ -273,7 +266,6 @@ declare namespace PhonegapPluginPush {
 		title?: string
 		/**
 		 * The number of messages to be displayed in the badge iOS or message count in the notification shade in Android.
-		 * For windows, it represents the value in the badge notification which could be a number or a status glyph.
 		 */
 		count: string
 		/**

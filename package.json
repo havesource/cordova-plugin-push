@@ -16,7 +16,6 @@
     "ecosystem:cordova",
     "cordova-ios",
     "cordova-android",
-    "cordova-windows",
     "cordova-browser"
   ],
   "author": "Erisu",
@@ -66,7 +65,6 @@
     "platforms": [
       "ios",
       "android",
-      "windows",
       "browser"
     ]
   }
