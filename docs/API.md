@@ -53,10 +53,10 @@
   - [push.unsubscribe(topic, successHandler, errorHandler)](#pushunsubscribetopic-successhandler-errorhandler)
     - [Parameters](#parameters-9)
     - [Example](#example-11)
-  - [push.setApplicationIconBadgeNumber(successHandler, errorHandler, count) - iOS & Android only](#pushsetapplicationiconbadgenumbersuccesshandler-errorhandler-count---ios--android-only)
+  - [push.setApplicationIconBadgeNumber(successHandler, errorHandler, count) - iOS \& Android only](#pushsetapplicationiconbadgenumbersuccesshandler-errorhandler-count---ios--android-only)
     - [Parameters](#parameters-10)
     - [Example](#example-12)
-  - [push.getApplicationIconBadgeNumber(successHandler, errorHandler) - iOS & Android only](#pushgetapplicationiconbadgenumbersuccesshandler-errorhandler---ios--android-only)
+  - [push.getApplicationIconBadgeNumber(successHandler, errorHandler) - iOS \& Android only](#pushgetapplicationiconbadgenumbersuccesshandler-errorhandler---ios--android-only)
     - [Parameters](#parameters-11)
     - [Callback parameters](#callback-parameters-5)
       - [`successHandler`](#successhandler-2)
@@ -64,10 +64,10 @@
   - [push.finish(successHandler, errorHandler, id) - iOS only](#pushfinishsuccesshandler-errorhandler-id---ios-only)
     - [Parameters](#parameters-12)
     - [Example](#example-14)
-  - [push.clearAllNotifications(successHandler, errorHandler) - iOS & Android only](#pushclearallnotificationssuccesshandler-errorhandler---ios--android-only)
+  - [push.clearAllNotifications(successHandler, errorHandler) - iOS \& Android only](#pushclearallnotificationssuccesshandler-errorhandler---ios--android-only)
     - [Parameters](#parameters-13)
     - [Example](#example-15)
-  - [push.clearNotification(id, successHandler, errorHandler) - iOS & Android only](#pushclearnotificationid-successhandler-errorhandler---ios--android-only)
+  - [push.clearNotification(id, successHandler, errorHandler) - iOS \& Android only](#pushclearnotificationid-successhandler-errorhandler---ios--android-only)
     - [Parameters](#parameters-14)
     - [Example](#example-16)
 
@@ -89,7 +89,7 @@ Initializes the plugin on the native side.
 | --------- | -------- | ------- | ------------------------------------------------------------------------ |
 | `options` | `Object` | `{}`    | An object describing relevant specific options for all target platforms. |
 
-All available option attributes are described bellow. Currently, there are no Windows specific options.
+All available option attributes are described bellow.
 
 #### Android
 
@@ -199,8 +199,7 @@ const push = PushNotification.init({
     alert: 'true',
     badge: true,
     sound: 'false'
-  },
-  windows: {}
+  }
 });
 ```
 
@@ -388,10 +387,9 @@ The event `notification` will be triggered each time a push notification is rece
 | -------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `data.message`                   | `string`  | The text of the push message sent from the 3rd party service.                                                                                                                                                                       |
 | `data.title`                     | `string`  | The optional title of the push message sent from the 3rd party service.                                                                                                                                                             |
-| `data.count`                     | `string`  | The number of messages to be displayed in the badge in iOS/Android or message count in the notification shade in Android. For windows, it represents the value in the badge notification which could be a number or a status glyph. |
+| `data.count`                     | `string`  | The number of messages to be displayed in the badge in iOS/Android or message count in the notification shade in Android. |
 | `data.sound`                     | `string`  | The name of the sound file to be played upon receipt of the notification.                                                                                                                                                           |
 | `data.image`                     | `string`  | The path of the image file to be displayed in the notification.                                                                                                                                                                     |
-| `data.launchArgs`                | `string`  | The args to be passed to the application on launch from push notification. This works when notification is received in background. (Windows Only)                                                                                   |
 | `data.additionalData`            | `Object`  | An optional collection of data sent by the 3rd party push service that does not fit in the above properties.                                                                                                                        |
 | `data.additionalData.foreground` | `boolean` | Whether the notification was received while the app was in the foreground                                                                                                                                                           |
 | `data.additionalData.coldstart`  | `boolean` | Will be `true` if the application is started by clicking on the push notification, `false` if the app is already started.                                                                                                           |

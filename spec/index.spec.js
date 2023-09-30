@@ -16,7 +16,7 @@ let options;
 
 describe('phonegap-plugin-push', () => {
   beforeEach(() => {
-    options = { android: {}, ios: {}, windows: {} };
+    options = { android: {}, ios: {} };
     execWin = jasmine.createSpy();
     execSpy = spyOn(cordova.required, 'cordova/exec').and.callFake(execWin);
   });

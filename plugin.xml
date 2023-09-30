@@ -4,7 +4,7 @@
   id="@havesource/cordova-plugin-push" version="4.0.0-dev.0">
 
   <name>Cordova Push Plugin</name>
-  <description>Enable receiving push notifications on Android, iOS and Windows devices. Android uses Firebase Cloud Messaging. iOS uses Apple APNS Notifications. Windows uses Microsoft WNS Notifications.</description>
+  <description>Enable receiving push notifications on Android and iOS devices. Android uses Firebase Cloud Messaging. iOS uses Apple APNS Notifications.</description>
 
   <license>MIT</license>
 

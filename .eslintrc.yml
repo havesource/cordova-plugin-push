@@ -12,7 +12,3 @@ overrides:
     extends: '@cordova/eslint-config/node-tests'
     rules:
       indent: ["error", 2]
-
-  - files: [src/windows/**/*.js]
-    globals:
-      Windows: true
