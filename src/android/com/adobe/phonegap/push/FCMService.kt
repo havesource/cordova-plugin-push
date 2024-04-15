@@ -916,7 +916,7 @@ class FCMService : FirebaseMessagingService() {
             }
 
             mBuilder.setContentText(fromHtml(messageStr))
-            mBuilder.setStyle(bigText)
+            mBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(messageStr))
           }
         }
       }
