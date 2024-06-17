@@ -221,6 +221,14 @@ declare namespace PhonegapPluginPush {
 			 */
 			categories?: CategoryArray
 			/**
+			 * If `true` the device can show up critical alerts. (Possible since iOS 12 with a special entitlement)
+			 * Default is false|"false".
+       * Note: the value you set this option to the first time you call the init method will be how the application always acts.
+       * Once this is set programmatically in the init method it can only be changed manually by the user in Settings > Notifications > `App Name`.
+       * This is normal iOS behaviour.
+			 */
+			critical?: boolean
+			/**
 			 * Whether to use prod or sandbox GCM setting. Defaults to false.
 			 */
 			fcmSandbox?: boolean
