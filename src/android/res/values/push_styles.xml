@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <style name="IncomingCall" />
+
+    <style name="IncomingCall.Text">
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/brand_text</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="IncomingCall.Text.Title">
+    </style>
+
+    <style name="IncomingCall.Text.Caller">
+    </style>
+
+    <style name="IncomingCall.Button">
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/brand_text</item>
+    </style>
+
+    <style name="IncomingCall.Button.Decline">
+        <item name="android:text">@string/incoming_call_btn_decline</item>
+        <item name="android:drawableTop">@drawable/ic_decline</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">11dp</item>
+    </style>
+
+    <style name="IncomingCall.Button.Accept">
+        <item name="android:text">@string/incoming_call_btn_accept</item>
+        <item name="android:drawableTop">@drawable/ic_accept</item>
+        <item name="android:layout_marginStart">11dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+    </style>
+
+</resources>
