@@ -44,6 +44,7 @@
 @synthesize notificationCallbackId;
 @synthesize callback;
 @synthesize clearBadge;
+@synthesize forceShow;
 @synthesize handlerObj;
 
 @synthesize usesFCM;
@@ -181,6 +182,7 @@
             id alertArg = [iosOptions objectForKey:@"alert"];
             id criticalArg = [iosOptions objectForKey:@"critical"];
             id clearBadgeArg = [iosOptions objectForKey:@"clearBadge"];
+            id forceShowArg = [iosOptions objectForKey:@"forceShow"];
 
             if (([badgeArg isKindOfClass:[NSString class]] && [badgeArg isEqualToString:@"true"]) || [badgeArg boolValue])
             {
@@ -214,6 +216,14 @@
                 [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
             }
             NSLog(@"PushPlugin.register: clear badge is set to %d", clearBadge);
+
+            if (forceShowArg == nil || ([forceShowArg isKindOfClass:[NSString class]] && [forceShowArg isEqualToString:@"false"]) || ![forceShowArg boolValue]) {
+              NSLog(@"PushPlugin.register: setting forceShow to false");
+              forceShow = NO;
+            } else {
+              NSLog(@"PushPlugin.register: setting forceShow to true");
+              forceShow = YES;
+            }
 
             isInline = NO;
 
