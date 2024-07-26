@@ -293,9 +293,11 @@
             if(isGcmEnabled && [[self fcmSenderId] length] > 0) {
                 NSLog(@"Using FCM Notification");
                 [self setUsesFCM: YES];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if([FIRApp defaultApp] == nil)
+                // Execute after 1 second to ensure it is executed after the registerForRemoteNotifications method if the push permission is already granted
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    if ([FIRApp defaultApp] == nil) {
                         [FIRApp configure];
+                    }
                     [self initRegistration];
                 });
             } else {
