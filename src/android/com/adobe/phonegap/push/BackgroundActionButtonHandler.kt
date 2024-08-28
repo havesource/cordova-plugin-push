@@ -28,7 +28,7 @@ class BackgroundActionButtonHandler : BroadcastReceiver() {
 
     val notificationManager =
       context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    notificationManager.cancel(FCMService.getAppName(context), notId)
+    notificationManager.cancel(AndroidUtils.getAppName(context), notId)
 
     intent.extras?.let { extras ->
       Log.d(TAG, "Intent Extras: $extras")
