@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context="com.adobe.phonegap.push.IncomingCallActivity">
+
+    <ImageView
+        android:layout_width="@dimen/brand_logo_width"
+        android:layout_height="1dp"
+        android:layout_gravity="center"
+        android:scaleType="fitEnd"
+        android:layout_weight="1"
+        android:src="@drawable/ic_brand_logo" />
+
+    <ImageView
+        android:id="@+id/ivAnimatedCircle"
+        android:layout_width="@dimen/anim_size"
+        android:layout_height="@dimen/anim_size"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        style="@style/IncomingCall.Text.Title"
+        android:text="@string/incoming_call_title" />
+
+    <TextView
+        android:id="@+id/tvCaller"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        style="@style/IncomingCall.Text.Caller"
+        android:text="@string/incoming_call_caller_name_def" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/btnDecline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/center_view"
+            style="@style/IncomingCall.Button.Decline" />
+
+        <View
+            android:id="@+id/center_view"
+            android:layout_centerHorizontal="true"
+            android:layout_width="40dp"
+            android:layout_height="20dp" />
+
+        <Button
+            android:id="@+id/btnAccept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/center_view"
+            style="@style/IncomingCall.Button.Accept" />
+
+    </RelativeLayout>
+
+</LinearLayout>

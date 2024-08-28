@@ -24,7 +24,7 @@ class PushDismissedHandler : BroadcastReceiver() {
     if (intent.action == PushConstants.PUSH_DISMISSED) {
       val notID = intent.getIntExtra(PushConstants.NOT_ID, 0)
       Log.d(TAG, "not id = $notID")
-      FCMService().setNotification(notID, "")
+      NotificationUtils.setNotification(notID, "")
     }
   }
 }

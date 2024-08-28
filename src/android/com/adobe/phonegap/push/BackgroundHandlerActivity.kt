@@ -43,11 +43,11 @@ class BackgroundHandlerActivity : Activity() {
       Log.d(TAG, "Start In Background: $startOnBackground")
       Log.d(TAG, "Dismissed: $dismissed")
 
-      FCMService().setNotification(notId, "")
+      NotificationUtils.setNotification(notId, "")
 
       if (!startOnBackground) {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancel(FCMService.getAppName(this), notId)
+        notificationManager.cancel(AndroidUtils.getAppName(this), notId)
       }
 
       processPushBundle()

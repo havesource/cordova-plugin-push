@@ -39,11 +39,11 @@ class PushHandlerActivity : Activity() {
       val startOnBackground = extras.getBoolean(PushConstants.START_IN_BACKGROUND, false)
       val dismissed = extras.getBoolean(PushConstants.DISMISSED, false)
 
-      FCMService().setNotification(notId, "")
+      NotificationUtils.setNotification(notId, "")
 
       if (!startOnBackground) {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancel(FCMService.getAppName(this), notId)
+        notificationManager.cancel(AndroidUtils.getAppName(this), notId)
       }
 
       val notHaveInlineReply = processPushBundle()
