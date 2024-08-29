@@ -41,6 +41,8 @@
     BOOL    forceShow;
 
     NSMutableDictionary *handlerObj;
+    NSMutableDictionary *iOSOptions;
+
     void (^completionHandler)(UIBackgroundFetchResult);
 
     BOOL ready;
@@ -55,7 +57,9 @@
 @property BOOL coldstart;
 @property BOOL clearBadge;
 @property BOOL forceShow;
+
 @property (nonatomic, strong) NSMutableDictionary *handlerObj;
+@property (nonatomic, strong) NSMutableDictionary *iOSOptions;
 
 - (void)init:(CDVInvokedUrlCommand*)command;
 - (void)unregister:(CDVInvokedUrlCommand*)command;

@@ -79,12 +79,12 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    NSLog(@"didReceiveNotification with fetchCompletionHandler");
+    NSLog(@"[PushPlugin]didReceiveNotification with fetchCompletionHandler");
 
     // app is in the background or inactive, so only call notification callback if this is a silent push
     if (application.applicationState != UIApplicationStateActive) {
 
-        NSLog(@"app in-active");
+        NSLog(@"[PushPlugin] app in-active");
 
         // do some convoluted logic to find out if this should be a silent push.
         long silent = 0;
@@ -97,7 +97,7 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
         }
 
         if (silent == 1) {
-            NSLog(@"this should be a silent push");
+            NSLog(@"[PushPlugin] this should be a silent push");
             void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completionHandler(result);
@@ -112,10 +112,10 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
 
             id notId = [userInfo objectForKey:@"notId"];
             if (notId != nil) {
-                NSLog(@"Push Plugin notId %@", notId);
+                NSLog(@"[PushPlugin] notId %@", notId);
                 [pushHandler.handlerObj setObject:safeHandler forKey:notId];
             } else {
-                NSLog(@"Push Plugin notId handler");
+                NSLog(@"[PushPlugin] notId handler");
                 [pushHandler.handlerObj setObject:safeHandler forKey:@"handler"];
             }
 
@@ -123,8 +123,7 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
             pushHandler.isInline = NO;
             [pushHandler notificationReceived];
         } else {
-            NSLog(@"just put it in the shade");
-            //save it for later
+            NSLog(@"[PushPlugin] Save push for later");
             self.launchNotification = userInfo;
             completionHandler(UIBackgroundFetchResultNewData);
         }
@@ -153,12 +152,12 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
 
 - (void)pushPluginOnApplicationDidBecomeActive:(NSNotification *)notification {
 
-    NSLog(@"active");
+    NSLog(@"[PushPlugin] pushPluginOnApplicationDidBecomeActive");
     
     NSString *firstLaunchKey = @"firstLaunchKey";
     NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"phonegap-plugin-push"];
     if (![defaults boolForKey:firstLaunchKey]) {
-        NSLog(@"application first launch: remove badge icon number");
+        NSLog(@"[PushPlugin] application first launch: remove badge icon number");
         [defaults setBool:YES forKey:firstLaunchKey];
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
     }
@@ -167,11 +166,11 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
 
     PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
     if (pushHandler.clearBadge) {
-        NSLog(@"PushPlugin clearing badge");
+        NSLog(@"[PushPlugin] clearing badge");
         //zero badge
         application.applicationIconBadgeNumber = 0;
     } else {
-        NSLog(@"PushPlugin skip clear badge");
+        NSLog(@"[PushPlugin] skip clear badge");
     }
 
     if (self.launchNotification) {
@@ -190,7 +189,7 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
        willPresentNotification:(UNNotification *)notification
          withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
-    NSLog( @"NotificationCenter Handle push from foreground" );
+    NSLog(@"[PushPlugin] NotificationCenter Handle push from foreground");
     // custom code to handle push while app is in the foreground
     PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
     pushHandler.notificationMessage = notification.request.content.userInfo;
@@ -210,11 +209,11 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
 didReceiveNotificationResponse:(UNNotificationResponse *)response
          withCompletionHandler:(void(^)(void))completionHandler
 {
-    NSLog(@"Push Plugin didReceiveNotificationResponse: actionIdentifier %@, notification: %@", response.actionIdentifier,
+    NSLog(@"[PushPlugin] didReceiveNotificationResponse: actionIdentifier %@, notification: %@", response.actionIdentifier,
           response.notification.request.content.userInfo);
     NSMutableDictionary *userInfo = [response.notification.request.content.userInfo mutableCopy];
     [userInfo setObject:response.actionIdentifier forKey:@"actionCallback"];
-    NSLog(@"Push Plugin userInfo %@", userInfo);
+    NSLog(@"[PushPlugin] userInfo %@", userInfo);
 
     switch ([UIApplication sharedApplication].applicationState) {
         case UIApplicationStateActive:
@@ -228,7 +227,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
         }
         case UIApplicationStateInactive:
         {
-            NSLog(@"coldstart");
+            NSLog(@"[PushPlugin] coldstart");
             
             if([response.actionIdentifier rangeOfString:@"UNNotificationDefaultActionIdentifier"].location == NSNotFound) {
                 self.launchNotification = userInfo;
@@ -256,10 +255,10 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
             id notId = [userInfo objectForKey:@"notId"];
             if (notId != nil) {
-                NSLog(@"Push Plugin notId %@", notId);
+                NSLog(@"[PushPlugin] notId %@", notId);
                 [pushHandler.handlerObj setObject:safeHandler forKey:notId];
             } else {
-                NSLog(@"Push Plugin notId handler");
+                NSLog(@"[PushPlugin] notId handler");
                 [pushHandler.handlerObj setObject:safeHandler forKey:@"handler"];
             }
 
