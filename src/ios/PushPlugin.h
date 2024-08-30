@@ -44,6 +44,7 @@
     void (^completionHandler)(UIBackgroundFetchResult);
 
     BOOL ready;
+
 }
 
 @property (nonatomic, copy) NSString *callbackId;

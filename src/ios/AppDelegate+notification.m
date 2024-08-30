@@ -14,6 +14,8 @@ static char launchNotificationKey;
 static char coldstartKey;
 NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginApplicationDidBecomeActiveNotification";
 
+// store the previous notification for payload comparison to try and avoid processing duplicate payloads which occurs in iOS 18.
+static const void *PreviousNotificationKey = &PreviousNotificationKey;
 
 @implementation AppDelegate (notification)
 
@@ -186,11 +188,58 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
     [[NSNotificationCenter defaultCenter] postNotificationName:pushPluginApplicationDidBecomeActiveNotification object:nil];
 }
 
+- (BOOL)isDuplicateNotification:(UNNotification *)notification {
+    // Extract relevant data from the current notification
+    NSDate *currentNotificationDate = notification.date;
+    NSDictionary *currentPayload = notification.request.content.userInfo;
+
+    BOOL isDuplicate = NO;
+
+    if (self.previousNotification) {
+        NSDate *previousNotificationDate = self.previousNotification.date;
+        NSDictionary *previousPayload = self.previousNotification.request.content.userInfo;
+
+        // Compare dates
+        BOOL isSameDate = [currentNotificationDate isEqualToDate:previousNotificationDate];
+
+        // Compare payloads by serializing to JSON strings for easy comparison
+        NSError *error = nil;
+        NSData *currentPayloadData = [NSJSONSerialization dataWithJSONObject:currentPayload options:0 error:&error];
+        NSData *previousPayloadData = [NSJSONSerialization dataWithJSONObject:previousPayload options:0 error:&error];
+
+        if (!error && currentPayloadData && previousPayloadData) {
+            NSString *currentPayloadString = [[NSString alloc] initWithData:currentPayloadData encoding:NSUTF8StringEncoding];
+            NSString *previousPayloadString = [[NSString alloc] initWithData:previousPayloadData encoding:NSUTF8StringEncoding];
+
+            BOOL isSamePayload = [currentPayloadString isEqualToString:previousPayloadString];
+
+            // Determine if the notification is a duplicate
+            isDuplicate = isSameDate && isSamePayload;
+        }
+    }
+
+    return isDuplicate;
+}
+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
-         withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
-{
-    NSLog( @"NotificationCenter Handle push from foreground" );
+         withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
+
+    #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000
+    if ([self isDuplicateNotification:notification]) {
+        NSLog(@"[PushPlugin] Duplicate notification was detected and will skip processing.");
+        completionHandler(UNNotificationPresentationOptionNone);
+        // Cleanup to remove previous notification to remove leaks
+        [self setPreviousNotification:nil];
+        return;
+    }
+
+    // If it was not duplicate, we will store it to check for the potential second notification
+    [self setPreviousNotification:notification];
+    #endif
+
+    NSLog(@"[PushPlugin] NotificationCenter Handle push from foreground");
+
     // custom code to handle push while app is in the foreground
     PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
     pushHandler.notificationMessage = notification.request.content.userInfo;
@@ -236,7 +285,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
             else {
                 self.launchNotification = response.notification.request.content.userInfo;
             }
-            
+
             self.coldstart = [NSNumber numberWithBool:YES];
             break;
         }
@@ -293,10 +342,20 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
     objc_setAssociatedObject(self, &coldstartKey, aNumber, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+- (void)setPreviousNotification:(UNNotification *)previousNotification {
+    objc_setAssociatedObject(self, PreviousNotificationKey, previousNotification, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (UNNotification *)previousNotification {
+    return objc_getAssociatedObject(self, PreviousNotificationKey);
+}
+
 - (void)dealloc
 {
     self.launchNotification = nil; // clear the association and release the object
     self.coldstart = nil;
+
+    [self setPreviousNotification:nil];
 }
 
 @end
