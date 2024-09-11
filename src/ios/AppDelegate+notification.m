@@ -82,23 +82,6 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
     [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidReceiveRemoteNotification" object:nil userInfo:notificationInfo];
 }
 
-- (void)checkUserHasRemoteNotificationsEnabledWithCompletionHandler:(nonnull void (^)(BOOL))completionHandler
-{
-    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-
-        switch (settings.authorizationStatus)
-        {
-            case UNAuthorizationStatusDenied:
-            case UNAuthorizationStatusNotDetermined:
-                completionHandler(NO);
-                break;
-            case UNAuthorizationStatusAuthorized:
-                completionHandler(YES);
-                break;
-        }
-    }];
-}
-
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
          withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
