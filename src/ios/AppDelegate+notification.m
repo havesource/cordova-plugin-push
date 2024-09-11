@@ -77,58 +77,14 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    NSLog(@"[PushPlugin]didReceiveNotification with fetchCompletionHandler");
 
-    // app is in the background or inactive, so only call notification callback if this is a silent push
-    if (application.applicationState != UIApplicationStateActive) {
+    // Create a dictionary with userInfo and the completionHandler
+    NSDictionary *notificationInfo = @{
+        @"userInfo": userInfo,
+        @"completionHandler": completionHandler
+    };
 
-        NSLog(@"[PushPlugin] app in-active");
-
-        // do some convoluted logic to find out if this should be a silent push.
-        long silent = 0;
-        id aps = [userInfo objectForKey:@"aps"];
-        id contentAvailable = [aps objectForKey:@"content-available"];
-        if ([contentAvailable isKindOfClass:[NSString class]] && [contentAvailable isEqualToString:@"1"]) {
-            silent = 1;
-        } else if ([contentAvailable isKindOfClass:[NSNumber class]]) {
-            silent = [contentAvailable integerValue];
-        }
-
-        if (silent == 1) {
-            NSLog(@"[PushPlugin] this should be a silent push");
-            void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completionHandler(result);
-                });
-            };
-
-            PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
-
-            if (pushHandler.handlerObj == nil) {
-                pushHandler.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
-            }
-
-            id notId = [userInfo objectForKey:@"notId"];
-            if (notId != nil) {
-                NSLog(@"[PushPlugin] notId %@", notId);
-                [pushHandler.handlerObj setObject:safeHandler forKey:notId];
-            } else {
-                NSLog(@"[PushPlugin] notId handler");
-                [pushHandler.handlerObj setObject:safeHandler forKey:@"handler"];
-            }
-
-            pushHandler.notificationMessage = userInfo;
-            pushHandler.isInline = NO;
-            [pushHandler notificationReceived];
-        } else {
-            NSLog(@"[PushPlugin] Save push for later");
-            self.launchNotification = userInfo;
-            completionHandler(UIBackgroundFetchResultNewData);
-        }
-
-    } else {
-        completionHandler(UIBackgroundFetchResultNoData);
-    }
+    [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidReceiveRemoteNotification" object:nil userInfo:notificationInfo];
 }
 
 - (void)checkUserHasRemoteNotificationsEnabledWithCompletionHandler:(nonnull void (^)(BOOL))completionHandler
@@ -226,14 +182,14 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
         case UIApplicationStateInactive:
         {
             NSLog(@"[PushPlugin] coldstart");
-            
+
             if([response.actionIdentifier rangeOfString:@"UNNotificationDefaultActionIdentifier"].location == NSNotFound) {
                 self.launchNotification = userInfo;
             }
             else {
                 self.launchNotification = response.notification.request.content.userInfo;
             }
-            
+
             self.coldstart = [NSNumber numberWithBool:YES];
             break;
         }
