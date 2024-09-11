@@ -67,8 +67,6 @@
 - (void)unsubscribe:(CDVInvokedUrlCommand*)command;
 - (void)clearNotification:(CDVInvokedUrlCommand*)command;
 
-- (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
-
 - (void)setNotificationMessage:(NSDictionary *)notification;
 - (void)notificationReceived;
 

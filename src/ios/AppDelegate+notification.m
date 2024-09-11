@@ -69,8 +69,7 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
-    [pushHandler didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+    [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidRegisterForRemoteNotificationsWithDeviceToken" object:deviceToken];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
