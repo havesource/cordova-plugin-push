@@ -1,13 +1,13 @@
 //
-//  AppDelegate+notification.h
+//  CDVAppDelegate+notification.h
 //
 //  Created by Robert Easterday on 10/26/12.
 //
 
-#import "AppDelegate.h"
+#import "Cordova/CDVAppDelegate.h"
 @import UserNotifications;
 
-@interface AppDelegate (notification) <UNUserNotificationCenterDelegate>
+@interface CDVAppDelegate (notification) <UNUserNotificationCenterDelegate>
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;

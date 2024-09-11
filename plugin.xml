@@ -116,9 +116,9 @@
       <string>production</string>
     </config-file>
 
-    <source-file src="src/ios/AppDelegate+notification.m"/>
+    <source-file src="src/ios/CDVAppDelegate+notification.m"/>
     <source-file src="src/ios/PushPlugin.m"/>
-    <header-file src="src/ios/AppDelegate+notification.h"/>
+    <header-file src="src/ios/CDVAppDelegate+notification.h"/>
     <header-file src="src/ios/PushPlugin.h"/>
 
     <framework src="PushKit.framework"/>
