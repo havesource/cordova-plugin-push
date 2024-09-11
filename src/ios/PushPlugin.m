@@ -84,6 +84,11 @@
     if(![self usesFCM]) {
         NSLog(@"[PushPlugin] Falling back onto APNS");
     }
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didFailToRegisterForRemoteNotificationsWithError:)
+                                                 name:@"CordovaPluginPushDidFailToRegisterForRemoteNotificationsWithError"
+                                               object:nil];
 }
 
 // Refresh FCM Token
@@ -414,8 +419,9 @@
     return [hexString copy];
 }
 
-- (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
-{
+- (void)didFailToRegisterForRemoteNotificationsWithError:(NSNotification *)notification {
+    NSError *error = (NSError *)notification.object;
+
     if (self.callbackId == nil) {
         NSLog(@"[PushPlugin] Unexpected call to didFailToRegisterForRemoteNotificationsWithError, ignoring: %@", error);
         return;
