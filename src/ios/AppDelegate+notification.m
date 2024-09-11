@@ -1,26 +1,14 @@
 //
 //  AppDelegate+notification.m
-//  pushtest
 //
 //  Created by Robert Easterday on 10/26/12.
-//
 //
 
 #import "AppDelegate+notification.h"
 #import "PushPlugin.h"
 #import <objc/runtime.h>
 
-static char launchNotificationKey;
-static char coldstartKey;
-NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginApplicationDidBecomeActiveNotification";
-
-
 @implementation AppDelegate (notification)
-
-- (id) getCommandInstance:(NSString*)className
-{
-    return [self.viewController getCommandInstance:className];
-}
 
 // its dangerous to override a method from within a category.
 // Instead we will use method swizzling. we set this up in the load call.
@@ -108,34 +96,6 @@ NSString *const pushPluginApplicationDidBecomeActiveNotification = @"pushPluginA
     };
 
     [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidReceiveNotificationResponse" object:nil userInfo:notificationInfo];
-}
-
-// The accessors use an Associative Reference since you can't define a iVar in a category
-// http://developer.apple.com/library/ios/#documentation/cocoa/conceptual/objectivec/Chapters/ocAssociativeReferences.html
-- (NSMutableArray *)launchNotification
-{
-    return objc_getAssociatedObject(self, &launchNotificationKey);
-}
-
-- (void)setLaunchNotification:(NSDictionary *)aDictionary
-{
-    objc_setAssociatedObject(self, &launchNotificationKey, aDictionary, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSNumber *)coldstart
-{
-    return objc_getAssociatedObject(self, &coldstartKey);
-}
-
-- (void)setColdstart:(NSNumber *)aNumber
-{
-    objc_setAssociatedObject(self, &coldstartKey, aNumber, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (void)dealloc
-{
-    self.launchNotification = nil; // clear the association and release the object
-    self.coldstart = nil;
 }
 
 @end

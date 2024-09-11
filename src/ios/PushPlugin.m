@@ -27,7 +27,6 @@
 #define GMP_NO_MODULES true
 
 #import "PushPlugin.h"
-#import "AppDelegate+notification.h"
 
 @import Firebase;
 @import FirebaseCore;
@@ -293,7 +292,7 @@
         [self performSelectorOnMainThread:@selector(notificationReceived) withObject:self waitUntilDone:NO];
     }
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:pushPluginApplicationDidBecomeActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"CordovaPluginPushApplicationDidBecomeActiveNotification" object:nil];
 
 }
 
@@ -537,7 +536,7 @@
 
             [[NSNotificationCenter defaultCenter] addObserver:self
                                                      selector:@selector(handleNotificationSettings:)
-                                                         name:pushPluginApplicationDidBecomeActiveNotification
+                                                         name:@"CordovaPluginPushApplicationDidBecomeActiveNotification"
                                                        object:nil];
 
             if(notificationMessage) {            // if there is a pending startup notification
@@ -928,6 +927,12 @@
 - (void)registerForRemoteNotifications
 {
     [[UIApplication sharedApplication] registerForRemoteNotifications];
+}
+
+- (void)dealloc
+{
+    self.launchNotification = nil;
+    self.coldstart = nil;
 }
 
 @end
