@@ -83,6 +83,9 @@
 
     if(![self usesFCM]) {
         NSLog(@"[PushPlugin] Falling back onto APNS");
+    } else {
+        NSLog(@"[PushPlugin] Configuring Firebase App for FCM");
+        [FIRApp configure];
     }
 }
 
@@ -367,15 +370,8 @@
 
     if([self usesFCM]) {
         NSLog(@"[PushPlugin] Setting APNS Token to FCM");
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if([FIRApp defaultApp] == nil)
-                [FIRApp configure];
-
-            // Ensure the APNS token is passed to Firebase Messaging
-            [[FIRMessaging messaging] setAPNSToken:deviceToken];
-
-            [self initFirebaseMessaging:[self iOSOptions]];
-        });
+        [[FIRMessaging messaging] setAPNSToken:deviceToken];
+        [self initFirebaseMessaging:[self iOSOptions]];
     }
 
     // Check what Notifications the user has turned on.  We registered for all three, but they may have manually disabled some or all of them.
