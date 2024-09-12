@@ -93,11 +93,12 @@
   </platform>
 
   <platform name="ios">
-    <preference name="IOS_FIREBASE_MESSAGING_VERSION" default="~> 8.1.1"/>
+    <preference name="IOS_FIREBASE_MESSAGING_VERSION" default="~> 10.24.0"/>
 
     <config-file target="config.xml" parent="/*">
       <feature name="PushNotification">
         <param name="ios-package" value="PushPlugin"/>
+        <param name="onload" value="true" />
       </feature>
     </config-file>
 
