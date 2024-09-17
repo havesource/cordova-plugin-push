@@ -35,12 +35,10 @@
 @synthesize notificationMessage;
 @synthesize isInline;
 @synthesize coldstart;
-
 @synthesize callbackId;
 @synthesize clearBadge;
 @synthesize forceShow;
 @synthesize handlerObj;
-
 @synthesize usesFCM;
 @synthesize fcmSenderId;
 @synthesize fcmTopics;
@@ -252,7 +250,6 @@
                     NSLog(@"[PushPlugin] Adding category %@", key);
                     [categories addObject:notificationCategory];
                 }
-
             }
 
             UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
@@ -263,8 +260,6 @@
                                                      selector:@selector(handleNotificationSettings:)
                                                          name:pushPluginApplicationDidBecomeActiveNotification
                                                        object:nil];
-
-
 
             // Read GoogleService-Info.plist
             NSString *path = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
@@ -297,7 +292,6 @@
                     [self performSelector:@selector(notificationReceived) withObject:nil afterDelay: 0.5];
                 });
             }
-
         }];
     }
 }
@@ -337,7 +331,6 @@
 #endif
 
 #if !TARGET_IPHONE_SIMULATOR
-
     // Check what Notifications the user has turned on.  We registered for all three, but they may have manually disabled some or all of them.
 
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
@@ -348,8 +341,6 @@
             [weakSelf registerWithToken: token];
         }
     }];
-
-
 #endif
 }
 
@@ -385,7 +376,6 @@
     {
         NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:4];
         NSMutableDictionary* additionalData = [NSMutableDictionary dictionaryWithCapacity:4];
-
 
         for (id key in notificationMessage) {
             if ([key isEqualToString:@"aps"]) {
@@ -538,7 +528,6 @@
     [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 }
-
 
 -(void)failWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message withError:(NSError *)error
 {
