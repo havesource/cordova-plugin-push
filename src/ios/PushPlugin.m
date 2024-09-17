@@ -43,8 +43,7 @@
 @synthesize fcmSenderId;
 @synthesize fcmTopics;
 
--(void)initRegistration;
-{
+- (void)initRegistration {
     [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
         if (error != nil) {
             NSLog(@"[PushPlugin] Error getting FCM registration token: %@", error);
@@ -75,8 +74,7 @@
 #endif
 }
 
-- (void)unregister:(CDVInvokedUrlCommand*)command;
-{
+- (void)unregister:(CDVInvokedUrlCommand *)command {
     NSArray* topics = [command argumentAtIndex:0];
 
     if (topics != nil) {
@@ -91,8 +89,7 @@
     }
 }
 
-- (void)subscribe:(CDVInvokedUrlCommand*)command;
-{
+- (void)subscribe:(CDVInvokedUrlCommand *)command {
     NSString* topic = [command argumentAtIndex:0];
 
     if (topic != nil) {
@@ -107,8 +104,7 @@
     }
 }
 
-- (void)unsubscribe:(CDVInvokedUrlCommand*)command;
-{
+- (void)unsubscribe:(CDVInvokedUrlCommand *)command {
     NSString* topic = [command argumentAtIndex:0];
 
     if (topic != nil) {
@@ -123,8 +119,7 @@
     }
 }
 
-- (void)init:(CDVInvokedUrlCommand*)command;
-{
+- (void)init:(CDVInvokedUrlCommand *)command {
     NSMutableDictionary* options = [command.arguments objectAtIndex:0];
     NSMutableDictionary* iosOptions = [options objectForKey:@"ios"];
     id voipArg = [iosOptions objectForKey:@"voip"];
@@ -344,8 +339,7 @@
 #endif
 }
 
-- (NSString *)hexadecimalStringFromData:(NSData *)data
-{
+- (NSString *)hexadecimalStringFromData:(NSData *)data {
     NSUInteger dataLength = data.length;
     if (dataLength == 0) {
         return nil;
@@ -359,8 +353,7 @@
     return [hexString copy];
 }
 
-- (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
-{
+- (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
     if (self.callbackId == nil) {
         NSLog(@"[PushPlugin] Unexpected call to didFailToRegisterForRemoteNotificationsWithError, ignoring: %@", error);
         return;
@@ -442,8 +435,7 @@
     }
 }
 
-- (void)clearNotification:(CDVInvokedUrlCommand *)command
-{
+- (void)clearNotification:(CDVInvokedUrlCommand *)command {
     NSNumber *notId = [command.arguments objectAtIndex:0];
     [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
         /*
@@ -464,8 +456,7 @@
     }];
 }
 
-- (void)setApplicationIconBadgeNumber:(CDVInvokedUrlCommand *)command
-{
+- (void)setApplicationIconBadgeNumber:(CDVInvokedUrlCommand *)command {
     NSMutableDictionary* options = [command.arguments objectAtIndex:0];
     int badge = [[options objectForKey:@"badge"] intValue] ?: 0;
 
@@ -476,16 +467,14 @@
     [self.commandDelegate sendPluginResult:commandResult callbackId:command.callbackId];
 }
 
-- (void)getApplicationIconBadgeNumber:(CDVInvokedUrlCommand *)command
-{
+- (void)getApplicationIconBadgeNumber:(CDVInvokedUrlCommand *)command {
     NSInteger badge = [UIApplication sharedApplication].applicationIconBadgeNumber;
 
     CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:(int)badge];
     [self.commandDelegate sendPluginResult:commandResult callbackId:command.callbackId];
 }
 
-- (void)clearAllNotifications:(CDVInvokedUrlCommand *)command
-{
+- (void)clearAllNotifications:(CDVInvokedUrlCommand *)command {
     [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
 
     NSString* message = [NSString stringWithFormat:@"cleared all notifications"];
@@ -493,8 +482,7 @@
     [self.commandDelegate sendPluginResult:commandResult callbackId:command.callbackId];
 }
 
-- (void)hasPermission:(CDVInvokedUrlCommand *)command
-{
+- (void)hasPermission:(CDVInvokedUrlCommand *)command {
     id<UIApplicationDelegate> appDelegate = [UIApplication sharedApplication].delegate;
     if ([appDelegate respondsToSelector:@selector(checkUserHasRemoteNotificationsEnabledWithCompletionHandler:)]) {
         [appDelegate performSelector:@selector(checkUserHasRemoteNotificationsEnabledWithCompletionHandler:) withObject:^(BOOL isEnabled) {
@@ -506,8 +494,7 @@
     }
 }
 
--(void)successWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message
-{
+- (void)successWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message {
     if (myCallbackId != nil)
     {
         CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message];
@@ -515,7 +502,7 @@
     }
 }
 
--(void)registerWithToken:(NSString*)token; {
+- (void)registerWithToken:(NSString *)token {
     // Send result to trigger 'registration' event but keep callback
     NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
     [message setObject:token forKey:@"registrationId"];
@@ -529,16 +516,14 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 }
 
--(void)failWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message withError:(NSError *)error
-{
+- (void)failWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message withError:(NSError *)error {
     NSString        *errorMessage = (error) ? [NSString stringWithFormat:@"%@ - %@", message, [error localizedDescription]] : message;
     CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
 
     [self.commandDelegate sendPluginResult:commandResult callbackId:myCallbackId];
 }
 
--(void) finish:(CDVInvokedUrlCommand*)command
-{
+- (void) finish:(CDVInvokedUrlCommand *)command {
     NSLog(@"[PushPlugin] finish called");
 
     [self.commandDelegate runInBackground:^ {
@@ -557,8 +542,7 @@
     }];
 }
 
--(void)stopBackgroundTask:(NSTimer*)timer
-{
+- (void)stopBackgroundTask:(NSTimer *)timer {
     UIApplication *app = [UIApplication sharedApplication];
 
     NSLog(@"[PushPlugin] stopBackgroundTask called");
@@ -575,8 +559,7 @@
 }
 
 
-- (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type
-{
+- (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type {
     if([credentials.token length] == 0) {
         NSLog(@"[PushPlugin] VoIP register error - No device token:");
         return;
@@ -592,20 +575,17 @@
     [self registerWithToken:sToken];
 }
 
-- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
-{
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type {
     NSLog(@"[PushPlugin] VoIP Notification received");
     self.notificationMessage = payload.dictionaryPayload;
     [self notificationReceived];
 }
 
-- (void)handleNotificationSettings:(NSNotification *)notification
-{
+- (void)handleNotificationSettings:(NSNotification *)notification {
     [self handleNotificationSettingsWithAuthorizationOptions:nil];
 }
 
-- (void)handleNotificationSettingsWithAuthorizationOptions:(NSNumber *)authorizationOptionsObject
-{
+- (void)handleNotificationSettingsWithAuthorizationOptions:(NSNumber *)authorizationOptionsObject {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     UNAuthorizationOptions authorizationOptions = [authorizationOptionsObject unsignedIntegerValue];
 
@@ -638,8 +618,7 @@
     }];
 }
 
-- (void)registerForRemoteNotifications
-{
+- (void)registerForRemoteNotifications {
     [[UIApplication sharedApplication] registerForRemoteNotifications];
 }
 
