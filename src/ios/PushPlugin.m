@@ -77,10 +77,6 @@
 #endif
 }
 
-- (void)willSendDataMessageWithID:messageID error:error {
-    NSLog(@"[PushPlugin] willSendDataMessageWithID");
-}
-
 - (void)unregister:(CDVInvokedUrlCommand*)command;
 {
     NSArray* topics = [command argumentAtIndex:0];
