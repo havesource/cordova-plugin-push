@@ -58,9 +58,9 @@
 {
     [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
         if (error != nil) {
-            NSLog(@"Error getting FCM registration token: %@", error);
+            NSLog(@"[PushPlugin] Error getting FCM registration token: %@", error);
         } else {
-            NSLog(@"FCM registration token: %@", token);
+            NSLog(@"[PushPlugin] FCM registration token: %@", token);
 
             [self setFcmRegistrationToken: token];
 
@@ -69,7 +69,7 @@
             id topics = [self fcmTopics];
             if (topics != nil) {
                 for (NSString *topic in topics) {
-                    NSLog(@"subscribe to topic: %@", topic);
+                    NSLog(@"[PushPlugin] subscribe to topic: %@", topic);
                     id pubSub = [FIRMessaging messaging];
                     [pubSub subscribeToTopic:topic];
                 }
@@ -85,18 +85,18 @@
 - (void)onTokenRefresh {
 #if !TARGET_IPHONE_SIMULATOR
     // A rotation of the registration tokens is happening, so the app needs to request a new token.
-    NSLog(@"The FCM registration token needs to be changed.");
+    NSLog(@"[PushPlugin] The FCM registration token needs to be changed.");
     [self initRegistration];
 #endif
 }
 
 // contains error info
 - (void)didSendDataMessageWithID:messageID {
-    NSLog(@"didSendDataMessageWithID");
+    NSLog(@"[PushPlugin] didSendDataMessageWithID");
 }
 
 - (void)willSendDataMessageWithID:messageID error:error {
-    NSLog(@"willSendDataMessageWithID");
+    NSLog(@"[PushPlugin] willSendDataMessageWithID");
 }
 
 - (void)unregister:(CDVInvokedUrlCommand*)command;
@@ -106,7 +106,7 @@
     if (topics != nil) {
         id pubSub = [FIRMessaging messaging];
         for (NSString *topic in topics) {
-            NSLog(@"unsubscribe from topic: %@", topic);
+            NSLog(@"[PushPlugin] unsubscribe from topic: %@", topic);
             [pubSub unsubscribeFromTopic:topic];
         }
     } else {
@@ -120,13 +120,13 @@
     NSString* topic = [command argumentAtIndex:0];
 
     if (topic != nil) {
-        NSLog(@"subscribe from topic: %@", topic);
+        NSLog(@"[PushPlugin] subscribe from topic: %@", topic);
         id pubSub = [FIRMessaging messaging];
         [pubSub subscribeToTopic:topic];
-        NSLog(@"Successfully subscribe to topic %@", topic);
+        NSLog(@"[PushPlugin] Successfully subscribe to topic %@", topic);
         [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully subscribe to topic %@", topic]];
     } else {
-        NSLog(@"There is no topic to subscribe");
+        NSLog(@"[PushPlugin] There is no topic to subscribe");
         [self successWithMessage:command.callbackId withMsg:@"There is no topic to subscribe"];
     }
 }
@@ -136,13 +136,13 @@
     NSString* topic = [command argumentAtIndex:0];
 
     if (topic != nil) {
-        NSLog(@"unsubscribe from topic: %@", topic);
+        NSLog(@"[PushPlugin] unsubscribe from topic: %@", topic);
         id pubSub = [FIRMessaging messaging];
         [pubSub unsubscribeFromTopic:topic];
-        NSLog(@"Successfully unsubscribe from topic %@", topic);
+        NSLog(@"[PushPlugin] Successfully unsubscribe from topic %@", topic);
         [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully unsubscribe from topic %@", topic]];
     } else {
-        NSLog(@"There is no topic to unsubscribe");
+        NSLog(@"[PushPlugin] There is no topic to unsubscribe");
         [self successWithMessage:command.callbackId withMsg:@"There is no topic to unsubscribe"];
     }
 }
@@ -154,7 +154,7 @@
     id voipArg = [iosOptions objectForKey:@"voip"];
     if (([voipArg isKindOfClass:[NSString class]] && [voipArg isEqualToString:@"true"]) || [voipArg boolValue]) {
         [self.commandDelegate runInBackground:^ {
-            NSLog(@"Push Plugin VoIP set to true");
+            NSLog(@"[PushPlugin] VoIP set to true");
 
             self.callbackId = command.callbackId;
 
@@ -163,13 +163,13 @@
             pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
         }];
     } else {
-        NSLog(@"Push Plugin VoIP missing or false");
+        NSLog(@"[PushPlugin] VoIP missing or false");
         [[NSNotificationCenter defaultCenter]
           addObserver:self selector:@selector(onTokenRefresh)
           name:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
 
         [self.commandDelegate runInBackground:^ {
-            NSLog(@"Push Plugin register called");
+            NSLog(@"[PushPlugin] register called");
             self.callbackId = command.callbackId;
 
             NSArray* topics = [iosOptions objectForKey:@"topics"];
@@ -208,32 +208,32 @@
             }
 
             if (clearBadgeArg == nil || ([clearBadgeArg isKindOfClass:[NSString class]] && [clearBadgeArg isEqualToString:@"false"]) || ![clearBadgeArg boolValue]) {
-                NSLog(@"PushPlugin.register: setting badge to false");
+                NSLog(@"[PushPlugin] register: setting badge to false");
                 clearBadge = NO;
             } else {
-                NSLog(@"PushPlugin.register: setting badge to true");
+                NSLog(@"[PushPlugin] register: setting badge to true");
                 clearBadge = YES;
                 [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
             }
-            NSLog(@"PushPlugin.register: clear badge is set to %d", clearBadge);
+            NSLog(@"[PushPlugin] register: clear badge is set to %d", clearBadge);
 
             if (forceShowArg == nil || ([forceShowArg isKindOfClass:[NSString class]] && [forceShowArg isEqualToString:@"false"]) || ![forceShowArg boolValue]) {
-              NSLog(@"PushPlugin.register: setting forceShow to false");
+              NSLog(@"[PushPlugin] register: setting forceShow to false");
               forceShow = NO;
             } else {
-              NSLog(@"PushPlugin.register: setting forceShow to true");
+              NSLog(@"[PushPlugin] register: setting forceShow to true");
               forceShow = YES;
             }
 
             isInline = NO;
 
-            NSLog(@"PushPlugin.register: better button setup");
+            NSLog(@"[PushPlugin] register: better button setup");
             // setup action buttons
             NSMutableSet<UNNotificationCategory *> *categories = [[NSMutableSet alloc] init];
             id categoryOptions = [iosOptions objectForKey:@"categories"];
             if (categoryOptions != nil && [categoryOptions isKindOfClass:[NSDictionary class]]) {
                 for (id key in categoryOptions) {
-                    NSLog(@"categories: key %@", key);
+                    NSLog(@"[PushPlugin] categories: key %@", key);
                     id category = [categoryOptions objectForKey:key];
 
                     id yesButton = [category objectForKey:@"yes"];
@@ -271,7 +271,7 @@
                                                                                                 intentIdentifiers:@[]
                                                                                                           options:UNNotificationCategoryOptionNone];
 
-                    NSLog(@"Adding category %@", key);
+                    NSLog(@"[PushPlugin] Adding category %@", key);
                     [categories addObject:notificationCategory];
                 }
 
@@ -296,12 +296,12 @@
             fcmSenderId = [dict objectForKey:@"GCM_SENDER_ID"];
             BOOL isGcmEnabled = [[dict valueForKey:@"IS_GCM_ENABLED"] boolValue];
 
-            NSLog(@"FCM Sender ID %@", fcmSenderId);
+            NSLog(@"[PushPlugin] FCM Sender ID %@", fcmSenderId);
 
             //  GCM options
             [self setFcmSenderId: fcmSenderId];
             if(isGcmEnabled && [[self fcmSenderId] length] > 0) {
-                NSLog(@"Using FCM Notification");
+                NSLog(@"[PushPlugin] Using FCM Notification");
                 [self setUsesFCM: YES];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if([FIRApp defaultApp] == nil)
@@ -309,7 +309,7 @@
                     [self initRegistration];
                 });
             } else {
-                NSLog(@"Using APNS Notification");
+                NSLog(@"[PushPlugin] Using APNS Notification");
                 [self setUsesFCM:NO];
             }
             id fcmSandboxArg = [iosOptions objectForKey:@"fcmSandbox"];
@@ -319,7 +319,7 @@
                 (([fcmSandboxArg isKindOfClass:[NSString class]] && [fcmSandboxArg isEqualToString:@"true"]) ||
                  [fcmSandboxArg boolValue]))
             {
-                NSLog(@"Using FCM Sandbox");
+                NSLog(@"[PushPlugin] Using FCM Sandbox");
                 [self setFcmSandbox:@YES];
             }
 
@@ -353,10 +353,10 @@
 
 - (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     if (self.callbackId == nil) {
-        NSLog(@"Unexpected call to didRegisterForRemoteNotificationsWithDeviceToken, ignoring: %@", deviceToken);
+        NSLog(@"[PushPlugin] Unexpected call to didRegisterForRemoteNotificationsWithDeviceToken, ignoring: %@", deviceToken);
         return;
     }
-    NSLog(@"Push Plugin register success: %@", deviceToken);
+    NSLog(@"[PushPlugin] register success: %@", deviceToken);
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     // [deviceToken description] is like "{length = 32, bytes = 0xd3d997af 967d1f43 b405374a 13394d2f ... 28f10282 14af515f }"
@@ -403,15 +403,15 @@
 - (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
     if (self.callbackId == nil) {
-        NSLog(@"Unexpected call to didFailToRegisterForRemoteNotificationsWithError, ignoring: %@", error);
+        NSLog(@"[PushPlugin] Unexpected call to didFailToRegisterForRemoteNotificationsWithError, ignoring: %@", error);
         return;
     }
-    NSLog(@"Push Plugin register failed");
+    NSLog(@"[PushPlugin] register failed");
     [self failWithMessage:self.callbackId withMsg:@"" withError:error];
 }
 
 - (void)notificationReceived {
-    NSLog(@"Notification received");
+    NSLog(@"[PushPlugin] Notification received");
 
     if (notificationMessage && self.callbackId != nil)
     {
@@ -424,7 +424,7 @@
                 id aps = [notificationMessage objectForKey:@"aps"];
 
                 for(id key in aps) {
-                    NSLog(@"Push Plugin key: %@", key);
+                    NSLog(@"[PushPlugin] key: %@", key);
                     id value = [aps objectForKey:key];
 
                     if ([key isEqualToString:@"alert"]) {
@@ -582,7 +582,7 @@
 
 -(void) finish:(CDVInvokedUrlCommand*)command
 {
-    NSLog(@"Push Plugin finish called");
+    NSLog(@"[PushPlugin] finish called");
 
     [self.commandDelegate runInBackground:^ {
         NSString* notId = [command.arguments objectAtIndex:0];
@@ -604,10 +604,10 @@
 {
     UIApplication *app = [UIApplication sharedApplication];
 
-    NSLog(@"Push Plugin stopBackgroundTask called");
+    NSLog(@"[PushPlugin] stopBackgroundTask called");
 
     if (handlerObj) {
-        NSLog(@"Push Plugin handlerObj");
+        NSLog(@"[PushPlugin] handlerObj");
         completionHandler = [handlerObj[[timer userInfo]] copy];
         if (completionHandler) {
             NSLog(@"Push Plugin: stopBackgroundTask (remaining t: %f)", app.backgroundTimeRemaining);
@@ -621,11 +621,11 @@
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type
 {
     if([credentials.token length] == 0) {
-        NSLog(@"VoIPPush Plugin register error - No device token:");
+        NSLog(@"[PushPlugin] VoIP register error - No device token:");
         return;
     }
 
-    NSLog(@"VoIPPush Plugin register success");
+    NSLog(@"[PushPlugin] VoIP register success");
     const unsigned *tokenBytes = [credentials.token bytes];
     NSString *sToken = [NSString stringWithFormat:@"%08x%08x%08x%08x%08x%08x%08x%08x",
                         ntohl(tokenBytes[0]), ntohl(tokenBytes[1]), ntohl(tokenBytes[2]),
@@ -637,7 +637,7 @@
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
 {
-    NSLog(@"VoIP Notification received");
+    NSLog(@"[PushPlugin] VoIP Notification received");
     self.notificationMessage = payload.dictionaryPayload;
     [self notificationReceived];
 }
