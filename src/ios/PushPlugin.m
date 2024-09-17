@@ -77,11 +77,6 @@
 #endif
 }
 
-// contains error info
-- (void)didSendDataMessageWithID:messageID {
-    NSLog(@"[PushPlugin] didSendDataMessageWithID");
-}
-
 - (void)willSendDataMessageWithID:messageID error:error {
     NSLog(@"[PushPlugin] willSendDataMessageWithID");
 }

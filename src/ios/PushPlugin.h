@@ -62,7 +62,6 @@
 - (void)notificationReceived;
 
 - (void)willSendDataMessageWithID:(NSString *)messageID error:(NSError *)error;
-- (void)didSendDataMessageWithID:(NSString *)messageID;
 
 // VoIP Features
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type;
