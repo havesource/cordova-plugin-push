@@ -59,8 +59,6 @@
         } else {
             NSLog(@"[PushPlugin] FCM registration token: %@", token);
 
-            NSString* message = [NSString stringWithFormat:@"Remote InstanceID token: %@", token];
-
             id topics = [self fcmTopics];
             if (topics != nil) {
                 for (NSString *topic in topics) {
