@@ -49,7 +49,6 @@
 
 @synthesize usesFCM;
 @synthesize fcmSenderId;
-@synthesize fcmRegistrationOptions;
 @synthesize fcmRegistrationToken;
 @synthesize fcmTopics;
 
