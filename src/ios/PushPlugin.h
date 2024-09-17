@@ -33,7 +33,6 @@
 {
     NSDictionary *notificationMessage;
     BOOL    isInline;
-    NSString *callback;
     BOOL    clearBadge;
     BOOL    forceShow;
 
@@ -44,7 +43,6 @@
 }
 
 @property (nonatomic, copy) NSString *callbackId;
-@property (nonatomic, copy) NSString *callback;
 
 @property (nonatomic, strong) NSDictionary *notificationMessage;
 @property BOOL isInline;

@@ -37,7 +37,6 @@
 @synthesize coldstart;
 
 @synthesize callbackId;
-@synthesize callback;
 @synthesize clearBadge;
 @synthesize forceShow;
 @synthesize handlerObj;
