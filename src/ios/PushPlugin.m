@@ -49,7 +49,6 @@
 
 @synthesize usesFCM;
 @synthesize fcmSenderId;
-@synthesize fcmRegistrationToken;
 @synthesize fcmTopics;
 
 -(void)initRegistration;
@@ -59,8 +58,6 @@
             NSLog(@"[PushPlugin] Error getting FCM registration token: %@", error);
         } else {
             NSLog(@"[PushPlugin] FCM registration token: %@", token);
-
-            [self setFcmRegistrationToken: token];
 
             NSString* message = [NSString stringWithFormat:@"Remote InstanceID token: %@", token];
 

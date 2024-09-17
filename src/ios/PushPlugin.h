@@ -79,7 +79,6 @@
 // FCM Features
 @property(nonatomic, assign) BOOL usesFCM;
 @property(nonatomic, strong) NSString *fcmSenderId;
-@property(nonatomic, strong) NSString *fcmRegistrationToken;
 @property(nonatomic, strong) NSArray *fcmTopics;
 
 @end
