@@ -48,7 +48,6 @@
 @synthesize handlerObj;
 
 @synthesize usesFCM;
-@synthesize fcmSandbox;
 @synthesize fcmSenderId;
 @synthesize fcmRegistrationOptions;
 @synthesize fcmRegistrationToken;
@@ -311,16 +310,6 @@
             } else {
                 NSLog(@"[PushPlugin] Using APNS Notification");
                 [self setUsesFCM:NO];
-            }
-            id fcmSandboxArg = [iosOptions objectForKey:@"fcmSandbox"];
-
-            [self setFcmSandbox:@NO];
-            if ([self usesFCM] &&
-                (([fcmSandboxArg isKindOfClass:[NSString class]] && [fcmSandboxArg isEqualToString:@"true"]) ||
-                 [fcmSandboxArg boolValue]))
-            {
-                NSLog(@"[PushPlugin] Using FCM Sandbox");
-                [self setFcmSandbox:@YES];
             }
 
             if (notificationMessage) {            // if there is a pending startup notification

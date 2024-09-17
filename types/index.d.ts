@@ -229,10 +229,6 @@ declare namespace PhonegapPluginPush {
 			 */
 			critical?: boolean
 			/**
-			 * Whether to use prod or sandbox GCM setting. Defaults to false.
-			 */
-			fcmSandbox?: boolean
-			/**
 			 * If the array contains one or more strings each string will be used to subscribe to a FcmPubSub topic. Defaults to [].
 			 */
 			topics?: string[]

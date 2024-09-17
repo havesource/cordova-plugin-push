@@ -134,7 +134,6 @@ The following properties are used if you want use GCM on iOS.
 
 | Attribute        | Type      | Default | Description                                                    |
 | ---------------- | --------- | ------- | -------------------------------------------------------------- |
-| `ios.fcmSandbox` | `boolean` | `false` | Whether to use prod or sandbox GCM setting. Defaults to false. |
 | `ios.topics`     | `array`   | `[]`    | Optional. If the array contains one or more strings each string will be used to subscribe to a FcmPubSub topic. |
 
 ##### How GCM on iOS works.
@@ -145,12 +144,7 @@ What happens is on the device side is that it registers with APNS, then that reg
 
 When you send a message to GCM using that ID, what it does is look up the APNS registration ID on it's side and forward the message you sent to GCM on to APSN to deliver to your iOS device.
 
-Make sure that the certificate you build with matches your `fcmSandbox` value.
-
-* If you build your app as development and set `fcmSandbox: false` it will fail.
-* If you build your app as production and set `fcmSandbox: true` it will fail.
-* If you build your app as development and set `fcmSandbox: true` but haven't uploaded the development certs to Google it will fail.
-* If you build your app as production and set `fcmSandbox: false` but haven't uploaded the production certs to Google it will fail.
+Unlike GCM, FCM automatically determines whether to use the sandbox or production environment based on factors such as the app's provisioning profile, APNs certificate, and distribution method (e.g., App Store, TestFlight, or simulator).
 
 > Note: The integration between GCM and APNS is a bit finicky. Personally, I feel it is much better to send pushes to Android using GCM and pushes to iOS using APNS which this plugin does support.
 
