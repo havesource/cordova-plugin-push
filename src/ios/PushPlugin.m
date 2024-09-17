@@ -24,6 +24,7 @@
  */
 
 #import "PushPlugin.h"
+#import "PushPluginSettings.h"
 #import "AppDelegate+notification.h"
 
 @import Firebase;
@@ -121,9 +122,10 @@
 
 - (void)init:(CDVInvokedUrlCommand *)command {
     NSMutableDictionary* options = [command.arguments objectAtIndex:0];
-    NSMutableDictionary* iosOptions = [options objectForKey:@"ios"];
-    id voipArg = [iosOptions objectForKey:@"voip"];
-    if (([voipArg isKindOfClass:[NSString class]] && [voipArg isEqualToString:@"true"]) || [voipArg boolValue]) {
+    [[PushPluginSettings sharedInstance] updateSettingsWithOptions:[options objectForKey:@"ios"]];
+    PushPluginSettings *settings = [PushPluginSettings sharedInstance];
+
+    if ([settings voipEnabled]) {
         [self.commandDelegate runInBackground:^ {
             NSLog(@"[PushPlugin] VoIP set to true");
 
@@ -142,114 +144,34 @@
         [self.commandDelegate runInBackground:^ {
             NSLog(@"[PushPlugin] register called");
             self.callbackId = command.callbackId;
-
-            NSArray* topics = [iosOptions objectForKey:@"topics"];
-            [self setFcmTopics:topics];
+            self.isInline = NO;
+            self.fcmTopics = [settings fcmTopics];
+            self.forceShow = [settings forceShowEnabled];
+            self.clearBadge = [settings clearBadgeEnabled];
+            if (self.clearBadge) {
+                [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+            }
 
             UNAuthorizationOptions authorizationOptions = UNAuthorizationOptionNone;
-
-            id badgeArg = [iosOptions objectForKey:@"badge"];
-            id soundArg = [iosOptions objectForKey:@"sound"];
-            id alertArg = [iosOptions objectForKey:@"alert"];
-            id criticalArg = [iosOptions objectForKey:@"critical"];
-            id clearBadgeArg = [iosOptions objectForKey:@"clearBadge"];
-            id forceShowArg = [iosOptions objectForKey:@"forceShow"];
-
-            if (([badgeArg isKindOfClass:[NSString class]] && [badgeArg isEqualToString:@"true"]) || [badgeArg boolValue])
-            {
+            if ([settings badgeEnabled]) {
                 authorizationOptions |= UNAuthorizationOptionBadge;
             }
-
-            if (([soundArg isKindOfClass:[NSString class]] && [soundArg isEqualToString:@"true"]) || [soundArg boolValue])
-            {
+            if ([settings soundEnabled]) {
                 authorizationOptions |= UNAuthorizationOptionSound;
             }
-
-            if (([alertArg isKindOfClass:[NSString class]] && [alertArg isEqualToString:@"true"]) || [alertArg boolValue])
-            {
+            if ([settings alertEnabled]) {
                 authorizationOptions |= UNAuthorizationOptionAlert;
             }
-
             if (@available(iOS 12.0, *))
             {
-                if ((([criticalArg isKindOfClass:[NSString class]] && [criticalArg isEqualToString:@"true"]) || [criticalArg boolValue]))
-                {
+                if ([settings criticalEnabled]) {
                     authorizationOptions |= UNAuthorizationOptionCriticalAlert;
                 }
             }
-
-            if (clearBadgeArg == nil || ([clearBadgeArg isKindOfClass:[NSString class]] && [clearBadgeArg isEqualToString:@"false"]) || ![clearBadgeArg boolValue]) {
-                NSLog(@"[PushPlugin] register: setting badge to false");
-                clearBadge = NO;
-            } else {
-                NSLog(@"[PushPlugin] register: setting badge to true");
-                clearBadge = YES;
-                [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-            }
-            NSLog(@"[PushPlugin] register: clear badge is set to %d", clearBadge);
-
-            if (forceShowArg == nil || ([forceShowArg isKindOfClass:[NSString class]] && [forceShowArg isEqualToString:@"false"]) || ![forceShowArg boolValue]) {
-              NSLog(@"[PushPlugin] register: setting forceShow to false");
-              forceShow = NO;
-            } else {
-              NSLog(@"[PushPlugin] register: setting forceShow to true");
-              forceShow = YES;
-            }
-
-            isInline = NO;
-
-            NSLog(@"[PushPlugin] register: better button setup");
-            // setup action buttons
-            NSMutableSet<UNNotificationCategory *> *categories = [[NSMutableSet alloc] init];
-            id categoryOptions = [iosOptions objectForKey:@"categories"];
-            if (categoryOptions != nil && [categoryOptions isKindOfClass:[NSDictionary class]]) {
-                for (id key in categoryOptions) {
-                    NSLog(@"[PushPlugin] categories: key %@", key);
-                    id category = [categoryOptions objectForKey:key];
-
-                    id yesButton = [category objectForKey:@"yes"];
-                    UNNotificationAction *yesAction;
-                    if (yesButton != nil && [yesButton  isKindOfClass:[NSDictionary class]]) {
-                        yesAction = [self createAction: yesButton];
-                    }
-                    id noButton = [category objectForKey:@"no"];
-                    UNNotificationAction *noAction;
-                    if (noButton != nil && [noButton  isKindOfClass:[NSDictionary class]]) {
-                        noAction = [self createAction: noButton];
-                    }
-                    id maybeButton = [category objectForKey:@"maybe"];
-                    UNNotificationAction *maybeAction;
-                    if (maybeButton != nil && [maybeButton  isKindOfClass:[NSDictionary class]]) {
-                        maybeAction = [self createAction: maybeButton];
-                    }
-
-                    // Identifier to include in your push payload and local notification
-                    NSString *identifier = key;
-
-                    NSMutableArray<UNNotificationAction *> *actions = [[NSMutableArray alloc] init];
-                    if (yesButton != nil) {
-                        [actions addObject:yesAction];
-                    }
-                    if (noButton != nil) {
-                        [actions addObject:noAction];
-                    }
-                    if (maybeButton != nil) {
-                        [actions addObject:maybeAction];
-                    }
-
-                    UNNotificationCategory *notificationCategory = [UNNotificationCategory categoryWithIdentifier:identifier
-                                                                                                          actions:actions
-                                                                                                intentIdentifiers:@[]
-                                                                                                          options:UNNotificationCategoryOptionNone];
-
-                    NSLog(@"[PushPlugin] Adding category %@", key);
-                    [categories addObject:notificationCategory];
-                }
-            }
+            [self handleNotificationSettingsWithAuthorizationOptions:[NSNumber numberWithInteger:authorizationOptions]];
 
             UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-            [center setNotificationCategories:categories];
-            [self handleNotificationSettingsWithAuthorizationOptions:[NSNumber numberWithInteger:authorizationOptions]];
+            [center setNotificationCategories:[settings categories]];
 
             [[NSNotificationCenter defaultCenter] addObserver:self
                                                      selector:@selector(handleNotificationSettings:)
@@ -289,23 +211,6 @@
             }
         }];
     }
-}
-
-- (UNNotificationAction *)createAction:(NSDictionary *)dictionary {
-    NSString *identifier = [dictionary objectForKey:@"callback"];
-    NSString *title = [dictionary objectForKey:@"title"];
-    UNNotificationActionOptions options = UNNotificationActionOptionNone;
-
-    id mode = [dictionary objectForKey:@"foreground"];
-    if (mode != nil && (([mode isKindOfClass:[NSString class]] && [mode isEqualToString:@"true"]) || [mode boolValue])) {
-        options |= UNNotificationActionOptionForeground;
-    }
-    id destructive = [dictionary objectForKey:@"destructive"];
-    if (destructive != nil && (([destructive isKindOfClass:[NSString class]] && [destructive isEqualToString:@"true"]) || [destructive boolValue])) {
-        options |= UNNotificationActionOptionDestructive;
-    }
-
-    return [UNNotificationAction actionWithIdentifier:identifier title:title options:options];
 }
 
 - (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
