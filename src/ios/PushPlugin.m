@@ -23,9 +23,6 @@
  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//  See GGLInstanceID.h
-#define GMP_NO_MODULES true
-
 #import "PushPlugin.h"
 #import "AppDelegate+notification.h"
 

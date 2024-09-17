@@ -29,8 +29,6 @@
 #import <Cordova/CDVPlugin.h>
 #import <PushKit/PushKit.h>
 
-@protocol GGLInstanceIDDelegate;
-@protocol GCMReceiverDelegate;
 @interface PushPlugin : CDVPlugin
 {
     NSDictionary *notificationMessage;
