@@ -33,6 +33,11 @@
     [FIRApp configure];
 }
 
+- (void)setAPNSToken:(NSData *)token {
+    NSLog(@"[PushPlugin] Setting APNS Token for Firebase App");
+    [[FIRMessaging messaging] setAPNSToken:token];
+}
+
 - (void)setTokenWithCompletion:(void (^)(NSString *token))completion {
 #if TARGET_IPHONE_SIMULATOR
     NSLog(@"[PushPlugin] Detected simulator. Will register an FCM token but pushing to simulator is not possible.");
