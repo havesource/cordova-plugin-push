@@ -1,4 +1,5 @@
 #import "PushPluginFCM.h"
+#import "PushPluginSettings.h"
 
 @implementation PushPluginFCM
 
@@ -30,6 +31,24 @@
 - (void)configureFirebase {
     NSLog(@"[PushPlugin] Configuring Firebase App for FCM");
     [FIRApp configure];
+}
+
+- (void)setTokenWithCompletion:(void (^)(NSString *token))completion {
+#if TARGET_IPHONE_SIMULATOR
+    NSLog(@"[PushPlugin] Detected simulator. Will register an FCM token but pushing to simulator is not possible.");
+#endif
+
+    [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
+        if (error != nil) {
+            NSLog(@"[PushPlugin] Error getting FCM registration token: %@", error);
+        } else {
+            NSLog(@"[PushPlugin] FCM registration token: %@", token);
+            [self subscribeToTopics:[PushPluginSettings sharedInstance].fcmTopics];
+            if (completion) {
+                completion(token);
+            }
+        }
+    }];
 }
 
 - (void)subscribeToTopics:(NSArray *)topics {
