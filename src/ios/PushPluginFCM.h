@@ -6,5 +6,6 @@
 @property (nonatomic, assign) BOOL isFCMEnabled;
 
 - (instancetype)initWithGoogleServicePlist;
+- (void)configureFirebase;
 
 @end
