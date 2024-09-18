@@ -75,27 +75,39 @@
 }
 
 - (void)subscribe:(CDVInvokedUrlCommand *)command {
-    NSString* topic = [command argumentAtIndex:0];
+    if (!self.pushPluginFCM.isFCMEnabled) {
+        NSLog(@"The 'subscribe' API not allowed. FCM is not enabled.");
+        [self successWithMessage:command.callbackId withMsg:@"The 'subscribe' API not allowed. FCM is not enabled."];
+        return;
+    }
 
-    if (topic != nil) {
-        [self.pushPluginFCM subscribeToTopic:topic];
-        [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully subscribe to topic %@", topic]];
-    } else {
+    NSString* topic = [command argumentAtIndex:0];
+    if (topic == nil) {
         NSLog(@"[PushPlugin] There is no topic to subscribe");
         [self successWithMessage:command.callbackId withMsg:@"There is no topic to subscribe"];
+        return;
     }
+
+    [self.pushPluginFCM subscribeToTopic:topic];
+    [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully subscribe to topic %@", topic]];
 }
 
 - (void)unsubscribe:(CDVInvokedUrlCommand *)command {
-    NSString* topic = [command argumentAtIndex:0];
-
-    if (topic != nil) {
-        [self.pushPluginFCM unsubscribeFromTopic:topic];
-        [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully unsubscribe from topic %@", topic]];
-    } else {
-        NSLog(@"[PushPlugin] There is no topic to unsubscribe");
-        [self successWithMessage:command.callbackId withMsg:@"There is no topic to unsubscribe"];
+    if (!self.pushPluginFCM.isFCMEnabled) {
+        NSLog(@"The 'unsubscribe' API not allowed. FCM is not enabled.");
+        [self successWithMessage:command.callbackId withMsg:@"The 'unsubscribe' API not allowed. FCM is not enabled."];
+        return;
     }
+
+    NSString* topic = [command argumentAtIndex:0];
+    if (topic == nil) {
+        NSLog(@"[PushPlugin] There is no topic to unsubscribe from.");
+        [self successWithMessage:command.callbackId withMsg:@"There is no topic to unsubscribe from."];
+        return;
+    }
+
+    [self.pushPluginFCM unsubscribeFromTopic:topic];
+    [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully unsubscribe from topic %@", topic]];
 }
 
 - (void)init:(CDVInvokedUrlCommand *)command {
