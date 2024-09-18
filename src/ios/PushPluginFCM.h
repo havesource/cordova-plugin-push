@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 @import Firebase;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface PushPluginFCM : NSObject
 
 @property (nonatomic, assign) BOOL isFCMEnabled;
@@ -17,4 +19,8 @@
 - (void)unsubscribeFromTopic:(NSString *)topic;
 - (void)unsubscribeFromTopics:(NSArray *)topics;
 
++ (NSNotificationName)pushPluginFCMMessagingRegistrationTokenRefreshedNotification;
+
 @end
+
+NS_ASSUME_NONNULL_END
