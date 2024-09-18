@@ -28,7 +28,7 @@
     return self;
 }
 
-- (void)configureFirebase {
+- (void)configure {
     NSLog(@"[PushPlugin] Configuring Firebase App for FCM");
     [FIRApp configure];
 }

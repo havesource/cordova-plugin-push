@@ -52,7 +52,7 @@
     self.pushPluginFCM = [[PushPluginFCM alloc] initWithGoogleServicePlist];
 
     if([self.pushPluginFCM isFCMEnabled]) {
-        [self.pushPluginFCM configureFirebase];
+        [self.pushPluginFCM configure];
     }
 }
 
