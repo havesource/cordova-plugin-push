@@ -365,14 +365,16 @@
 }
 
 - (void)registerWithToken:(NSString *)token {
-    // Send result to trigger 'registration' event but keep callback
+    NSString* registrationType = @"APNS";
+    if ([self.pushPluginFCM isFCMEnabled]) {
+        registrationType = @"FCM";
+    }
+
     NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
     [message setObject:token forKey:@"registrationId"];
-    if ([self.pushPluginFCM isFCMEnabled]) {
-        [message setObject:@"FCM" forKey:@"registrationType"];
-    } else {
-        [message setObject:@"APNS" forKey:@"registrationType"];
-    }
+    [message setObject:registrationType forKey:@"registrationType"];
+
+    // Send result to trigger 'registration' event but keep callback
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
     [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
