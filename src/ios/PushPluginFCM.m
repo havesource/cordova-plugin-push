@@ -32,4 +32,48 @@
     [FIRApp configure];
 }
 
+- (void)subscribeToTopics:(NSArray *)topics {
+    if(!topics) {
+        NSLog(@"[PushPlugin] There are no topics to subscribe to.");
+        return;
+    }
+
+    for (NSString *topic in topics) {
+        [self subscribeToTopic:topic];
+    }
+}
+
+- (void)subscribeToTopic:(NSString *)topic {
+    if (!topic) {
+        NSLog(@"[PushPlugin] There is no topic to subscribe to.");
+        return;
+    }
+
+    NSLog(@"[PushPlugin] Subscribing to topic: %@", topic);
+    [[FIRMessaging messaging] subscribeToTopic:topic];
+    NSLog(@"[PushPlugin] Successfully subscribed to topic %@", topic);
+}
+
+- (void)unsubscribeFromTopics:(NSArray *)topics {
+    if(!topics) {
+        NSLog(@"[PushPlugin] There are no topics to unsubscribe from.");
+        return;
+    }
+
+    for (NSString *topic in topics) {
+        [self unsubscribeFromTopic:topic];
+    }
+}
+
+- (void)unsubscribeFromTopic:(NSString *)topic {
+    if (!topic) {
+        NSLog(@"[PushPlugin] There is no topic to unsubscribe from.");
+        return;
+    }
+
+    NSLog(@"[PushPlugin] Unsubscribing from topic: %@", topic);
+    [[FIRMessaging messaging] unsubscribeFromTopic:topic];
+    NSLog(@"[PushPlugin] Successfully unsubscribed from topic %@", topic);
+}
+
 @end
