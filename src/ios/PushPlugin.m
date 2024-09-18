@@ -47,7 +47,6 @@
 @synthesize clearBadge;
 @synthesize forceShow;
 @synthesize handlerObj;
-@synthesize fcmTopics;
 
 - (void)pluginInitialize {
     self.pushPluginFCM = [[PushPluginFCM alloc] initWithGoogleServicePlist];
@@ -58,21 +57,14 @@
 }
 
 - (void)initRegistration {
+    PushPluginSettings *settings = [PushPluginSettings sharedInstance];
+
     [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
         if (error != nil) {
             NSLog(@"[PushPlugin] Error getting FCM registration token: %@", error);
         } else {
             NSLog(@"[PushPlugin] FCM registration token: %@", token);
-
-            id topics = [self fcmTopics];
-            if (topics != nil) {
-                for (NSString *topic in topics) {
-                    NSLog(@"[PushPlugin] subscribe to topic: %@", topic);
-                    id pubSub = [FIRMessaging messaging];
-                    [pubSub subscribeToTopic:topic];
-                }
-            }
-
+            [self.pushPluginFCM subscribeToTopics:settings.fcmTopics];
             [self registerWithToken: token];
         }
     }];
@@ -92,11 +84,7 @@
     NSArray* topics = [command argumentAtIndex:0];
 
     if (topics != nil) {
-        id pubSub = [FIRMessaging messaging];
-        for (NSString *topic in topics) {
-            NSLog(@"[PushPlugin] unsubscribe from topic: %@", topic);
-            [pubSub unsubscribeFromTopic:topic];
-        }
+        [self.pushPluginFCM unsubscribeFromTopics:topics];
     } else {
         [[UIApplication sharedApplication] unregisterForRemoteNotifications];
         [self successWithMessage:command.callbackId withMsg:@"unregistered"];
@@ -107,10 +95,7 @@
     NSString* topic = [command argumentAtIndex:0];
 
     if (topic != nil) {
-        NSLog(@"[PushPlugin] subscribe from topic: %@", topic);
-        id pubSub = [FIRMessaging messaging];
-        [pubSub subscribeToTopic:topic];
-        NSLog(@"[PushPlugin] Successfully subscribe to topic %@", topic);
+        [self.pushPluginFCM subscribeToTopic:topic];
         [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully subscribe to topic %@", topic]];
     } else {
         NSLog(@"[PushPlugin] There is no topic to subscribe");
@@ -122,10 +107,7 @@
     NSString* topic = [command argumentAtIndex:0];
 
     if (topic != nil) {
-        NSLog(@"[PushPlugin] unsubscribe from topic: %@", topic);
-        id pubSub = [FIRMessaging messaging];
-        [pubSub unsubscribeFromTopic:topic];
-        NSLog(@"[PushPlugin] Successfully unsubscribe from topic %@", topic);
+        [self.pushPluginFCM unsubscribeFromTopic:topic];
         [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully unsubscribe from topic %@", topic]];
     } else {
         NSLog(@"[PushPlugin] There is no topic to unsubscribe");
@@ -158,7 +140,6 @@
             NSLog(@"[PushPlugin] register called");
             self.callbackId = command.callbackId;
             self.isInline = NO;
-            self.fcmTopics = [settings fcmTopics];
             self.forceShow = [settings forceShowEnabled];
             self.clearBadge = [settings clearBadgeEnabled];
             if (self.clearBadge) {
