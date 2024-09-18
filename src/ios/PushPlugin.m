@@ -56,9 +56,12 @@
     }
 }
 
-- (void)initRegistration {
-    PushPluginSettings *settings = [PushPluginSettings sharedInstance];
+- (void)setFCMTokenWithCompletion {
+#if TARGET_IPHONE_SIMULATOR
+    NSLog(@"[PushPlugin] Detected simulator. Will register an FCM token but pushing to simulator is not possible.");
+#endif
 
+    PushPluginSettings *settings = [PushPluginSettings sharedInstance];
     [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
         if (error != nil) {
             NSLog(@"[PushPlugin] Error getting FCM registration token: %@", error);
@@ -68,16 +71,6 @@
             [self registerWithToken: token];
         }
     }];
-}
-
-//  FCM refresh token
-//  Unclear how this is testable under normal circumstances
-- (void)onTokenRefresh {
-#if !TARGET_IPHONE_SIMULATOR
-    // A rotation of the registration tokens is happening, so the app needs to request a new token.
-    NSLog(@"[PushPlugin] The FCM registration token needs to be changed.");
-    [self initRegistration];
-#endif
 }
 
 - (void)unregister:(CDVInvokedUrlCommand *)command {
@@ -132,9 +125,9 @@
         }];
     } else {
         NSLog(@"[PushPlugin] VoIP missing or false");
-        [[NSNotificationCenter defaultCenter]
-          addObserver:self selector:@selector(onTokenRefresh)
-          name:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
+        if ([self.pushPluginFCM isFCMEnabled]) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setFCMTokenWithCompletion) name:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
+        }
 
         [self.commandDelegate runInBackground:^ {
             NSLog(@"[PushPlugin] register called");
@@ -172,10 +165,6 @@
                                                          name:pushPluginApplicationDidBecomeActiveNotification
                                                        object:nil];
 
-            if ([self.pushPluginFCM isFCMEnabled]) {
-                [self initRegistration];
-            }
-
             if (notificationMessage) {            // if there is a pending startup notification
                 dispatch_async(dispatch_get_main_queue(), ^{
                     // delay to allow JS event handlers to be setup
@@ -192,6 +181,11 @@
         return;
     }
     NSLog(@"[PushPlugin] register success: %@", deviceToken);
+
+    if ([self.pushPluginFCM isFCMEnabled]) {
+        [[FIRMessaging messaging] setAPNSToken:deviceToken];
+        [self setFCMTokenWithCompletion];
+    }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     // [deviceToken description] is like "{length = 32, bytes = 0xd3d997af 967d1f43 b405374a 13394d2f ... 28f10282 14af515f }"
