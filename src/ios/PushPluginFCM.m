@@ -100,4 +100,8 @@
     NSLog(@"[PushPlugin] Successfully unsubscribed from topic %@", topic);
 }
 
++ (NSNotificationName)pushPluginFCMMessagingRegistrationTokenRefreshedNotification {
+    return FIRMessagingRegistrationTokenRefreshedNotification;
+}
+
 @end

@@ -28,10 +28,6 @@
 #import "PushPluginSettings.h"
 #import "AppDelegate+notification.h"
 
-@import Firebase;
-@import FirebaseCore;
-@import FirebaseMessaging;
-
 @interface PushPlugin ()
 
 @property (nonatomic, strong) PushPluginFCM *pushPluginFCM;
@@ -128,7 +124,10 @@
     } else {
         NSLog(@"[PushPlugin] VoIP missing or false");
         if ([self.pushPluginFCM isFCMEnabled]) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setFCMTokenWithCompletion) name:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(setFCMTokenWithCompletion)
+                                                         name:[PushPluginFCM pushPluginFCMMessagingRegistrationTokenRefreshedNotification]
+                                                       object:nil];
         }
 
         [self.commandDelegate runInBackground:^ {
