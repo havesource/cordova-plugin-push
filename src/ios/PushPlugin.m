@@ -51,6 +51,10 @@
 
 - (void)pluginInitialize {
     self.pushPluginFCM = [[PushPluginFCM alloc] initWithGoogleServicePlist];
+
+    if([self.pushPluginFCM isFCMEnabled]) {
+        [self.pushPluginFCM configureFirebase];
+    }
 }
 
 - (void)initRegistration {
@@ -188,11 +192,7 @@
                                                        object:nil];
 
             if ([self.pushPluginFCM isFCMEnabled]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if([FIRApp defaultApp] == nil)
-                        [FIRApp configure];
-                    [self initRegistration];
-                });
+                [self initRegistration];
             }
 
             if (notificationMessage) {            // if there is a pending startup notification
