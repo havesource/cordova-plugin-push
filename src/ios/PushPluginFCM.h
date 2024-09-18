@@ -8,6 +8,7 @@
 - (instancetype)initWithGoogleServicePlist;
 
 - (void)configureFirebase;
+- (void)setTokenWithCompletion:(void (^)(NSString *token))completion;
 
 - (void)subscribeToTopic:(NSString *)topic;
 - (void)subscribeToTopics:(NSArray *)topics;

@@ -57,19 +57,9 @@
 }
 
 - (void)setFCMTokenWithCompletion {
-#if TARGET_IPHONE_SIMULATOR
-    NSLog(@"[PushPlugin] Detected simulator. Will register an FCM token but pushing to simulator is not possible.");
-#endif
-
-    PushPluginSettings *settings = [PushPluginSettings sharedInstance];
-    [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
-        if (error != nil) {
-            NSLog(@"[PushPlugin] Error getting FCM registration token: %@", error);
-        } else {
-            NSLog(@"[PushPlugin] FCM registration token: %@", token);
-            [self.pushPluginFCM subscribeToTopics:settings.fcmTopics];
-            [self registerWithToken: token];
-        }
+    __weak __typeof(self) weakSelf = self;
+    [self.pushPluginFCM setTokenWithCompletion:^(NSString *token) {
+        [weakSelf registerWithToken:token];
     }];
 }
 
