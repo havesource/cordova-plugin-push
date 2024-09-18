@@ -186,7 +186,7 @@
     NSLog(@"[PushPlugin] register success: %@", deviceToken);
 
     if ([self.pushPluginFCM isFCMEnabled]) {
-        [[FIRMessaging messaging] setAPNSToken:deviceToken];
+        [self.pushPluginFCM setAPNSToken:deviceToken];
         [self setFCMTokenWithCompletion];
     } else {
         [self registerWithToken:[self convertTokenToString:deviceToken]];

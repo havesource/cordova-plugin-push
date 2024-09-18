@@ -8,6 +8,7 @@
 - (instancetype)initWithGoogleServicePlist;
 
 - (void)configure;
+- (void)setAPNSToken:(NSData *)token;
 - (void)setTokenWithCompletion:(void (^)(NSString *token))completion;
 
 - (void)subscribeToTopic:(NSString *)topic;
