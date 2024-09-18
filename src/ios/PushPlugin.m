@@ -24,6 +24,7 @@
  */
 
 #import "PushPlugin.h"
+#import "PushPluginFCM.h"
 #import "PushPluginSettings.h"
 #import "AppDelegate+notification.h"
 
@@ -31,7 +32,13 @@
 @import FirebaseCore;
 @import FirebaseMessaging;
 
-@implementation PushPlugin : CDVPlugin
+@interface PushPlugin ()
+
+@property (nonatomic, strong) PushPluginFCM *pushPluginFCM;
+
+@end
+
+@implementation PushPlugin
 
 @synthesize notificationMessage;
 @synthesize isInline;
@@ -40,9 +47,11 @@
 @synthesize clearBadge;
 @synthesize forceShow;
 @synthesize handlerObj;
-@synthesize usesFCM;
-@synthesize fcmSenderId;
 @synthesize fcmTopics;
+
+- (void)pluginInitialize {
+    self.pushPluginFCM = [[PushPluginFCM alloc] initWithGoogleServicePlist];
+}
 
 - (void)initRegistration {
     [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
@@ -178,29 +187,12 @@
                                                          name:pushPluginApplicationDidBecomeActiveNotification
                                                        object:nil];
 
-            // Read GoogleService-Info.plist
-            NSString *path = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
-
-            // Load the file content and read the data into arrays
-            NSDictionary *dict = [[NSDictionary alloc] initWithContentsOfFile:path];
-            fcmSenderId = [dict objectForKey:@"GCM_SENDER_ID"];
-            BOOL isGcmEnabled = [[dict valueForKey:@"IS_GCM_ENABLED"] boolValue];
-
-            NSLog(@"[PushPlugin] FCM Sender ID %@", fcmSenderId);
-
-            //  GCM options
-            [self setFcmSenderId: fcmSenderId];
-            if(isGcmEnabled && [[self fcmSenderId] length] > 0) {
-                NSLog(@"[PushPlugin] Using FCM Notification");
-                [self setUsesFCM: YES];
+            if ([self.pushPluginFCM isFCMEnabled]) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if([FIRApp defaultApp] == nil)
                         [FIRApp configure];
                     [self initRegistration];
                 });
-            } else {
-                NSLog(@"[PushPlugin] Using APNS Notification");
-                [self setUsesFCM:NO];
             }
 
             if (notificationMessage) {            // if there is a pending startup notification
@@ -237,7 +229,7 @@
     __weak PushPlugin *weakSelf = self;
     [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
 
-        if(![weakSelf usesFCM]) {
+        if(![self.pushPluginFCM isFCMEnabled]) {
             [weakSelf registerWithToken: token];
         }
     }];
@@ -411,7 +403,7 @@
     // Send result to trigger 'registration' event but keep callback
     NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
     [message setObject:token forKey:@"registrationId"];
-    if ([self usesFCM]) {
+    if ([self.pushPluginFCM isFCMEnabled]) {
         [message setObject:@"FCM" forKey:@"registrationType"];
     } else {
         [message setObject:@"APNS" forKey:@"registrationType"];
