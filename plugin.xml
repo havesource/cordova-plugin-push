@@ -98,6 +98,7 @@
     <config-file target="config.xml" parent="/*">
       <feature name="PushNotification">
         <param name="ios-package" value="PushPlugin"/>
+        <param name="onload" value="true"/>
       </feature>
     </config-file>
 
@@ -117,10 +118,12 @@
 
     <source-file src="src/ios/AppDelegate+notification.m"/>
     <source-file src="src/ios/PushPlugin.m"/>
+    <source-file src="src/ios/PushPluginFCM.m"/>
     <source-file src="src/ios/PushPluginSettings.m"/>
 
     <header-file src="src/ios/AppDelegate+notification.h"/>
     <header-file src="src/ios/PushPlugin.h"/>
+    <header-file src="src/ios/PushPluginFCM.h"/>
     <header-file src="src/ios/PushPluginSettings.h"/>
 
     <framework src="PushKit.framework"/>

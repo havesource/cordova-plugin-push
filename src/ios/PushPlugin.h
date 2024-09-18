@@ -66,8 +66,6 @@
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type;
 
 // FCM Features
-@property(nonatomic, assign) BOOL usesFCM;
-@property(nonatomic, strong) NSString *fcmSenderId;
 @property(nonatomic, strong) NSArray *fcmTopics;
 
 @end
