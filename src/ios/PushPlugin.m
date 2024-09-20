@@ -31,6 +31,7 @@
 @interface PushPlugin ()
 
 @property (nonatomic, strong) PushPluginFCM *pushPluginFCM;
+@property (nonatomic, assign) BOOL isRegisteredForNotifications;
 
 @end
 
@@ -186,7 +187,9 @@
 
     if ([self.pushPluginFCM isFCMEnabled]) {
         [self.pushPluginFCM setAPNSToken:deviceToken];
-        [self setFCMTokenWithCompletion];
+        if (![self isFirstLaunchAfterInstall]) {
+            [self setFCMTokenWithCompletion];
+        }
     } else {
         [self registerWithToken:[self convertTokenToString:deviceToken]];
     }
@@ -486,7 +489,20 @@
 }
 
 - (void)registerForRemoteNotifications {
-    [[UIApplication sharedApplication] registerForRemoteNotifications];
+    if (!self.isRegisteredForNotifications) {
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+        self.isRegisteredForNotifications = YES;
+    }
+}
+
+- (BOOL)isFirstLaunchAfterInstall {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if (![defaults boolForKey:@"hasCordovaPushPluginLaunchedOnceAfterInstall"]) {
+        [defaults setBool:YES forKey:@"hasCordovaPushPluginLaunchedOnceAfterInstall"];
+        [defaults synchronize];
+        return YES;
+    }
+    return NO;
 }
 
 @end
