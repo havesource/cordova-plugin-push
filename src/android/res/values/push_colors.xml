@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <color name="accept_btn_color">#15803D</color>
+    <color name="decline_btn_color">#F44336</color>
+    <color name="push_icon_color">#F44336</color>
+</resources>

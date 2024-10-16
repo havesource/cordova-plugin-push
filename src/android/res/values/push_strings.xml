@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="voip_call_channel_description">Channel For VOIP Calls</string>
+    <string name="incoming_call_title">Incoming video call</string>
+    <string name="incoming_call_caller_name_def">Unknown caller</string>
+    <string name="incoming_call_btn_accept">Accept</string>
+    <string name="incoming_call_btn_decline">Reject</string>
+    <string name="incoming_call_ongoing_call_title">Ongoing call with</string>
+    <string name="incoming_call_unlock_device_text">Please unlock your device to continue</string>
+</resources>
