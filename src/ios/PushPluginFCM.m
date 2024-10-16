@@ -1,6 +1,13 @@
 #import "PushPluginFCM.h"
 #import "PushPluginSettings.h"
 
+@interface PushPluginFCM ()
+
+@property (nonatomic, assign) BOOL isFCMRefreshTokenObserverAttached;
+@property (nonatomic, weak) id <CDVCommandDelegate> commandDelegate;
+
+@end
+
 @implementation PushPluginFCM
 
 - (instancetype)initWithGoogleServicePlist {
@@ -28,32 +35,70 @@
     return self;
 }
 
-- (void)configure {
+- (void)configure:(id <CDVCommandDelegate>)commandDelegate {
     NSLog(@"[PushPlugin] Configuring Firebase App for FCM");
     [FIRApp configure];
+
+    self.commandDelegate = commandDelegate;
 }
 
-- (void)setAPNSToken:(NSData *)token {
+- (void)configureTokens:(NSData *)token {
     NSLog(@"[PushPlugin] Setting APNS Token for Firebase App");
     [[FIRMessaging messaging] setAPNSToken:token];
+
+    [self setFCMTokenWithCompletion];
 }
 
-- (void)setTokenWithCompletion:(void (^)(NSString *token))completion {
-#if TARGET_IPHONE_SIMULATOR
-    NSLog(@"[PushPlugin] Detected simulator. Will register an FCM token but pushing to simulator is not possible.");
-#endif
+- (void)setRefreshedFCMToken {
+    NSLog(@"[PushPlugin] FIR has triggered a token refresh.");
+    [self setFCMTokenWithCompletion];
+}
 
+- (void)setFCMTokenWithCompletion {
+    #if TARGET_IPHONE_SIMULATOR
+    NSLog(@"[PushPlugin] Detected simulator. Will register an FCM token but pushing to simulator is not possible.");
+    #endif
+
+    __weak __typeof(self) weakSelf = self;
     [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
         if (error != nil) {
             NSLog(@"[PushPlugin] Error getting FCM registration token: %@", error);
         } else {
             NSLog(@"[PushPlugin] FCM registration token: %@", token);
             [self subscribeToTopics:[PushPluginSettings sharedInstance].fcmTopics];
-            if (completion) {
-                completion(token);
+
+            NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
+            [message setObject:token forKey:@"registrationId"];
+            [message setObject:@"FCM" forKey:@"registrationType"];
+
+            // Send result to trigger 'registration' event but keep callback
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
+            [pluginResult setKeepCallbackAsBool:YES];
+            [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:weakSelf.callbackId];
+
+            if (!weakSelf.isFCMRefreshTokenObserverAttached) {
+                NSLog(@"[PushPlugin] Attaching FCM Token Refresh Observer");
+
+                [[NSNotificationCenter defaultCenter] addObserver:weakSelf
+                                                         selector:@selector(setRefreshedFCMToken)
+                                                             name:FIRMessagingRegistrationTokenRefreshedNotification
+                                                           object:nil];
+
+                weakSelf.isFCMRefreshTokenObserverAttached = YES;
             }
         }
     }];
+}
+
+- (void)registerWithToken:(NSString *)token {
+    NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
+    [message setObject:token forKey:@"registrationId"];
+    [message setObject:@"FCM" forKey:@"registrationType"];
+
+    // Send result to trigger 'registration' event but keep callback
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 }
 
 - (void)subscribeToTopics:(NSArray *)topics {
@@ -98,10 +143,6 @@
     NSLog(@"[PushPlugin] Unsubscribing from topic: %@", topic);
     [[FIRMessaging messaging] unsubscribeFromTopic:topic];
     NSLog(@"[PushPlugin] Successfully unsubscribed from topic %@", topic);
-}
-
-+ (NSNotificationName)pushPluginFCMMessagingRegistrationTokenRefreshedNotification {
-    return FIRMessagingRegistrationTokenRefreshedNotification;
 }
 
 @end

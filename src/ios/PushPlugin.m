@@ -31,7 +31,6 @@
 @interface PushPlugin ()
 
 @property (nonatomic, strong) PushPluginFCM *pushPluginFCM;
-@property (nonatomic, assign) BOOL isFCMRefreshTokenObserverAttached;
 
 @end
 
@@ -49,32 +48,9 @@
     self.pushPluginFCM = [[PushPluginFCM alloc] initWithGoogleServicePlist];
 
     if([self.pushPluginFCM isFCMEnabled]) {
-        [self.pushPluginFCM configure];
+        [self.pushPluginFCM configure:self.commandDelegate];
     }
 }
-
-- (void)setFCMTokenWithCompletion {
-    __weak __typeof(self) weakSelf = self;
-    [self.pushPluginFCM setTokenWithCompletion:^(NSString *token) {
-        [weakSelf registerWithToken:token];
-
-        if (!weakSelf.isFCMRefreshTokenObserverAttached) {
-            NSLog(@"[PushPlugin] Attaching FCM Token Refresh Observer");
-
-            [[NSNotificationCenter defaultCenter] addObserver:weakSelf
-                                                     selector:@selector(setRefreshedFCMToken)
-                                                         name:[PushPluginFCM pushPluginFCMMessagingRegistrationTokenRefreshedNotification]
-                                                       object:nil];
-
-            weakSelf.isFCMRefreshTokenObserverAttached = YES;
-        }
-    }];
-}
-
- - (void)setRefreshedFCMToken {
-     NSLog(@"[PushPlugin] FIR has triggered a token refresh.");
-     [self setFCMTokenWithCompletion];
- }
 
 - (void)unregister:(CDVInvokedUrlCommand *)command {
     NSArray* topics = [command argumentAtIndex:0];
@@ -127,6 +103,10 @@
     NSMutableDictionary* options = [command.arguments objectAtIndex:0];
     [[PushPluginSettings sharedInstance] updateSettingsWithOptions:[options objectForKey:@"ios"]];
     PushPluginSettings *settings = [PushPluginSettings sharedInstance];
+
+    if ([self.pushPluginFCM isFCMEnabled]) {
+        self.pushPluginFCM.callbackId = command.callbackId;
+    }
 
     self.callbackId = command.callbackId;
 
@@ -189,8 +169,7 @@
     NSLog(@"[PushPlugin] register success: %@", deviceToken);
 
     if ([self.pushPluginFCM isFCMEnabled]) {
-        [self.pushPluginFCM setAPNSToken:deviceToken];
-        [self setFCMTokenWithCompletion];
+        [self.pushPluginFCM configureTokens:deviceToken];
     } else {
         [self registerWithToken:[self convertTokenToString:deviceToken]];
     }
@@ -372,14 +351,9 @@
 }
 
 - (void)registerWithToken:(NSString *)token {
-    NSString* registrationType = @"APNS";
-    if ([self.pushPluginFCM isFCMEnabled]) {
-        registrationType = @"FCM";
-    }
-
     NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
     [message setObject:token forKey:@"registrationId"];
-    [message setObject:registrationType forKey:@"registrationType"];
+    [message setObject:@"APNS" forKey:@"registrationType"];
 
     // Send result to trigger 'registration' event but keep callback
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];

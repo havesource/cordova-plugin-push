@@ -1,4 +1,6 @@
 #import <Foundation/Foundation.h>
+#import <Cordova/CDVPlugin.h>
+
 @import Firebase;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -6,20 +8,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface PushPluginFCM : NSObject
 
 @property (nonatomic, assign) BOOL isFCMEnabled;
+@property (nonatomic, strong) NSString *callbackId;
 
 - (instancetype)initWithGoogleServicePlist;
 
-- (void)configure;
-- (void)setAPNSToken:(NSData *)token;
-- (void)setTokenWithCompletion:(void (^)(NSString *token))completion;
+- (void)configure:(id <CDVCommandDelegate>)commandDelegate;
+- (void)configureTokens:(NSData *)token;
 
 - (void)subscribeToTopic:(NSString *)topic;
-- (void)subscribeToTopics:(NSArray *)topics;
 
 - (void)unsubscribeFromTopic:(NSString *)topic;
 - (void)unsubscribeFromTopics:(NSArray *)topics;
-
-+ (NSNotificationName)pushPluginFCMMessagingRegistrationTokenRefreshedNotification;
 
 @end
 
