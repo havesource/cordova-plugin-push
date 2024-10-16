@@ -65,32 +65,14 @@
             NSLog(@"[PushPlugin] Error getting FCM registration token: %@", error);
         } else {
             NSLog(@"[PushPlugin] FCM registration token: %@", token);
-            [self subscribeToTopics:[PushPluginSettings sharedInstance].fcmTopics];
-
-            NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
-            [message setObject:token forKey:@"registrationId"];
-            [message setObject:@"FCM" forKey:@"registrationType"];
-
-            // Send result to trigger 'registration' event but keep callback
-            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
-            [pluginResult setKeepCallbackAsBool:YES];
-            [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:weakSelf.callbackId];
-
-            if (!weakSelf.isFCMRefreshTokenObserverAttached) {
-                NSLog(@"[PushPlugin] Attaching FCM Token Refresh Observer");
-
-                [[NSNotificationCenter defaultCenter] addObserver:weakSelf
-                                                         selector:@selector(setRefreshedFCMToken)
-                                                             name:FIRMessagingRegistrationTokenRefreshedNotification
-                                                           object:nil];
-
-                weakSelf.isFCMRefreshTokenObserverAttached = YES;
-            }
+            [weakSelf subscribeToTopics:[PushPluginSettings sharedInstance].fcmTopics];
+            [weakSelf sendRegistrationPluginResult:token];
+            [weakSelf attachFCMTokenRefreshObserver];
         }
     }];
 }
 
-- (void)registerWithToken:(NSString *)token {
+- (void)sendRegistrationPluginResult:(NSString *)token {
     NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
     [message setObject:token forKey:@"registrationId"];
     [message setObject:@"FCM" forKey:@"registrationType"];
@@ -99,6 +81,21 @@
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
     [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+}
+
+- (void)attachFCMTokenRefreshObserver {
+    if (self.isFCMRefreshTokenObserverAttached) {
+        NSLog(@"[PushPlugin] FCM token refresh observer was already attached.");
+        return;
+    }
+
+    NSLog(@"[PushPlugin] Attaching FCM token refresh observer.");
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(setRefreshedFCMToken)
+                                                 name:FIRMessagingRegistrationTokenRefreshedNotification
+                                               object:nil];
+
+    self.isFCMRefreshTokenObserverAttached = YES;
 }
 
 - (void)subscribeToTopics:(NSArray *)topics {
