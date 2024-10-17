@@ -56,11 +56,6 @@ static char coldstartKey;
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     center.delegate = self;
 
-    [[NSNotificationCenter defaultCenter]addObserver:self
-                                            selector:@selector(pushPluginOnApplicationDidBecomeActive:)
-                                                name:UIApplicationDidBecomeActiveNotification
-                                              object:nil];
-
     // This actually calls the original init method over in CDVAppDelegate. Equivilent to calling super
     // on an overrided method, this is not recursive, although it appears that way. neat huh?
     return [self pushPluginSwizzledInit];
@@ -100,38 +95,6 @@ static char coldstartKey;
                 break;
         }
     }];
-}
-
-- (void)pushPluginOnApplicationDidBecomeActive:(NSNotification *)notification {
-    NSLog(@"[PushPlugin] pushPluginOnApplicationDidBecomeActive");
-
-    NSString *firstLaunchKey = @"firstLaunchKey";
-    NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"phonegap-plugin-push"];
-    if (![defaults boolForKey:firstLaunchKey]) {
-        NSLog(@"[PushPlugin] application first launch: remove badge icon number");
-        [defaults setBool:YES forKey:firstLaunchKey];
-        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-    }
-
-    UIApplication *application = notification.object;
-
-    PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
-    if (pushHandler.clearBadge) {
-        NSLog(@"[PushPlugin] clearing badge");
-        //zero badge
-        application.applicationIconBadgeNumber = 0;
-    } else {
-        NSLog(@"[PushPlugin] skip clear badge");
-    }
-
-    if (self.launchNotification) {
-        pushHandler.isInline = NO;
-        pushHandler.coldstart = [self.coldstart boolValue];
-        pushHandler.notificationMessage = self.launchNotification;
-        self.launchNotification = nil;
-        self.coldstart = [NSNumber numberWithBool:NO];
-        [pushHandler performSelectorOnMainThread:@selector(notificationReceived) withObject:pushHandler waitUntilDone:NO];
-    }
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
