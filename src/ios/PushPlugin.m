@@ -436,9 +436,8 @@
 }
 
 - (void)hasPermission:(CDVInvokedUrlCommand *)command {
-    id<UIApplicationDelegate> appDelegate = [UIApplication sharedApplication].delegate;
-    if ([appDelegate respondsToSelector:@selector(checkUserHasRemoteNotificationsEnabledWithCompletionHandler:)]) {
-        [appDelegate performSelector:@selector(checkUserHasRemoteNotificationsEnabledWithCompletionHandler:) withObject:^(BOOL isEnabled) {
+    if ([self respondsToSelector:@selector(checkUserHasRemoteNotificationsEnabledWithCompletionHandler:)]) {
+        [self performSelector:@selector(checkUserHasRemoteNotificationsEnabledWithCompletionHandler:) withObject:^(BOOL isEnabled) {
             NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:1];
             [message setObject:[NSNumber numberWithBool:isEnabled] forKey:@"isEnabled"];
             CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
@@ -569,6 +568,23 @@
             }
             default:
                 NSLog(@"[PushPlugin] Unhandled authorization status: %ld", (long)settings.authorizationStatus);
+                break;
+        }
+    }];
+}
+
+- (void)checkUserHasRemoteNotificationsEnabledWithCompletionHandler:(nonnull void (^)(BOOL))completionHandler
+{
+    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+
+        switch (settings.authorizationStatus)
+        {
+            case UNAuthorizationStatusDenied:
+            case UNAuthorizationStatusNotDetermined:
+                completionHandler(NO);
+                break;
+            case UNAuthorizationStatusAuthorized:
+                completionHandler(YES);
                 break;
         }
     }];
