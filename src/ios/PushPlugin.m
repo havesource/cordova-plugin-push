@@ -71,6 +71,11 @@
                                              selector:@selector(pushPluginOnApplicationDidBecomeActive:)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willPresentNotification:)
+                                                 name:@"CordovaPluginPushWillPresentNotification"
+                                               object:nil];
 }
 
 - (void)unregister:(CDVInvokedUrlCommand *)command {
@@ -314,6 +319,29 @@
         [self performSelectorOnMainThread:@selector(notificationReceived) withObject:self waitUntilDone:NO];
     }
 }
+
+- (void)willPresentNotification:(NSNotification *)notification {
+    NSDictionary *userInfo = notification.userInfo[@"userInfo"];
+    void (^completionHandler)(UNNotificationPresentationOptions) = notification.userInfo[@"completionHandler"];
+
+    NSLog(@"[PushPlugin] NotificationCenter Handle push from foreground");
+
+    self.notificationMessage = userInfo;
+    self.isInline = YES;
+    [self notificationReceived];
+
+    UNNotificationPresentationOptions presentationOption = UNNotificationPresentationOptionNone;
+    if (@available(iOS 10, *)) {
+        if(self.forceShow) {
+            presentationOption = UNNotificationPresentationOptionAlert;
+        }
+    }
+
+    if (completionHandler) {
+        completionHandler(presentationOption);
+    }
+}
+
 
 - (void)notificationReceived {
     NSLog(@"[PushPlugin] Notification received");
