@@ -66,6 +66,11 @@
                                              selector:@selector(didReceiveRemoteNotification:)
                                                  name:@"CordovaPluginPushDidReceiveRemoteNotification"
                                                object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(pushPluginOnApplicationDidBecomeActive:)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
 }
 
 - (void)unregister:(CDVInvokedUrlCommand *)command {
@@ -278,6 +283,35 @@
         }
     } else {
         completionHandler(UIBackgroundFetchResultNoData);
+    }
+}
+
+- (void)pushPluginOnApplicationDidBecomeActive:(NSNotification *)notification {
+    NSLog(@"[PushPlugin] pushPluginOnApplicationDidBecomeActive");
+
+    NSString *firstLaunchKey = @"firstLaunchKey";
+    NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"phonegap-plugin-push"];
+    if (![defaults boolForKey:firstLaunchKey]) {
+        NSLog(@"[PushPlugin] application first launch: remove badge icon number");
+        [defaults setBool:YES forKey:firstLaunchKey];
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    }
+
+    UIApplication *application = notification.object;
+
+    if (self.clearBadge) {
+        NSLog(@"[PushPlugin] clearing badge");
+        application.applicationIconBadgeNumber = 0;
+    } else {
+        NSLog(@"[PushPlugin] skip clear badge");
+    }
+
+    if (self.launchNotification) {
+        self.isInline = NO;
+        self.coldstart = NO;
+        self.notificationMessage = self.launchNotification;
+        self.launchNotification = nil;
+        [self performSelectorOnMainThread:@selector(notificationReceived) withObject:self waitUntilDone:NO];
     }
 }
 
