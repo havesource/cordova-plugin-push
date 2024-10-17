@@ -31,19 +31,23 @@
 @interface PushPlugin ()
 
 @property (nonatomic, strong) PushPluginFCM *pushPluginFCM;
+
 @property (nonatomic, strong) NSDictionary *launchNotification;
+@property (nonatomic, strong) NSDictionary *notificationMessage;
+@property (nonatomic, strong) NSMutableDictionary *handlerObj;
+
+@property (nonatomic, assign) BOOL isInline;
+@property (nonatomic, assign) BOOL clearBadge;
+@property (nonatomic, assign) BOOL forceShow;
+@property (nonatomic, assign) BOOL coldstart;
+
+@property (nonatomic, copy) void (^backgroundTaskcompletionHandler)(UIBackgroundFetchResult);
 
 @end
 
 @implementation PushPlugin
 
-@synthesize notificationMessage;
-@synthesize isInline;
-@synthesize coldstart;
 @synthesize callbackId;
-@synthesize clearBadge;
-@synthesize forceShow;
-@synthesize handlerObj;
 
 - (void)pluginInitialize {
     self.pushPluginFCM = [[PushPluginFCM alloc] initWithGoogleServicePlist];
@@ -184,7 +188,7 @@
             [center setNotificationCategories:[settings categories]];
 
             // If there is a pending startup notification, we will delay to allow JS event handlers to setup
-            if (notificationMessage) {
+            if (self.notificationMessage) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self performSelector:@selector(notificationReceived) withObject:nil afterDelay: 0.5];
                 });
@@ -408,14 +412,14 @@
 - (void)notificationReceived {
     NSLog(@"[PushPlugin] Notification received");
 
-    if (notificationMessage && self.callbackId != nil)
+    if (self.notificationMessage && self.callbackId != nil)
     {
         NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:4];
         NSMutableDictionary* additionalData = [NSMutableDictionary dictionaryWithCapacity:4];
 
-        for (id key in notificationMessage) {
+        for (id key in self.notificationMessage) {
             if ([key isEqualToString:@"aps"]) {
-                id aps = [notificationMessage objectForKey:@"aps"];
+                id aps = [self.notificationMessage objectForKey:@"aps"];
 
                 for(id key in aps) {
                     NSLog(@"[PushPlugin] key: %@", key);
@@ -450,17 +454,17 @@
                     }
                 }
             } else {
-                [additionalData setObject:[notificationMessage objectForKey:key] forKey:key];
+                [additionalData setObject:[self.notificationMessage objectForKey:key] forKey:key];
             }
         }
 
-        if (isInline) {
+        if (self.isInline) {
             [additionalData setObject:[NSNumber numberWithBool:YES] forKey:@"foreground"];
         } else {
             [additionalData setObject:[NSNumber numberWithBool:NO] forKey:@"foreground"];
         }
 
-        if (coldstart) {
+        if (self.coldstart) {
             [additionalData setObject:[NSNumber numberWithBool:YES] forKey:@"coldstart"];
         } else {
             [additionalData setObject:[NSNumber numberWithBool:NO] forKey:@"coldstart"];
@@ -586,13 +590,13 @@
 
     NSLog(@"[PushPlugin] stopBackgroundTask called");
 
-    if (handlerObj) {
+    if (self.handlerObj) {
         NSLog(@"[PushPlugin] handlerObj");
-        completionHandler = [handlerObj[[timer userInfo]] copy];
-        if (completionHandler) {
+        self.backgroundTaskcompletionHandler = [self.handlerObj[[timer userInfo]] copy];
+        if (self.backgroundTaskcompletionHandler) {
             NSLog(@"[PushPlugin] stopBackgroundTask (remaining t: %f)", app.backgroundTimeRemaining);
-            completionHandler(UIBackgroundFetchResultNewData);
-            completionHandler = nil;
+            self.backgroundTaskcompletionHandler(UIBackgroundFetchResultNewData);
+            self.backgroundTaskcompletionHandler = nil;
         }
     }
 }
@@ -663,8 +667,7 @@
     }];
 }
 
-- (void)checkUserHasRemoteNotificationsEnabledWithCompletionHandler:(nonnull void (^)(BOOL))completionHandler
-{
+- (void)checkUserHasRemoteNotificationsEnabledWithCompletionHandler:(nonnull void (^)(BOOL))completionHandler {
     [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
 
         switch (settings.authorizationStatus)
@@ -673,11 +676,19 @@
             case UNAuthorizationStatusNotDetermined:
                 completionHandler(NO);
                 break;
+
             case UNAuthorizationStatusAuthorized:
+            case UNAuthorizationStatusEphemeral:
+            case UNAuthorizationStatusProvisional:
                 completionHandler(YES);
                 break;
         }
     }];
+}
+
+- (void)dealloc {
+    self.launchNotification = nil;
+    self.coldstart = nil;
 }
 
 @end
