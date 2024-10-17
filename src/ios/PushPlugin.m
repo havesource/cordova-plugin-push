@@ -55,6 +55,11 @@
                                              selector:@selector(didRegisterForRemoteNotificationsWithDeviceToken:)
                                                  name:@"CordovaPluginPushDidRegisterForRemoteNotificationsWithDeviceToken"
                                                object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didFailToRegisterForRemoteNotificationsWithError:)
+                                                 name:@"CordovaPluginPushDidFailToRegisterForRemoteNotificationsWithError"
+                                               object:nil];
 }
 
 - (void)unregister:(CDVInvokedUrlCommand *)command {
@@ -210,7 +215,9 @@
     return [hexString copy];
 }
 
-- (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+- (void)didFailToRegisterForRemoteNotificationsWithError:(NSNotification *)notification {
+    NSError *error = (NSError *)notification.object;
+
     if (self.callbackId == nil) {
         NSLog(@"[PushPlugin] Unexpected call to didFailToRegisterForRemoteNotificationsWithError, ignoring: %@", error);
         return;

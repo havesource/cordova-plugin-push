@@ -55,8 +55,6 @@
 - (void)unsubscribe:(CDVInvokedUrlCommand*)command;
 - (void)clearNotification:(CDVInvokedUrlCommand*)command;
 
-- (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
-
 - (void)setNotificationMessage:(NSDictionary *)notification;
 - (void)notificationReceived;
 
