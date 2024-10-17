@@ -80,24 +80,13 @@ static char coldstartKey;
     [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidReceiveRemoteNotification" object:nil userInfo:notificationInfo];
 }
 
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center
-       willPresentNotification:(UNNotification *)notification
-         withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
-{
-    NSLog( @"[PushPlugin] NotificationCenter Handle push from foreground" );
-    // custom code to handle push while app is in the foreground
-    PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
-    pushHandler.notificationMessage = notification.request.content.userInfo;
-    pushHandler.isInline = YES;
-    [pushHandler notificationReceived];
-
-    UNNotificationPresentationOptions presentationOption = UNNotificationPresentationOptionNone;
-    if (@available(iOS 10, *)) {
-        if(pushHandler.forceShow) {
-            presentationOption = UNNotificationPresentationOptionAlert;
-        }
-    }
-    completionHandler(presentationOption);
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
+    NSMutableDictionary *userInfo = [notification.request.content.userInfo mutableCopy];
+    NSDictionary *notificationInfo = @{
+        @"userInfo": userInfo,
+        @"completionHandler": completionHandler
+    };
+    [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushWillPresentNotification" object:nil userInfo:notificationInfo];
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
