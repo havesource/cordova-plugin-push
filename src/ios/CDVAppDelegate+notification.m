@@ -1,19 +1,19 @@
 //
-//  AppDelegate+notification.m
+//  CDVAppDelegate+notification.m
 //  pushtest
 //
 //  Created by Robert Easterday on 10/26/12.
 //
 //
 
-#import "AppDelegate+notification.h"
+#import "CDVAppDelegate+notification.h"
 #import "PushPlugin.h"
 #import <objc/runtime.h>
 
 static char launchNotificationKey;
 static char coldstartKey;
 
-@implementation AppDelegate (notification)
+@implementation CDVAppDelegate (notification)
 
 - (id) getCommandInstance:(NSString*)className
 {
@@ -51,7 +51,7 @@ static char coldstartKey;
     });
 }
 
-- (AppDelegate *)pushPluginSwizzledInit
+- (CDVAppDelegate *)pushPluginSwizzledInit
 {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     center.delegate = self;
@@ -61,7 +61,7 @@ static char coldstartKey;
                                                 name:UIApplicationDidBecomeActiveNotification
                                               object:nil];
 
-    // This actually calls the original init method over in AppDelegate. Equivilent to calling super
+    // This actually calls the original init method over in CDVAppDelegate. Equivilent to calling super
     // on an overrided method, this is not recursive, although it appears that way. neat huh?
     return [self pushPluginSwizzledInit];
 }
