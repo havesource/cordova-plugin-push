@@ -31,6 +31,7 @@
 @interface PushPlugin ()
 
 @property (nonatomic, strong) PushPluginFCM *pushPluginFCM;
+@property (nonatomic, strong) NSDictionary *launchNotification;
 
 @end
 
@@ -59,6 +60,11 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didFailToRegisterForRemoteNotificationsWithError:)
                                                  name:@"CordovaPluginPushDidFailToRegisterForRemoteNotificationsWithError"
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didReceiveRemoteNotification:)
+                                                 name:@"CordovaPluginPushDidReceiveRemoteNotification"
                                                object:nil];
 }
 
@@ -224,6 +230,55 @@
     }
     NSLog(@"[PushPlugin] register failed");
     [self failWithMessage:self.callbackId withMsg:@"" withError:error];
+}
+
+- (void)didReceiveRemoteNotification:(NSNotification *)notification {
+    NSDictionary *notificationInfo = notification.userInfo;
+    // Extract userInfo and completionHandler
+    NSDictionary *userInfo = notificationInfo[@"userInfo"];
+    void (^completionHandler)(UIBackgroundFetchResult) = notificationInfo[@"completionHandler"];
+    NSLog(@"[PushPlugin]didReceiveNotification with fetchCompletionHandler");
+    // app is in the background or inactive, so only call notification callback if this is a silent push
+    if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
+        NSLog(@"[PushPlugin] app in-active");
+        // do some convoluted logic to find out if this should be a silent push.
+        long silent = 0;
+        id aps = [userInfo objectForKey:@"aps"];
+        id contentAvailable = [aps objectForKey:@"content-available"];
+        if ([contentAvailable isKindOfClass:[NSString class]] && [contentAvailable isEqualToString:@"1"]) {
+            silent = 1;
+        } else if ([contentAvailable isKindOfClass:[NSNumber class]]) {
+            silent = [contentAvailable integerValue];
+        }
+        if (silent == 1) {
+            NSLog(@"[PushPlugin] this should be a silent push");
+            void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionHandler(result);
+                });
+            };
+            if (self.handlerObj == nil) {
+                self.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
+            }
+            id notId = [userInfo objectForKey:@"notId"];
+            if (notId != nil) {
+                NSLog(@"[PushPlugin] notId %@", notId);
+                [self.handlerObj setObject:safeHandler forKey:notId];
+            } else {
+                NSLog(@"[PushPlugin] notId handler");
+                [self.handlerObj setObject:safeHandler forKey:@"handler"];
+            }
+            self.notificationMessage = userInfo;
+            self.isInline = NO;
+            [self notificationReceived];
+        } else {
+            NSLog(@"[PushPlugin] Save push for later");
+            self.launchNotification = userInfo;
+            completionHandler(UIBackgroundFetchResultNewData);
+        }
+    } else {
+        completionHandler(UIBackgroundFetchResultNoData);
+    }
 }
 
 - (void)notificationReceived {
