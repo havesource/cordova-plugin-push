@@ -30,33 +30,14 @@
 #import <PushKit/PushKit.h>
 
 @interface PushPlugin : CDVPlugin
-{
-    NSDictionary *notificationMessage;
-    BOOL    isInline;
-    BOOL    clearBadge;
-    BOOL    forceShow;
-
-    NSMutableDictionary *handlerObj;
-    void (^completionHandler)(UIBackgroundFetchResult);
-}
 
 @property (nonatomic, copy) NSString *callbackId;
-
-@property (nonatomic, strong) NSDictionary *notificationMessage;
-@property BOOL isInline;
-@property BOOL coldstart;
-@property BOOL clearBadge;
-@property BOOL forceShow;
-@property (nonatomic, strong) NSMutableDictionary *handlerObj;
 
 - (void)init:(CDVInvokedUrlCommand*)command;
 - (void)unregister:(CDVInvokedUrlCommand*)command;
 - (void)subscribe:(CDVInvokedUrlCommand*)command;
 - (void)unsubscribe:(CDVInvokedUrlCommand*)command;
 - (void)clearNotification:(CDVInvokedUrlCommand*)command;
-
-- (void)setNotificationMessage:(NSDictionary *)notification;
-- (void)notificationReceived;
 
 // VoIP Features
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type;
