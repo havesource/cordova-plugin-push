@@ -89,69 +89,18 @@ static char coldstartKey;
     [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushWillPresentNotification" object:nil userInfo:notificationInfo];
 }
 
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center
-didReceiveNotificationResponse:(UNNotificationResponse *)response
-         withCompletionHandler:(void(^)(void))completionHandler
-{
-    NSLog(@"[PushPlugin] didReceiveNotificationResponse: actionIdentifier %@, notification: %@", response.actionIdentifier,
-          response.notification.request.content.userInfo);
-    NSMutableDictionary *userInfo = [response.notification.request.content.userInfo mutableCopy];
-    [userInfo setObject:response.actionIdentifier forKey:@"actionCallback"];
-    NSLog(@"[PushPlugin] userInfo %@", userInfo);
-
-    switch ([UIApplication sharedApplication].applicationState) {
-        case UIApplicationStateActive:
-        {
-            PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
-            pushHandler.notificationMessage = userInfo;
-            pushHandler.isInline = NO;
-            [pushHandler notificationReceived];
-            completionHandler();
-            break;
-        }
-        case UIApplicationStateInactive:
-        {
-            NSLog(@"[PushPlugin] coldstart");
-            
-            if([response.actionIdentifier rangeOfString:@"UNNotificationDefaultActionIdentifier"].location == NSNotFound) {
-                self.launchNotification = userInfo;
-            }
-            else {
-                self.launchNotification = response.notification.request.content.userInfo;
-            }
-            
-            self.coldstart = [NSNumber numberWithBool:YES];
-            break;
-        }
-        case UIApplicationStateBackground:
-        {
-            void (^safeHandler)(void) = ^(void){
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completionHandler();
-                });
-            };
-
-            PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
-
-            if (pushHandler.handlerObj == nil) {
-                pushHandler.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
-            }
-
-            id notId = [userInfo objectForKey:@"notId"];
-            if (notId != nil) {
-                NSLog(@"[PushPlugin] notId %@", notId);
-                [pushHandler.handlerObj setObject:safeHandler forKey:notId];
-            } else {
-                NSLog(@"[PushPlugin] notId handler");
-                [pushHandler.handlerObj setObject:safeHandler forKey:@"handler"];
-            }
-
-            pushHandler.notificationMessage = userInfo;
-            pushHandler.isInline = NO;
-
-            [pushHandler performSelectorOnMainThread:@selector(notificationReceived) withObject:pushHandler waitUntilDone:NO];
-        }
-    }
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler {
+    NSLog(@"Push Plugin didReceiveNotificationResponse: actionIdentifier %@, notification: %@", response.actionIdentifier, response.notification.request.content.userInfo);
+    NSDictionary *originalUserInfo = response.notification.request.content.userInfo;
+    NSMutableDictionary *modifiedUserInfo = [originalUserInfo mutableCopy];
+    [modifiedUserInfo setObject:response.actionIdentifier forKey:@"actionCallback"];
+    NSDictionary *notificationInfo = @{
+        @"actionIdentifier": response.actionIdentifier,
+        @"originalUserInfo": originalUserInfo,
+        @"modifiedUserInfo": modifiedUserInfo,
+        @"completionHandler": completionHandler
+    };
+    [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidReceiveNotificationResponse" object:nil userInfo:notificationInfo];
 }
 
 // The accessors use an Associative Reference since you can't define a iVar in a category
