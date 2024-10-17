@@ -76,6 +76,11 @@
                                              selector:@selector(willPresentNotification:)
                                                  name:@"CordovaPluginPushWillPresentNotification"
                                                object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didReceiveNotificationResponse:)
+                                                 name:@"CordovaPluginPushDidReceiveNotificationResponse"
+                                               object:nil];
 }
 
 - (void)unregister:(CDVInvokedUrlCommand *)command {
@@ -342,6 +347,63 @@
     }
 }
 
+- (void)didReceiveNotificationResponse:(NSNotification *)notification {
+    NSDictionary *originalUserInfo = notification.userInfo[@"originalUserInfo"];
+    NSDictionary *modifiedUserInfo = notification.userInfo[@"modifiedUserInfo"];
+    void (^completionHandler)(void) = notification.userInfo[@"completionHandler"];
+    NSLog(@"[PushPlugin] Modified UserInfo %@", modifiedUserInfo);
+    switch ([UIApplication sharedApplication].applicationState) {
+        case UIApplicationStateActive:
+        {
+            self.notificationMessage = modifiedUserInfo;
+            self.isInline = NO;
+            [self notificationReceived];
+            if (completionHandler) {
+                completionHandler();
+            }
+            break;
+        }
+        case UIApplicationStateInactive:
+        {
+            NSLog(@"[PushPlugin] coldstart");
+            if ([notification.userInfo[@"actionIdentifier"] rangeOfString:@"UNNotificationDefaultActionIdentifier"].location == NSNotFound) {
+                self.launchNotification = modifiedUserInfo;
+            } else {
+                self.launchNotification = originalUserInfo;
+            }
+            self.coldstart = YES;
+            if (completionHandler) {
+                completionHandler();
+            }
+            break;
+        }
+        case UIApplicationStateBackground:
+        {
+            void (^safeHandler)(void) = ^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (completionHandler) {
+                        completionHandler();
+                    }
+                });
+            };
+            if (self.handlerObj == nil) {
+                self.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
+            }
+            id notId = modifiedUserInfo[@"notId"];
+            if (notId != nil) {
+                NSLog(@"[PushPlugin] notId %@", notId);
+                [self.handlerObj setObject:safeHandler forKey:notId];
+            } else {
+                NSLog(@"[PushPlugin] notId handler");
+                [self.handlerObj setObject:safeHandler forKey:@"handler"];
+            }
+            self.notificationMessage = modifiedUserInfo;
+            self.isInline = NO;
+            [self performSelectorOnMainThread:@selector(notificationReceived) withObject:self waitUntilDone:NO];
+            break;
+        }
+    }
+}
 
 - (void)notificationReceived {
     NSLog(@"[PushPlugin] Notification received");
