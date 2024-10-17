@@ -26,7 +26,7 @@
 #import "PushPlugin.h"
 #import "PushPluginFCM.h"
 #import "PushPluginSettings.h"
-#import "AppDelegate+notification.h"
+#import "CDVAppDelegate+notification.h"
 
 @interface PushPlugin ()
 
@@ -50,6 +50,11 @@
     if([self.pushPluginFCM isFCMEnabled]) {
         [self.pushPluginFCM configure:self.commandDelegate];
     }
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didRegisterForRemoteNotificationsWithDeviceToken:)
+                                                 name:@"CordovaPluginPushDidRegisterForRemoteNotificationsWithDeviceToken"
+                                               object:nil];
 }
 
 - (void)unregister:(CDVInvokedUrlCommand *)command {
@@ -162,7 +167,9 @@
     }
 }
 
-- (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+- (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSNotification *)notification {
+    NSData *deviceToken = notification.object;
+
     if (self.callbackId == nil) {
         NSLog(@"[PushPlugin] Unexpected call to didRegisterForRemoteNotificationsWithDeviceToken, ignoring: %@", deviceToken);
         return;
