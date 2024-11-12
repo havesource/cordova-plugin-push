@@ -12,8 +12,7 @@
 
 // its dangerous to override a method from within a category.
 // Instead we will use method swizzling. we set this up in the load call.
-+ (void)load
-{
++ (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         Class class = [self class];
@@ -41,8 +40,7 @@
     });
 }
 
-- (CDVAppDelegate *)pushPluginSwizzledInit
-{
+- (CDVAppDelegate *)pushPluginSwizzledInit {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     center.delegate = self;
 
@@ -60,8 +58,6 @@
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-
-    // Create a dictionary with userInfo and the completionHandler
     NSDictionary *notificationInfo = @{
         @"userInfo": userInfo,
         @"completionHandler": completionHandler
@@ -71,25 +67,20 @@
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
-    NSMutableDictionary *userInfo = [notification.request.content.userInfo mutableCopy];
     NSDictionary *notificationInfo = @{
-        @"userInfo": userInfo,
+        @"notification": notification,
         @"completionHandler": completionHandler
     };
+
     [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushWillPresentNotification" object:nil userInfo:notificationInfo];
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler {
-    NSLog(@"Push Plugin didReceiveNotificationResponse: actionIdentifier %@, notification: %@", response.actionIdentifier, response.notification.request.content.userInfo);
-    NSDictionary *originalUserInfo = response.notification.request.content.userInfo;
-    NSMutableDictionary *modifiedUserInfo = [originalUserInfo mutableCopy];
-    [modifiedUserInfo setObject:response.actionIdentifier forKey:@"actionCallback"];
     NSDictionary *notificationInfo = @{
-        @"actionIdentifier": response.actionIdentifier,
-        @"originalUserInfo": originalUserInfo,
-        @"modifiedUserInfo": modifiedUserInfo,
+        @"response": response,
         @"completionHandler": completionHandler
     };
+
     [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidReceiveNotificationResponse" object:nil userInfo:notificationInfo];
 }
 

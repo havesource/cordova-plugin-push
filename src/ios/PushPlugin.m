@@ -201,11 +201,11 @@
     NSData *deviceToken = notification.object;
 
     if (self.callbackId == nil) {
-        NSLog(@"[PushPlugin] Unexpected call to didRegisterForRemoteNotificationsWithDeviceToken, ignoring: %@", deviceToken);
+        NSLog(@"[PushPlugin] An unexpected case was triggered where the callbackId is missing during the register for remote notification. (device token: %@)", deviceToken);
         return;
     }
 
-    NSLog(@"[PushPlugin] register success: %@", deviceToken);
+    NSLog(@"[PushPlugin] Successfully registered device for remote notification. (device token: %@)", deviceToken);
 
     if ([self.pushPluginFCM isFCMEnabled]) {
         [self.pushPluginFCM configureTokens:deviceToken];
@@ -244,19 +244,21 @@
     NSError *error = (NSError *)notification.object;
 
     if (self.callbackId == nil) {
-        NSLog(@"[PushPlugin] Unexpected call to didFailToRegisterForRemoteNotificationsWithError, ignoring: %@", error);
+        NSLog(@"[PushPlugin] An unexpected case was triggered where the callbackId is missing during the failure to register for remote notification. (error: %@)", error);
         return;
     }
-    NSLog(@"[PushPlugin] register failed");
-    [self failWithMessage:self.callbackId withMsg:@"" withError:error];
+
+    NSLog(@"[PushPlugin] Failed to register for remote notification with error: %@", error);
+    [self failWithMessage:self.callbackId withMsg:@"Failed to register for remote notification." withError:error];
 }
 
 - (void)didReceiveRemoteNotification:(NSNotification *)notification {
-    NSDictionary *notificationInfo = notification.userInfo;
-    // Extract userInfo and completionHandler
-    NSDictionary *userInfo = notificationInfo[@"userInfo"];
-    void (^completionHandler)(UIBackgroundFetchResult) = notificationInfo[@"completionHandler"];
-    NSLog(@"[PushPlugin]didReceiveNotification with fetchCompletionHandler");
+    NSDictionary *userInfo = notification.userInfo[@"userInfo"];
+
+    NSLog(@"[PushPlugin] Received remote notification (userInfo: %@)", userInfo);
+
+    void (^completionHandler)(UIBackgroundFetchResult) = notification.userInfo[@"completionHandler"];
+
     // app is in the background or inactive, so only call notification callback if this is a silent push
     if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
         NSLog(@"[PushPlugin] app in-active");
@@ -291,7 +293,8 @@
             self.isInline = NO;
             [self notificationReceived];
         } else {
-            NSLog(@"[PushPlugin] Save push for later");
+            NSLog(@"[PushPlugin] Application is not active, saving notification for later.");
+
             self.launchNotification = userInfo;
             completionHandler(UIBackgroundFetchResultNewData);
         }
@@ -330,10 +333,13 @@
 }
 
 - (void)willPresentNotification:(NSNotification *)notification {
-    NSDictionary *userInfo = notification.userInfo[@"userInfo"];
-    void (^completionHandler)(UNNotificationPresentationOptions) = notification.userInfo[@"completionHandler"];
+    NSLog(@"[PushPlugin] Notification was received while the app was in the foreground. (willPresentNotification)");
 
-    NSLog(@"[PushPlugin] NotificationCenter Handle push from foreground");
+    // The original notification that comes from the CDVAppDelegate's willPresentNotification.
+    UNNotification *originalNotification = notification.userInfo[@"notification"];
+    NSDictionary *userInfo = originalNotification.request.content.userInfo;
+
+    void (^completionHandler)(UNNotificationPresentationOptions) = notification.userInfo[@"completionHandler"];
 
     self.notificationMessage = userInfo;
     self.isInline = YES;
@@ -352,15 +358,27 @@
 }
 
 - (void)didReceiveNotificationResponse:(NSNotification *)notification {
-    NSDictionary *originalUserInfo = notification.userInfo[@"originalUserInfo"];
-    NSDictionary *modifiedUserInfo = notification.userInfo[@"modifiedUserInfo"];
+    // The original response that comes from the CDVAppDelegate's didReceiveNotificationResponse.
+    UNNotificationResponse *response = notification.userInfo[@"response"];
+
+    NSLog(@"[PushPlugin] Notification was received. (actionIdentifier %@, notification: %@)",
+          response.actionIdentifier,
+          response.notification.request.content.userInfo);
+
     void (^completionHandler)(void) = notification.userInfo[@"completionHandler"];
-    NSLog(@"[PushPlugin] Modified UserInfo %@", modifiedUserInfo);
+
+    NSDictionary *originalUserInfo = response.notification.request.content.userInfo;
+    NSMutableDictionary *modifiedUserInfo = [originalUserInfo mutableCopy];
+    [modifiedUserInfo setObject:response.actionIdentifier forKey:@"actionCallback"];
+
     switch ([UIApplication sharedApplication].applicationState) {
         case UIApplicationStateActive:
         {
-            self.notificationMessage = modifiedUserInfo;
             self.isInline = NO;
+            self.notificationMessage = modifiedUserInfo;
+
+            NSLog(@"[PushPlugin] App is active. Notification message set with: %@", self.notificationMessage);
+
             [self notificationReceived];
             if (completionHandler) {
                 completionHandler();
@@ -369,13 +387,16 @@
         }
         case UIApplicationStateInactive:
         {
-            NSLog(@"[PushPlugin] coldstart");
+            self.coldstart = YES;
+
             if ([notification.userInfo[@"actionIdentifier"] rangeOfString:@"UNNotificationDefaultActionIdentifier"].location == NSNotFound) {
                 self.launchNotification = modifiedUserInfo;
             } else {
                 self.launchNotification = originalUserInfo;
             }
-            self.coldstart = YES;
+
+            NSLog(@"[PushPlugin] App is inactive. Storing notification message for later launch with: %@", self.launchNotification);
+
             if (completionHandler) {
                 completionHandler();
             }
@@ -390,9 +411,13 @@
                     }
                 });
             };
+
+            self.isInline = NO;
+
             if (self.handlerObj == nil) {
                 self.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
             }
+
             id notId = modifiedUserInfo[@"notId"];
             if (notId != nil) {
                 NSLog(@"[PushPlugin] notId %@", notId);
@@ -401,8 +426,11 @@
                 NSLog(@"[PushPlugin] notId handler");
                 [self.handlerObj setObject:safeHandler forKey:@"handler"];
             }
-            self.notificationMessage = modifiedUserInfo;
-            self.isInline = NO;
+
+            self.notificationMessage = originalUserInfo;
+
+            NSLog(@"[PushPlugin] App is in the background. Notification message set with: %@", self.notificationMessage);
+
             [self performSelectorOnMainThread:@selector(notificationReceived) withObject:self waitUntilDone:NO];
             break;
         }
