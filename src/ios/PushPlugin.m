@@ -336,13 +336,18 @@
 - (void)willPresentNotification:(NSNotification *)notification {
     NSLog(@"[PushPlugin] Notification was received while the app was in the foreground. (willPresentNotification)");
 
+    UIApplicationState applicationState = [UIApplication sharedApplication].applicationState;
+    NSNumber *applicationStateNumber = @((int)applicationState);
+
     // The original notification that comes from the CDVAppDelegate's willPresentNotification.
     UNNotification *originalNotification = notification.userInfo[@"notification"];
-    NSDictionary *userInfo = originalNotification.request.content.userInfo;
+    NSDictionary *originalUserInfo = originalNotification.request.content.userInfo;
+    NSMutableDictionary *modifiedUserInfo = [originalUserInfo mutableCopy];
+    [modifiedUserInfo setObject:applicationStateNumber forKey:@"applicationState"];
 
     void (^completionHandler)(UNNotificationPresentationOptions) = notification.userInfo[@"completionHandler"];
 
-    self.notificationMessage = userInfo;
+    self.notificationMessage = modifiedUserInfo;
     self.isInline = YES;
     [self notificationReceived];
 
@@ -368,11 +373,13 @@
 
     void (^completionHandler)(void) = notification.userInfo[@"completionHandler"];
 
+    UIApplicationState applicationState = [UIApplication sharedApplication].applicationState;
+    NSNumber *applicationStateNumber = @((int)applicationState);
     NSDictionary *originalUserInfo = response.notification.request.content.userInfo;
     NSMutableDictionary *modifiedUserInfo = [originalUserInfo mutableCopy];
-    [modifiedUserInfo setObject:response.actionIdentifier forKey:@"actionCallback"];
+    [modifiedUserInfo setObject:applicationStateNumber forKey:@"applicationState"];
 
-    switch ([UIApplication sharedApplication].applicationState) {
+    switch (applicationState) {
         case UIApplicationStateActive:
         {
             self.isInline = NO;
@@ -389,12 +396,7 @@
         case UIApplicationStateInactive:
         {
             self.coldstart = YES;
-
-            if ([notification.userInfo[@"actionIdentifier"] rangeOfString:@"UNNotificationDefaultActionIdentifier"].location == NSNotFound) {
-                self.launchNotification = modifiedUserInfo;
-            } else {
-                self.launchNotification = originalUserInfo;
-            }
+            self.launchNotification = modifiedUserInfo;
 
             NSLog(@"[PushPlugin] App is inactive. Storing notification message for later launch with: %@", self.launchNotification);
 
@@ -428,7 +430,7 @@
                 [self.handlerObj setObject:safeHandler forKey:@"handler"];
             }
 
-            self.notificationMessage = originalUserInfo;
+            self.notificationMessage = modifiedUserInfo;
 
             NSLog(@"[PushPlugin] App is in the background. Notification message set with: %@", self.notificationMessage);
 
@@ -445,6 +447,16 @@
     {
         NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:4];
         NSMutableDictionary* additionalData = [NSMutableDictionary dictionaryWithCapacity:4];
+
+        // Remove "actionCallback" when application state is not foreground. Only applied to foreground.
+        NSNumber *applicationStateNumber = self.notificationMessage[@"applicationState"];
+        UIApplicationState applicationState = (UIApplicationState)[applicationStateNumber intValue];
+        if (applicationState != UIApplicationStateActive) {
+            [(NSMutableDictionary *) self.notificationMessage removeObjectForKey:@"actionCallback"];
+        }
+        // @todo do not sent applicationState data to front for now. Figure out if we can add
+        // similar data to the other platforms.
+        [(NSMutableDictionary *) self.notificationMessage removeObjectForKey:@"applicationState"];
 
         for (id key in self.notificationMessage) {
             if ([key isEqualToString:@"aps"]) {
