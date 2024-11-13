@@ -126,7 +126,9 @@
             self.forceShow = [settings forceShowEnabled];
             self.clearBadge = [settings clearBadgeEnabled];
             if (self.clearBadge) {
-                [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+                });
             }
 
             UNAuthorizationOptions authorizationOptions = UNAuthorizationOptionNone;
