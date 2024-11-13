@@ -36,6 +36,7 @@
 @property (nonatomic, strong) NSDictionary *launchNotification;
 @property (nonatomic, strong) NSDictionary *notificationMessage;
 @property (nonatomic, strong) NSMutableDictionary *handlerObj;
+@property (nonatomic, strong) UNNotification *previousNotification;
 
 @property (nonatomic, assign) BOOL isInline;
 @property (nonatomic, assign) BOOL clearBadge;
@@ -356,6 +357,30 @@
     [modifiedUserInfo setObject:applicationStateNumber forKey:@"applicationState"];
 
     void (^completionHandler)(UNNotificationPresentationOptions) = notification.userInfo[@"completionHandler"];
+
+    if (@available(iOS 18.0, *)) {
+        if (@available(iOS 18.1, *)) {
+            // Do nothing for iOS 18.1 and higher.
+        } else {
+            // Note: In iOS 18.0, there is a known issue where "willPresentNotification" is triggered twice for a single payload.
+            // The "willPresentNotification" method is normally triggered when a notification is received while the app is in the
+            // foreground. Due to this bug, the notification payload is delivered twice, causing the front-end to process the
+            // notification event twice as well. This behavior is unintended, so this block of code checks if the payload is a
+            // duplicate by comparing the payload content and the timestamp of when it was received.
+            NSLog(@"[PushPlugin] Checking for duplicate notification presentation.");
+            if ([self isDuplicateNotification:originalNotification]) {
+                NSLog(@"[PushPlugin] Duplicate notification detected; processing will be skipped.");
+                if (completionHandler) {
+                    completionHandler(UNNotificationPresentationOptionNone);
+                }
+                // Cleanup to remove previous notification to remove leaks
+                self.previousNotification = nil;
+                return;
+            }
+            // If it was not duplicate, we will store it to check for the potential second notification
+            self.previousNotification = originalNotification;
+        }
+    }
 
     self.notificationMessage = modifiedUserInfo;
     self.isInline = YES;
@@ -763,7 +788,26 @@
     }];
 }
 
+- (BOOL)isDuplicateNotification:(UNNotification *)notification {
+    BOOL isDuplicate = NO;
+    if (self.previousNotification) {
+        // Extract relevant data from the current notification
+        NSDate *currentNotificationDate = notification.date;
+        NSDictionary *currentPayload = notification.request.content.userInfo;
+        // Extract relevant data from the previous notification
+        NSDate *previousNotificationDate = self.previousNotification.date;
+        NSDictionary *previousPayload = self.previousNotification.request.content.userInfo;
+        // Compare the date timestamp
+        BOOL isSameDate = [currentNotificationDate isEqualToDate:previousNotificationDate];
+        // Compare the payload content
+        BOOL isSamePayload = [currentPayload isEqualToDictionary:previousPayload];
+        isDuplicate = isSameDate && isSamePayload;
+    }
+    return isDuplicate;
+}
+
 - (void)dealloc {
+    self.previousNotification = nil;
     self.launchNotification = nil;
     self.coldstart = nil;
 }
