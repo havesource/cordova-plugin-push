@@ -19,8 +19,6 @@
   </engines>
 
   <platform name="android">
-    <hook type="before_compile" src="hooks/android/beforeCompile.js"/>
-
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="PushNotification">
         <param name="android-package" value="com.adobe.phonegap.push.PushPlugin"/>
