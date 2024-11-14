@@ -602,12 +602,12 @@
 }
 
 - (void) finish:(CDVInvokedUrlCommand *)command {
-    NSLog(@"[PushPlugin] finish called");
-
     [self.commandDelegate runInBackground:^ {
         NSString* notId = [command.arguments objectAtIndex:0];
+        NSLog(@"[PushPlugin] The 'finish' API was triggered for notId: %@", notId);
 
         dispatch_async(dispatch_get_main_queue(), ^{
+            NSLog(@"[PushPlugin] Creating timer scheduled for notId: %@", notId);
             [NSTimer scheduledTimerWithTimeInterval:0.1
                                              target:self
                                            selector:@selector(stopBackgroundTask:)
@@ -621,21 +621,38 @@
 }
 
 - (void)stopBackgroundTask:(NSTimer *)timer {
-    UIApplication *app = [UIApplication sharedApplication];
-
-    NSLog(@"[PushPlugin] stopBackgroundTask called");
-
-    if (self.handlerObj) {
-        NSLog(@"[PushPlugin] handlerObj");
-        self.backgroundTaskcompletionHandler = [self.handlerObj[[timer userInfo]] copy];
-        if (self.backgroundTaskcompletionHandler) {
-            NSLog(@"[PushPlugin] stopBackgroundTask (remaining t: %f)", app.backgroundTimeRemaining);
-            self.backgroundTaskcompletionHandler(UIBackgroundFetchResultNewData);
-            self.backgroundTaskcompletionHandler = nil;
-        }
+    // If the handler object is nil, there is nothing to process
+    if (!self.handlerObj) {
+        NSLog(@"[PushPlugin] Warning (stopBackgroundTask): handlerObj was nil.");
+        return;
     }
-}
 
+    // Get the notification ID from the timer's userInfo dictionary
+    NSString *notId = (NSString *)[timer userInfo];
+
+    // Get the safe handler (completionHandler) for the notification ID.
+    void (^safeHandler)(UIBackgroundFetchResult) = self.handlerObj[notId];
+
+    // If the handler is missing for the notification ID, nothing to process.
+    if (!safeHandler) {
+        NSLog(@"[PushPlugin] Warning (stopBackgroundTask): No handler was found for notId: %@.", notId);
+        return;
+    }
+
+    UIApplication *app = [UIApplication sharedApplication];
+    if (app.applicationState == UIApplicationStateBackground) {
+        NSLog(@"[PushPlugin] Processing background task for notId: %@. Background time remaining: %f", notId, app.backgroundTimeRemaining);
+    } else {
+        NSLog(@"[PushPlugin] Processing background task for notId: %@. App is now in the foreground.", notId);
+    }
+
+    // Execute the handler to complete the background task
+    safeHandler(UIBackgroundFetchResultNewData);
+
+    // Remove the handler to prevent memory leaks.
+    [self.handlerObj removeObjectForKey:notId];
+    NSLog(@"[PushPlugin] Removed handler for notId: %@", notId);
+}
 
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type {
     if([credentials.token length] == 0) {
