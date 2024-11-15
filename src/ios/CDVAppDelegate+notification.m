@@ -6,6 +6,7 @@
 
 #import "CDVAppDelegate+notification.h"
 #import "PushPlugin.h"
+#import "PushPluginConstants.h"
 #import <objc/runtime.h>
 
 @implementation CDVAppDelegate (notification)
@@ -50,11 +51,11 @@
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidRegisterForRemoteNotificationsWithDeviceToken" object:deviceToken];
+    [NSNotificationCenter.defaultCenter postNotificationName:PluginDidRegisterForRemoteNotificationsWithDeviceToken object:deviceToken];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-    [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidFailToRegisterForRemoteNotificationsWithError" object:error];
+    [NSNotificationCenter.defaultCenter postNotificationName:PluginDidFailToRegisterForRemoteNotificationsWithError object:error];
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
@@ -63,7 +64,7 @@
         @"completionHandler": completionHandler
     };
 
-    [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidReceiveRemoteNotification" object:nil userInfo:notificationInfo];
+    [NSNotificationCenter.defaultCenter postNotificationName:PluginDidReceiveRemoteNotification object:nil userInfo:notificationInfo];
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
@@ -72,7 +73,7 @@
         @"completionHandler": completionHandler
     };
 
-    [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushWillPresentNotification" object:nil userInfo:notificationInfo];
+    [NSNotificationCenter.defaultCenter postNotificationName:PluginWillPresentNotification object:nil userInfo:notificationInfo];
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler {
@@ -81,7 +82,7 @@
         @"completionHandler": completionHandler
     };
 
-    [NSNotificationCenter.defaultCenter postNotificationName:@"CordovaPluginPushDidReceiveNotificationResponse" object:nil userInfo:notificationInfo];
+    [NSNotificationCenter.defaultCenter postNotificationName:PluginDidReceiveNotificationResponse object:nil userInfo:notificationInfo];
 }
 
 @end

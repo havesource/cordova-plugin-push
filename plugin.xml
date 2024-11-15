@@ -118,11 +118,13 @@
 
     <source-file src="src/ios/CDVAppDelegate+notification.m"/>
     <source-file src="src/ios/PushPlugin.m"/>
+    <source-file src="src/ios/PushPluginConstants.m"/>
     <source-file src="src/ios/PushPluginFCM.m"/>
     <source-file src="src/ios/PushPluginSettings.m"/>
 
     <header-file src="src/ios/CDVAppDelegate+notification.h"/>
     <header-file src="src/ios/PushPlugin.h"/>
+    <source-file src="src/ios/PushPluginConstants.h"/>
     <header-file src="src/ios/PushPluginFCM.h"/>
     <header-file src="src/ios/PushPluginSettings.h"/>
 

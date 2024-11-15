@@ -24,9 +24,10 @@
  */
 
 #import "PushPlugin.h"
+#import "CDVAppDelegate+notification.h"
+#import "PushPluginConstants.h"
 #import "PushPluginFCM.h"
 #import "PushPluginSettings.h"
-#import "CDVAppDelegate+notification.h"
 
 @interface PushPlugin ()
 
@@ -58,17 +59,17 @@
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didRegisterForRemoteNotificationsWithDeviceToken:)
-                                                 name:@"CordovaPluginPushDidRegisterForRemoteNotificationsWithDeviceToken"
+                                                 name:PluginDidRegisterForRemoteNotificationsWithDeviceToken
                                                object:nil];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didFailToRegisterForRemoteNotificationsWithError:)
-                                                 name:@"CordovaPluginPushDidFailToRegisterForRemoteNotificationsWithError"
+                                                 name:PluginDidFailToRegisterForRemoteNotificationsWithError
                                                object:nil];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveRemoteNotification:)
-                                                 name:@"CordovaPluginPushDidReceiveRemoteNotification"
+                                                 name:PluginDidReceiveRemoteNotification
                                                object:nil];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -78,12 +79,12 @@
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willPresentNotification:)
-                                                 name:@"CordovaPluginPushWillPresentNotification"
+                                                 name:PluginWillPresentNotification
                                                object:nil];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveNotificationResponse:)
-                                                 name:@"CordovaPluginPushDidReceiveNotificationResponse"
+                                                 name:PluginDidReceiveNotificationResponse
                                                object:nil];
 }
 
