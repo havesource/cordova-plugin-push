@@ -624,16 +624,21 @@
 - (void) finish:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^ {
         NSString* notId = [command.arguments objectAtIndex:0];
-        NSLog(@"[PushPlugin] The 'finish' API was triggered for notId: %@", notId);
 
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSLog(@"[PushPlugin] Creating timer scheduled for notId: %@", notId);
-            [NSTimer scheduledTimerWithTimeInterval:0.1
-                                             target:self
-                                           selector:@selector(stopBackgroundTask:)
-                                           userInfo:notId
-                                            repeats:NO];
-        });
+        if (notId == nil || [notId isKindOfClass:[NSNull class]]) {
+            // @todo review "didReceiveNotificationResponse"
+            NSLog(@"[PushPlugin] Skipping 'finish' API as notId is unavailable.");
+        } else {
+            NSLog(@"[PushPlugin] The 'finish' API was triggered for notId: %@", notId);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSLog(@"[PushPlugin] Creating timer scheduled for notId: %@", notId);
+                [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                 target:self
+                                               selector:@selector(stopBackgroundTask:)
+                                               userInfo:notId
+                                                repeats:NO];
+            });
+        }
 
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
