@@ -24,17 +24,10 @@
         Method original = class_getInstanceMethod(class, originalSelector);
         Method swizzled = class_getInstanceMethod(class, swizzledSelector);
 
-        BOOL didAddMethod =
-        class_addMethod(class,
-                        originalSelector,
-                        method_getImplementation(swizzled),
-                        method_getTypeEncoding(swizzled));
+        BOOL didAddMethod = class_addMethod(class, originalSelector, method_getImplementation(swizzled), method_getTypeEncoding(swizzled));
 
         if (didAddMethod) {
-            class_replaceMethod(class,
-                                swizzledSelector,
-                                method_getImplementation(original),
-                                method_getTypeEncoding(original));
+            class_replaceMethod(class, swizzledSelector, method_getImplementation(original), method_getTypeEncoding(original));
         } else {
             method_exchangeImplementations(original, swizzled);
         }
@@ -44,7 +37,6 @@
 - (CDVAppDelegate *)pushPluginSwizzledInit {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     center.delegate = self;
-
     // This actually calls the original init method over in CDVAppDelegate. Equivilent to calling super
     // on an overrided method, this is not recursive, although it appears that way. neat huh?
     return [self pushPluginSwizzledInit];
@@ -58,30 +50,24 @@
     [NSNotificationCenter.defaultCenter postNotificationName:PluginDidFailToRegisterForRemoteNotificationsWithError object:error];
 }
 
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    NSDictionary *notificationInfo = @{
-        @"userInfo": userInfo,
-        @"completionHandler": completionHandler
-    };
-
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo
+fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    NSDictionary *notificationInfo = @{@"userInfo" : userInfo, @"completionHandler" : completionHandler};
     [NSNotificationCenter.defaultCenter postNotificationName:PluginDidReceiveRemoteNotification object:nil userInfo:notificationInfo];
 }
 
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
-    NSDictionary *notificationInfo = @{
-        @"notification": notification,
-        @"completionHandler": completionHandler
-    };
-
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+       willPresentNotification:(UNNotification *)notification
+         withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
+    NSDictionary *notificationInfo = @{@"notification" : notification, @"completionHandler" : completionHandler};
     [NSNotificationCenter.defaultCenter postNotificationName:PluginWillPresentNotification object:nil userInfo:notificationInfo];
 }
 
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler {
-    NSDictionary *notificationInfo = @{
-        @"response": response,
-        @"completionHandler": completionHandler
-    };
-
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+didReceiveNotificationResponse:(UNNotificationResponse *)response
+         withCompletionHandler:(void (^)(void))completionHandler {
+    NSDictionary *notificationInfo = @{@"response" : response, @"completionHandler" : completionHandler};
     [NSNotificationCenter.defaultCenter postNotificationName:PluginDidReceiveNotificationResponse object:nil userInfo:notificationInfo];
 }
 
