@@ -284,10 +284,21 @@
                 self.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
             }
 
+            // Get the notId
             id notId = [userInfo objectForKey:@"notId"];
-            NSString *fallbackNotIdKey = [NSString stringWithFormat:@"pushplugin-handler-%f", [NSDate timeIntervalSinceReferenceDate]];
-            NSString *notIdKey = (notId != nil) ? notId : fallbackNotIdKey;
+            NSString *notIdKey = notId != nil ? [NSString stringWithFormat:@"%@", notId] : nil;
+
+            if (notIdKey == nil) {
+                // Create a unique notId
+                notIdKey = [NSString stringWithFormat:@"pushplugin-handler-%f", [NSDate timeIntervalSinceReferenceDate]];
+                // Add the unique notId to the userInfo. Passes to front-end payload.
+                [userInfo setValue:notIdKey forKey:@"notId"];
+                // Store the handler for the uniquly created notId.
+            }
+
             [self.handlerObj setObject:safeHandler forKey:notIdKey];
+
+            NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
 
             self.notificationMessage = userInfo;
             self.isInline = NO;
@@ -418,9 +429,18 @@
                 self.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
             }
 
+            // Get the notId
             id notId = modifiedUserInfo[@"notId"];
-            NSString *fallbackNotIdKey = [NSString stringWithFormat:@"pushplugin-handler-%f", [NSDate timeIntervalSinceReferenceDate]];
-            NSString *notIdKey = (notId != nil) ? notId : fallbackNotIdKey;
+            NSString *notIdKey = notId != nil ? [NSString stringWithFormat:@"%@", notId] : nil;
+
+            if (notIdKey == nil) {
+                // Create a unique notId
+                notIdKey = [NSString stringWithFormat:@"pushplugin-handler-%f", [NSDate timeIntervalSinceReferenceDate]];
+                // Add the unique notId to the userInfo. Passes to front-end payload.
+                [modifiedUserInfo setValue:notIdKey forKey:@"notId"];
+                // Store the handler for the uniquly created notId.
+            }
+
             [self.handlerObj setObject:safeHandler forKey:notIdKey];
 
             NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
