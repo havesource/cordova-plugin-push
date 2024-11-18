@@ -1,15 +1,15 @@
 //
-//  CDVAppDelegate+notification.m
+//  AppDelegate+PushPlugin.m
 //
 //  Created by Robert Easterday on 10/26/12.
 //
 
-#import "CDVAppDelegate+notification.h"
+#import "AppDelegate+PushPlugin.h"
 #import "PushPlugin.h"
 #import "PushPluginConstants.h"
 #import <objc/runtime.h>
 
-@implementation CDVAppDelegate (notification)
+@implementation AppDelegate (PushPlugin)
 
 // its dangerous to override a method from within a category.
 // Instead we will use method swizzling. we set this up in the load call.
@@ -34,10 +34,10 @@
     });
 }
 
-- (CDVAppDelegate *)pushPluginSwizzledInit {
+- (AppDelegate *)pushPluginSwizzledInit {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     center.delegate = self;
-    // This actually calls the original init method over in CDVAppDelegate. Equivilent to calling super
+    // This actually calls the original init method over in AppDelegate. Equivilent to calling super
     // on an overrided method, this is not recursive, although it appears that way. neat huh?
     return [self pushPluginSwizzledInit];
 }
