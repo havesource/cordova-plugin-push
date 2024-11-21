@@ -25,7 +25,7 @@
   - [Priority in Notifications](#priority-in-notifications)
   - [Picture Messages](#picture-messages)
   - [Background Notifications](#background-notifications)
-    - [Use of content_available: true](#use-of-content_available-true)
+    - [Use of content\_available: true](#use-of-content_available-true)
     - [Chinese Android Phones](#chinese-android-phones)
     - [Application force closed](#application-force-closed)
     - [Caching](#caching)
@@ -147,7 +147,7 @@ Note that the properties are "normalized" across platforms, so this is passed to
 
 ## iOS Message Format
 
-The JSON message can contain the following fields, see [Apple developer docs](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html#//apple_ref/doc/uid/TP40008194-CH17-SW5) for a complete list
+For a full list of payload keys, refer to the [Generating a Remote Notification](https://developer.apple.com/documentation/usernotifications/generating-a-remote-notification) documentation on Apple Developer.
 
 ```json
 {
