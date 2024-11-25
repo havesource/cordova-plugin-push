@@ -735,39 +735,66 @@
 
     __weak UNUserNotificationCenter *weakCenter = center;
     [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-        switch (settings.authorizationStatus) {
-            case UNAuthorizationStatusNotDetermined:
-            {
-                [weakCenter requestAuthorizationWithOptions:authorizationOptions completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        if (settings.authorizationStatus == UNAuthorizationStatusNotDetermined) {
+            // If the status is not determined, request permissions
+            [weakCenter requestAuthorizationWithOptions:authorizationOptions completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                if (error) {
+                    NSLog(@"[PushPlugin] Error during authorization request: %@", error.localizedDescription);
+                }
+
+                if (granted) {
+                    NSLog(@"[PushPlugin] Notification permissions granted.");
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [[UIApplication sharedApplication] registerForRemoteNotifications];
+                    });
+                } else {
+                    NSLog(@"[PushPlugin] Notification permissions denied.");
+                }
+            }];
+        } else {
+            UNAuthorizationOptions currentGrantedOptions = UNAuthorizationOptionNone;
+
+            // Check for current granted permissions
+            if (settings.badgeSetting == UNNotificationSettingEnabled) {
+                currentGrantedOptions |= UNAuthorizationOptionBadge;
+            }
+            if (settings.soundSetting == UNNotificationSettingEnabled) {
+                currentGrantedOptions |= UNAuthorizationOptionSound;
+            }
+            if (settings.alertSetting == UNNotificationSettingEnabled) {
+                currentGrantedOptions |= UNAuthorizationOptionAlert;
+            }
+            if (@available(iOS 12.0, *)) {
+                if (settings.criticalAlertSetting == UNNotificationSettingEnabled) {
+                    currentGrantedOptions |= UNAuthorizationOptionCriticalAlert;
+                }
+            }
+
+            // Compare the requested with granted permissions. Find which are missing.
+            UNAuthorizationOptions newAuthorizationOptions = authorizationOptions & ~currentGrantedOptions;
+
+            // Request for the permissions that were not already requested for.
+            if (newAuthorizationOptions != UNAuthorizationOptionNone) {
+                [weakCenter requestAuthorizationWithOptions:newAuthorizationOptions completionHandler:^(BOOL granted, NSError * _Nullable error) {
                     if (error) {
                         NSLog(@"[PushPlugin] Error during authorization request: %@", error.localizedDescription);
                     }
 
                     if (granted) {
+                        NSLog(@"[PushPlugin] New notification permissions granted.");
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [[UIApplication sharedApplication] registerForRemoteNotifications];
                         });
                     } else {
-                        NSLog(@"[PushPlugin] Notification authorization denied.");
+                        NSLog(@"[PushPlugin] User denied new notification permissions.");
                     }
                 }];
-                break;
-            }
-            case UNAuthorizationStatusAuthorized:
-            {
+            } else {
+                NSLog(@"[PushPlugin] All requested permissions were processed.");
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
-                break;
             }
-            case UNAuthorizationStatusDenied:
-            {
-                NSLog(@"[PushPlugin] User denied notification permission.");
-                break;
-            }
-            default:
-                NSLog(@"[PushPlugin] Unhandled authorization status: %ld", (long)settings.authorizationStatus);
-                break;
         }
     }];
 }
