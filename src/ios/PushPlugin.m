@@ -33,7 +33,7 @@
 @property (nonatomic, strong) PushPluginFCM *pushPluginFCM;
 
 @property (nonatomic, strong) NSDictionary *launchNotification;
-@property (nonatomic, strong) NSDictionary *notificationMessage;
+@property (nonatomic, strong) NSMutableDictionary *notificationMessage;
 @property (nonatomic, strong) NSMutableDictionary *handlerObj;
 @property (nonatomic, strong) UNNotification *previousNotification;
 
@@ -300,7 +300,7 @@
 
             NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
 
-            self.notificationMessage = userInfo;
+            self.notificationMessage = [userInfo mutableCopy];
             self.isInline = NO;
             [self notificationReceived];
         } else {
