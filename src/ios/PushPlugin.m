@@ -266,12 +266,14 @@
         // do some convoluted logic to find out if this should be a silent push.
         long silent = 0;
         id aps = [userInfo objectForKey:@"aps"];
+
         id contentAvailable = [aps objectForKey:@"content-available"];
         if ([contentAvailable isKindOfClass:[NSString class]] && [contentAvailable isEqualToString:@"1"]) {
             silent = 1;
         } else if ([contentAvailable isKindOfClass:[NSNumber class]]) {
             silent = [contentAvailable integerValue];
         }
+
         if (silent == 1) {
             NSLog(@"[PushPlugin] this should be a silent push");
             void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
@@ -285,14 +287,15 @@
             }
 
             // Get the notId
-            id notId = [userInfo objectForKey:@"notId"];
+            NSMutableDictionary *mutableUserInfo = [userInfo mutableCopy];
+            id notId = [mutableUserInfo objectForKey:@"notId"];
             NSString *notIdKey = notId != nil ? [NSString stringWithFormat:@"%@", notId] : nil;
 
             if (notIdKey == nil) {
                 // Create a unique notId
                 notIdKey = [NSString stringWithFormat:@"pushplugin-handler-%f", [NSDate timeIntervalSinceReferenceDate]];
                 // Add the unique notId to the userInfo. Passes to front-end payload.
-                [userInfo setValue:notIdKey forKey:@"notId"];
+                [mutableUserInfo setValue:notIdKey forKey:@"notId"];
                 // Store the handler for the uniquly created notId.
             }
 
@@ -300,7 +303,7 @@
 
             NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
 
-            self.notificationMessage = userInfo;
+            self.notificationMessage = [mutableUserInfo copy];
             self.isInline = NO;
             [self notificationReceived];
         } else {
@@ -381,7 +384,7 @@
         }
     }
 
-    self.notificationMessage = modifiedUserInfo;
+    self.notificationMessage = [modifiedUserInfo copy];
     self.isInline = YES;
     [self notificationReceived];
 
@@ -419,7 +422,7 @@
             NSLog(@"[PushPlugin] App is active. Notification message set with: %@", modifiedUserInfo);
 
             self.isInline = NO;
-            self.notificationMessage = modifiedUserInfo;
+            self.notificationMessage = [modifiedUserInfo copy];
             [self notificationReceived];
             if (completionHandler) {
                 completionHandler();
@@ -431,7 +434,7 @@
             NSLog(@"[PushPlugin] App is inactive. Storing notification message for later launch with: %@", modifiedUserInfo);
 
             self.coldstart = YES;
-            self.launchNotification = modifiedUserInfo;
+            self.launchNotification = [modifiedUserInfo copy];
             if (completionHandler) {
                 completionHandler();
             }
@@ -470,7 +473,7 @@
             NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
 
             self.isInline = NO;
-            self.notificationMessage = modifiedUserInfo;
+            self.notificationMessage = [modifiedUserInfo copy];
 
             [self performSelectorOnMainThread:@selector(notificationReceived) withObject:self waitUntilDone:NO];
             break;
@@ -483,18 +486,20 @@
 
     if (self.notificationMessage && self.callbackId != nil)
     {
+        NSMutableDictionary* mutableNotificationMessage = [self.notificationMessage mutableCopy];
         NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:4];
         NSMutableDictionary* additionalData = [NSMutableDictionary dictionaryWithCapacity:4];
 
         // Remove "actionCallback" when application state is not foreground. Only applied to foreground.
-        NSNumber *applicationStateNumber = self.notificationMessage[@"applicationState"];
+        NSNumber *applicationStateNumber = mutableNotificationMessage[@"applicationState"];
         UIApplicationState applicationState = (UIApplicationState)[applicationStateNumber intValue];
         if (applicationState != UIApplicationStateActive) {
-            [(NSMutableDictionary *) self.notificationMessage removeObjectForKey:@"actionCallback"];
+            [mutableNotificationMessage removeObjectForKey:@"actionCallback"];
         }
         // @todo do not sent applicationState data to front for now. Figure out if we can add
         // similar data to the other platforms.
-        [(NSMutableDictionary *) self.notificationMessage removeObjectForKey:@"applicationState"];
+        [mutableNotificationMessage removeObjectForKey:@"applicationState"];
+        self.notificationMessage = [mutableNotificationMessage copy];
 
         for (id key in self.notificationMessage) {
             if ([key isEqualToString:@"aps"]) {
