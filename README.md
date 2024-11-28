@@ -19,6 +19,7 @@ This plugin does not provide a way to determine which platform you are running o
 * [Examples](docs/EXAMPLES.md)
 * [Platform support](docs/PLATFORM_SUPPORT.md)
 * [Cloud build support (PG Build, IntelXDK)](docs/PHONEGAP_BUILD.md)
+* [VoIP Videocall Callscreen Support](docs/VoIP_push_videocalls.md)
 * [Push notification payload details](docs/PAYLOAD.md)
 * [Contributing](.github/CONTRIBUTING.md)
 * [License (MIT)](MIT-LICENSE)
