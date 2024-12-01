@@ -338,8 +338,6 @@
     }
 
     if (self.launchNotification) {
-        self.isInline = NO;
-        self.coldstart = NO;
         self.notificationMessage = self.launchNotification;
         self.launchNotification = nil;
         [self performSelectorOnMainThread:@selector(notificationReceived) withObject:self waitUntilDone:NO];
@@ -560,10 +558,11 @@
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
         [pluginResult setKeepCallbackAsBool:YES];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
-
-        self.coldstart = NO;
-        self.notificationMessage = nil;
     }
+
+    self.isInline = NO;
+    self.coldstart = NO;
+    self.notificationMessage = nil;
 }
 
 - (void)clearNotification:(CDVInvokedUrlCommand *)command {
