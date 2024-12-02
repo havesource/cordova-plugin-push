@@ -37,7 +37,9 @@
 
 - (void)configure:(id <CDVCommandDelegate>)commandDelegate {
     NSLog(@"[PushPlugin] Configuring Firebase App for FCM");
-    [FIRApp configure];
+    if(![FIRApp defaultApp]) {
+        [FIRApp configure];
+    }
 
     self.commandDelegate = commandDelegate;
 }
