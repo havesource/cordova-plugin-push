@@ -558,11 +558,11 @@
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
         [pluginResult setKeepCallbackAsBool:YES];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
-    }
 
-    self.isInline = NO;
-    self.coldstart = NO;
-    self.notificationMessage = nil;
+        self.coldstart = NO;
+        self.isInline = NO;
+        self.notificationMessage = nil;
+    }
 }
 
 - (void)clearNotification:(CDVInvokedUrlCommand *)command {
