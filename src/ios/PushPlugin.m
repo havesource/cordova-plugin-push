@@ -413,6 +413,7 @@
     NSDictionary *originalUserInfo = response.notification.request.content.userInfo;
     NSMutableDictionary *modifiedUserInfo = [originalUserInfo mutableCopy];
     [modifiedUserInfo setObject:applicationStateNumber forKey:@"applicationState"];
+    [modifiedUserInfo setObject:response.actionIdentifier forKey:@"actionCallback"];
 
     switch (applicationState) {
         case UIApplicationStateActive:
@@ -491,7 +492,8 @@
         // Remove "actionCallback" when application state is not foreground. Only applied to foreground.
         NSNumber *applicationStateNumber = mutableNotificationMessage[@"applicationState"];
         UIApplicationState applicationState = (UIApplicationState)[applicationStateNumber intValue];
-        if (applicationState != UIApplicationStateActive) {
+        if (applicationState != UIApplicationStateActive
+            && [[mutableNotificationMessage objectForKey:@"actionCallback"] isEqualToString:UNNotificationDefaultActionIdentifier]) {
             [mutableNotificationMessage removeObjectForKey:@"actionCallback"];
         }
         // @todo do not sent applicationState data to front for now. Figure out if we can add
