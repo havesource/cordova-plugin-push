@@ -239,7 +239,11 @@ declare namespace PhonegapPluginPush {
 			/**
 			 * If the array contains one or more strings each string will be used to subscribe to a FcmPubSub topic. Defaults to [].
 			 */
-			topics?: string[]
+			topics?: string[],
+			/**
+			 * If true will always show a notification, even when the app is on the foreground. Default is false.
+			 */
+			forceShow?: boolean
 		}
 	}
 
@@ -254,9 +258,21 @@ declare namespace PhonegapPluginPush {
 	}
 
 	interface CategoryActionData {
+		/**
+		 * The javascript event you want to fire.
+		 */
 		callback: string
+		/**
+		 * The label for the button.
+		 */
 		title: string
+		/**
+		 * Whether or not to bring your app to the foreground
+		 */
 		foreground: boolean
+		/**
+		 * Colors the button red as a warning to the user that the action may be destructive.
+		 */
 		destructive: boolean
 	}
 
@@ -306,7 +322,7 @@ declare namespace PhonegapPluginPush {
 		[name: string]: any
 
 		/**
-		 * Whether the notification was received while the app was in the foreground
+		 * Whether the notification was received while the app was in the foreground.
 		 */
 		foreground?: boolean
 		/**
