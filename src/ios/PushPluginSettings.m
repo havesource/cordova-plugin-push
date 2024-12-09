@@ -117,7 +117,7 @@
         return nil;
     }
 
-    NSString *identifier = [dictionary objectForKey:@"identifier"];
+    NSString *identifier = [dictionary objectForKey:@"callback"];
     NSString *title = [dictionary objectForKey:@"title"];
 
     if (!title || !identifier) {
