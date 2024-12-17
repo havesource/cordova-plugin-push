@@ -37,6 +37,7 @@
 @property (nonatomic, strong) NSMutableDictionary *handlerObj;
 @property (nonatomic, strong) UNNotification *previousNotification;
 
+@property (nonatomic, assign) BOOL isInitialized;
 @property (nonatomic, assign) BOOL isInline;
 @property (nonatomic, assign) BOOL clearBadge;
 @property (nonatomic, assign) BOOL forceShow;
@@ -152,6 +153,8 @@
             PKPushRegistry *pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
             pushRegistry.delegate = self;
             pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
+
+            self.isInitialized = YES;
         }];
     } else {
         NSLog(@"[PushPlugin] VoIP missing or false");
@@ -189,11 +192,13 @@
             [center setNotificationCategories:[settings categories]];
 
             // If there is a pending startup notification, we will delay to allow JS event handlers to setup
-            if (self.notificationMessage) {
+            if (self.notificationMessage && !self.isInitialized) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self performSelector:@selector(notificationReceived) withObject:nil afterDelay: 0.5];
                 });
             }
+
+            self.isInitialized = YES;
         }];
     }
 }
