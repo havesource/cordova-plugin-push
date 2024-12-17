@@ -384,13 +384,15 @@
 
     self.notificationMessage = [modifiedUserInfo copy];
     self.isInline = YES;
-    [self notificationReceived];
 
     UNNotificationPresentationOptions presentationOption = UNNotificationPresentationOptionNone;
-    if (@available(iOS 10, *)) {
-        if(self.forceShow) {
+
+    if(self.forceShow) {
+        if (@available(iOS 10, *)) {
             presentationOption = UNNotificationPresentationOptionAlert;
         }
+    } else {
+        [self notificationReceived];
     }
 
     if (completionHandler) {
@@ -489,11 +491,9 @@
         NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:4];
         NSMutableDictionary* additionalData = [NSMutableDictionary dictionaryWithCapacity:4];
 
-        // Remove "actionCallback" when application state is not foreground. Only applied to foreground.
-        NSNumber *applicationStateNumber = mutableNotificationMessage[@"applicationState"];
-        UIApplicationState applicationState = (UIApplicationState)[applicationStateNumber intValue];
-        if (applicationState != UIApplicationStateActive
-            && [[mutableNotificationMessage objectForKey:@"actionCallback"] isEqualToString:UNNotificationDefaultActionIdentifier]) {
+        // Exclude "UNNotificationDefaultActionIdentifier" from "actionCallback" as it is platform-specific.
+        // Use the default "notification" callback or a custom-defined callback instead.
+        if ([[mutableNotificationMessage objectForKey:@"actionCallback"] isEqualToString:UNNotificationDefaultActionIdentifier]) {
             [mutableNotificationMessage removeObjectForKey:@"actionCallback"];
         }
         // @todo do not sent applicationState data to front for now. Figure out if we can add
