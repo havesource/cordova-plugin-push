@@ -34,6 +34,7 @@
             @"critical" : @(NO),
             @"clearBadge" : @(NO),
             @"forceShow" : @(NO),
+            @"forceRegister" : @(NO),
             @"voip" : @(NO),
             @"fcmTopics" : @[],
             @"categories" : [NSSet set]
@@ -162,6 +163,10 @@
 
 - (BOOL)forceShowEnabled {
     return [self.settingsDictionary[@"forceShow"] boolValue];
+}
+
+- (BOOL)forceRegisterEnabled {
+    return [self.settingsDictionary[@"forceRegister"] boolValue];
 }
 
 - (BOOL)voipEnabled {

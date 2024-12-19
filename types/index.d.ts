@@ -244,6 +244,12 @@ declare namespace PhonegapPluginPush {
 			 * If true will always show a notification, even when the app is on the foreground. Default is false.
 			 */
 			forceShow?: boolean
+      /**
+			 * If true the app will register for remote notifications, even if the user has denied notification permissions.
+			 * On iOS, notification permissions only control user-facing notifications – background pushes can still be received.
+			 * Default is false.
+			 */
+			forceRegister?: boolean
 		}
 	}
 
