@@ -16,6 +16,7 @@
 @property (nonatomic, readonly) BOOL criticalEnabled;
 @property (nonatomic, readonly) BOOL clearBadgeEnabled;
 @property (nonatomic, readonly) BOOL forceShowEnabled;
+@property (nonatomic, readonly) BOOL forceRegisterEnabled;
 @property (nonatomic, readonly) BOOL voipEnabled;
 
 @property (nonatomic, readonly, strong) NSArray *fcmTopics;
