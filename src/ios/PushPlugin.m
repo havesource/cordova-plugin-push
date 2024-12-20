@@ -41,6 +41,7 @@
 @property (nonatomic, assign) BOOL isInline;
 @property (nonatomic, assign) BOOL clearBadge;
 @property (nonatomic, assign) BOOL forceShow;
+@property (nonatomic, assign) BOOL forceRegister;
 @property (nonatomic, assign) BOOL coldstart;
 
 @property (nonatomic, copy) void (^backgroundTaskcompletionHandler)(UIBackgroundFetchResult);
@@ -164,6 +165,7 @@
             self.isInline = NO;
             self.forceShow = [settings forceShowEnabled];
             self.clearBadge = [settings clearBadgeEnabled];
+            self.forceRegister = [settings forceRegisterEnabled];
             if (self.clearBadge) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
@@ -749,7 +751,7 @@
                     NSLog(@"[PushPlugin] Error during authorization request: %@", error.localizedDescription);
                 }
 
-                if (granted) {
+                if (granted || self.forceRegister) {
                     NSLog(@"[PushPlugin] Notification permissions granted.");
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [[UIApplication sharedApplication] registerForRemoteNotifications];
@@ -787,7 +789,7 @@
                         NSLog(@"[PushPlugin] Error during authorization request: %@", error.localizedDescription);
                     }
 
-                    if (granted) {
+                    if (granted || self.forceRegister) {
                         NSLog(@"[PushPlugin] New notification permissions granted.");
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [[UIApplication sharedApplication] registerForRemoteNotifications];
