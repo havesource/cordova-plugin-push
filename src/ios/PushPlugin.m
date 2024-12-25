@@ -38,7 +38,7 @@
 @property (nonatomic, strong) UNNotification *previousNotification;
 
 @property (nonatomic, assign) BOOL isInitialized;
-@property (nonatomic, assign) BOOL isInline;
+@property (nonatomic, assign) BOOL isForeground;
 @property (nonatomic, assign) BOOL clearBadge;
 @property (nonatomic, assign) BOOL forceShow;
 @property (nonatomic, assign) BOOL coldstart;
@@ -161,7 +161,7 @@
 
         [self.commandDelegate runInBackground:^ {
             NSLog(@"[PushPlugin] register called");
-            self.isInline = NO;
+            self.isForeground = NO;
             self.forceShow = [settings forceShowEnabled];
             self.clearBadge = [settings clearBadgeEnabled];
             if (self.clearBadge) {
@@ -309,7 +309,7 @@
             NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
 
             self.notificationMessage = [mutableUserInfo copy];
-            self.isInline = NO;
+            self.isForeground = NO;
             [self notificationReceived];
         } else {
             NSLog(@"[PushPlugin] Application is not active, saving notification for later.");
@@ -388,7 +388,7 @@
     }
 
     self.notificationMessage = [modifiedUserInfo copy];
-    self.isInline = YES;
+    self.isForeground = YES;
 
     UNNotificationPresentationOptions presentationOption = UNNotificationPresentationOptionNone;
 
@@ -427,7 +427,7 @@
         {
             NSLog(@"[PushPlugin] App is active. Notification message set with: %@", modifiedUserInfo);
 
-            self.isInline = NO;
+            self.isForeground = YES;
             self.notificationMessage = [modifiedUserInfo copy];
             [self notificationReceived];
             if (completionHandler) {
@@ -440,6 +440,7 @@
             NSLog(@"[PushPlugin] App is inactive. Storing notification message for later launch with: %@", modifiedUserInfo);
 
             self.coldstart = YES;
+            self.isForeground = NO;
             self.launchNotification = [modifiedUserInfo copy];
             if (completionHandler) {
                 completionHandler();
@@ -478,7 +479,7 @@
 
             NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
 
-            self.isInline = NO;
+            self.isForeground = NO;
             self.notificationMessage = [modifiedUserInfo copy];
 
             [self performSelectorOnMainThread:@selector(notificationReceived) withObject:self waitUntilDone:NO];
@@ -547,7 +548,7 @@
             }
         }
 
-        if (self.isInline) {
+        if (self.isForeground) {
             [additionalData setObject:[NSNumber numberWithBool:YES] forKey:@"foreground"];
         } else {
             [additionalData setObject:[NSNumber numberWithBool:NO] forKey:@"foreground"];
@@ -567,7 +568,7 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 
         self.coldstart = NO;
-        self.isInline = NO;
+        self.isForeground = NO;
         self.notificationMessage = nil;
     }
 }
