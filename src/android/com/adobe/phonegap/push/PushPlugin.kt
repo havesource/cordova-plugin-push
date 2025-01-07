@@ -487,9 +487,12 @@ class PushPlugin : CordovaPlugin() {
         } catch (e: InterruptedException) {
           Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
           null
+        } catch (e: Exception) {
+          Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
+          null
         }
 
-        if (token != "") {
+        if (token != null && token != "") {
           val registration = JSONObject().put(PushConstants.REGISTRATION_ID, token).apply {
             put(PushConstants.REGISTRATION_TYPE, PushConstants.FCM)
           }
@@ -513,6 +516,9 @@ class PushPlugin : CordovaPlugin() {
       } catch (e: NotFoundException) {
         Log.e(TAG, formatLogMessage("Resources NotFoundException Exception ${e.message}"))
         callbackContext.error(e.message)
+      } catch (e: Exception) {
+        Log.e(TAG, formatLogMessage("Unexpected Exception ${e.message}"))
+        callbackContext.error("An unexpected error occurred: ${e.message}")
       }
 
       jo?.let {
@@ -681,6 +687,9 @@ class PushPlugin : CordovaPlugin() {
       } catch (e: InterruptedException) {
         Log.e(TAG, formatLogMessage("Interrupted ${e.message}"))
         callbackContext.error(e.message)
+      } catch (e: Exception) {
+        Log.e(TAG, formatLogMessage("Unexpected Exception ${e.message}"))
+        callbackContext.error(e.message)
       }
     }
   }
@@ -708,6 +717,8 @@ class PushPlugin : CordovaPlugin() {
       } catch (e: UnknownError) {
         callbackContext.error(e.message)
       } catch (e: JSONException) {
+        callbackContext.error(e.message)
+      } catch (e: Exception) {
         callbackContext.error(e.message)
       }
     }
