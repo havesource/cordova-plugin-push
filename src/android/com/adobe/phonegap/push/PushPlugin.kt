@@ -834,8 +834,7 @@ class PushPlugin : CordovaPlugin() {
   /**
    * Initialize
    */
-  override fun initialize(cordova: CordovaInterface, webView: CordovaWebView) {
-    super.initialize(cordova, webView)
+  override fun pluginInitialize() {
     isInForeground = true
   }
 
