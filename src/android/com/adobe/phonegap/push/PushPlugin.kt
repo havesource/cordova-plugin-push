@@ -305,7 +305,7 @@ class PushPlugin : CordovaPlugin() {
   private fun getNotificationChannelSound(channelData: JSONObject): Pair<Uri?, AudioAttributes?> {
     val audioAttributes = AudioAttributes.Builder()
       .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-      .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+      .setUsage(AudioAttributes.USAGE_NOTIFICATION)
       .build()
 
     val sound = channelData.optString(PushConstants.SOUND, PushConstants.SOUND_DEFAULT)
