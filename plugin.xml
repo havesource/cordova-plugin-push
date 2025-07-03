@@ -62,8 +62,8 @@
       <preference name="GradlePluginKotlinEnabled" value="true" />
     </config-file>
 
-    <preference name="ANDROIDX_CORE_VERSION" default="1.6.+"/>
-    <preference name="FCM_VERSION" default="23.+"/>
+    <preference name="ANDROIDX_CORE_VERSION" default="1.16.0"/>
+    <preference name="FCM_VERSION" default="24.1.0"/>
 
     <framework src="androidx.core:core:$ANDROIDX_CORE_VERSION" />
     <framework src="me.leolin:ShortcutBadger:1.1.22@aar"/>
