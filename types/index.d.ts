@@ -146,7 +146,7 @@ declare namespace PhonegapPluginPush {
 			 */
 			vibrate?: boolean
 			/**
-			 * If true the icon badge will be cleared on init and before push messages are processed. Default is false.
+			 * If true the icon badge and notifications will be cleared on init and before push messages are processed. Default is false.
 			 */
 			clearBadge?: boolean
 			/**
