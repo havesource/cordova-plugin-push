@@ -19,6 +19,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.edit
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.messaging.FirebaseMessaging
 import me.leolin.shortcutbadger.ShortcutBadger
@@ -190,13 +191,14 @@ class PushPlugin : CordovaPlugin() {
       if (badgeCount > 0) {
         ShortcutBadger.applyCount(context, badgeCount)
       } else {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancelAll()
         ShortcutBadger.removeCount(context)
       }
 
       context.getSharedPreferences(PushConstants.BADGE, Context.MODE_PRIVATE)
-        .edit()?.apply {
+        .edit {
           putInt(PushConstants.BADGE, badgeCount.coerceAtLeast(0))
-          apply()
         }
     }
 
