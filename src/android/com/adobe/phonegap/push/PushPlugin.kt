@@ -458,6 +458,22 @@ class PushPlugin : CordovaPlugin() {
       var jo: JSONObject? = null
       var senderID: String? = null
 
+      val token: String? = try {
+        Tasks.await(FirebaseMessaging.getInstance().token)
+      } catch (e: Exception) {
+        // Catch and format all other log message to clearly declare which exception was triggered.
+        val rootCause = if (e is ExecutionException) e.cause ?: e else e
+        val exceptionType = rootCause::class.java.simpleName
+        Log.e(TAG, formatLogMessage("An \"$exceptionType\" occurred while fetching FCM token: ${rootCause.message}"))
+        callbackContext.error("An error occurred while fetching the FCM token. Check logs for details.")
+        return@Runnable
+      }
+
+      if (token.isNullOrEmpty()) {
+        callbackContext.error("The FCM token was undefined. Verify FCM configs and check logs for more information.")
+        return@Runnable
+      }
+
       try {
         jo = data.getJSONObject(0).getJSONObject(PushConstants.ANDROID)
 
@@ -468,59 +484,38 @@ class PushPlugin : CordovaPlugin() {
         )
         senderID = activity.getString(senderIdResId)
 
-        // If no NotificationChannels exist create the default one
+        // Creates the default notification channel if missing
         createDefaultNotificationChannelIfNeeded(jo)
 
+        // Log the JSON object and sender ID
         Log.v(TAG, formatLogMessage("JSONObject=$jo"))
         Log.v(TAG, formatLogMessage("senderID=$senderID"))
 
-        val token = try {
-          try {
-            Tasks.await(FirebaseMessaging.getInstance().token)
-          } catch (e: ExecutionException) {
-            throw e.cause ?: e
-          }
-        } catch (e: IllegalStateException) {
-          Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
-          null
-        } catch (e: ExecutionException) {
-          Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
-          null
-        } catch (e: InterruptedException) {
-          Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
-          null
-        } catch (e: Exception) {
-          Log.e(TAG, formatLogMessage("Firebase Token Exception ${e.message}"))
-          null
+        // Prepare the registration object
+        val registration = JSONObject().put(PushConstants.REGISTRATION_ID, token).apply {
+          put(PushConstants.REGISTRATION_TYPE, PushConstants.FCM)
         }
 
-        if (token != null && token != "") {
-          val registration = JSONObject().put(PushConstants.REGISTRATION_ID, token).apply {
-            put(PushConstants.REGISTRATION_TYPE, PushConstants.FCM)
-          }
+        Log.v(TAG, formatLogMessage("onRegistered=$registration"))
 
-          Log.v(TAG, formatLogMessage("onRegistered=$registration"))
+        // Retrieve and subscribe to topics
+        val topics = jo.optJSONArray(PushConstants.TOPICS)
+        subscribeToTopics(topics)
 
-          val topics = jo.optJSONArray(PushConstants.TOPICS)
-          subscribeToTopics(topics)
-
-          sendEvent(registration)
-        } else {
-          callbackContext.error("Empty registration ID received from FCM")
-          return@Runnable
-        }
+        // Send the registration event
+        sendEvent(registration)
       } catch (e: JSONException) {
-        Log.e(TAG, formatLogMessage("JSON Exception ${e.message}"))
-        callbackContext.error(e.message)
+        Log.e(TAG, formatLogMessage("JSON Exception: ${e.message}"))
+        callbackContext.error("JSON Exception: ${e.message}")
       } catch (e: IOException) {
-        Log.e(TAG, formatLogMessage("IO Exception ${e.message}"))
-        callbackContext.error(e.message)
+        Log.e(TAG, formatLogMessage("IO Exception: ${e.message}"))
+        callbackContext.error("IO Exception: ${e.message}")
       } catch (e: NotFoundException) {
-        Log.e(TAG, formatLogMessage("Resources NotFoundException Exception ${e.message}"))
-        callbackContext.error(e.message)
+        Log.e(TAG, formatLogMessage("Resources NotFoundException: ${e.message}"))
+        callbackContext.error("Resources NotFoundException: ${e.message}")
       } catch (e: Exception) {
-        Log.e(TAG, formatLogMessage("Unexpected Exception ${e.message}"))
-        callbackContext.error("An unexpected error occurred: ${e.message}")
+        Log.e(TAG, formatLogMessage("Unexpected Exception: ${e.message}"))
+        callbackContext.error("Unexpected Exception: ${e.message}")
       }
 
       jo?.let {
