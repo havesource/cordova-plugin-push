@@ -404,7 +404,7 @@ push.on('notification', data => {
 });
 ```
 
-Android quirk: Please note that some payloads may cause this event not to be always fired: [data vs notification payloads](https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#notification-vs-data-payloads)
+Android quirk: Please note that some payloads may cause this event not to be always fired: [data vs notification payloads](https://github.com/havesource/cordova-plugin-push/blob/master/docs/PAYLOAD.md#notification-vs-data-payloads)
 
 ## push.on('error', callback)
 

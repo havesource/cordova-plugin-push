@@ -1567,9 +1567,9 @@ public void onCreate(Bundle savedInstanceState)
 If you don't see the `if` statement that checks for the appearance of `cdvStartInBackground` you will probably need to do:
 
 ```
-phonegap platform rm android
-phonegap platform add android
-phonegap build android
+cordova platform rm android
+cordova platform add android
+cordova build android
 ```
 
 This should add the correct code to the `MainActivity` class.
