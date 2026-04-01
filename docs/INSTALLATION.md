@@ -12,7 +12,7 @@
   - [Browser details](#browser-details)
     - [Browser Support](#browser-support)
   - [iOS details](#ios-details)
-    - [System & Cordova Requirements](#system--cordova-requirements)
+    - [System \& Cordova Requirements](#system--cordova-requirements)
     - [Bitcode](#bitcode)
     - [CocoaPods](#cocoapods)
       - [Common CocoaPod Installation issues](#common-cocoapod-installation-issues)
@@ -27,6 +27,10 @@
 | 1.0.0          | 10.0.0      | 8.0.0           | 5.1.1       | 1.8.0     |
 | 2.0.0          | 10.0.0      | 8.0.0           | 6.0.0       | 1.8.0     |
 | 3.0.0          | 10.0.0      | 9.0.0           | 6.0.0       | 1.8.0     |
+| 4.0.0          | 10.0.0      | 12.0.0          | 6.0.0       | 1.8.0     |
+| 5.0.0          | 10.0.0      | 12.0.0          | 6.0.0       | 1.8.0     |
+| 6.0.0          | 10.0.0      | 12.0.0          | 6.0.0       | 1.8.0     |
+| 7.0.0          | 10.0.0      | 12.0.0          | 6.0.0       | 1.8.0     |
 
 To install from the command line:
 
@@ -75,7 +79,7 @@ By default, on iOS, the plugin will register with APNS. If you want to use FCM o
 > Note: You need to specify the SENDER_ID variable in your config.xml if you plan on installing/restoring plugins using the prepare method. The prepare method will skip installing the plugin otherwise.
 
 ```xml
-<plugin name="@havesource/cordova-plugin-push" spec="3.0.0" />
+<plugin name="@havesource/cordova-plugin-push" spec="5.0.0" />
 ```
 
 ### Cordova-Android 9.x Specifics
@@ -116,8 +120,8 @@ To make the two work together, you need to migrate your GCM project from Google 
   "cordova": {
     "plugins": {
       "@havesource/cordova-plugin-push": {
-        "ANDROIDX_CORE_VERSION": "1.6.+",
-        "FCM_VERSION": "18.+"
+        "ANDROIDX_CORE_VERSION": "1.16.0",
+        "FCM_VERSION": "24.1.0"
       }
     },
     "platforms": []
@@ -127,7 +131,7 @@ To make the two work together, you need to migrate your GCM project from Google 
 
 _Note:_ No changes on the back-end side are needed: [even though recommended](https://developers.google.com/cloud-messaging/android/android-migrate-fcm#update_server_endpoints), it isn't yet required and sending messages through GCM gateway should work just fine.
 
-_Note:_ The `FCM_VERSION` must be greater than or equal to 17.1.0 and less than or equal to 18.0.0.
+_Note:_ This plugin's default `FCM_VERSION` is 24.1.0.
 
 ### Common errors
 

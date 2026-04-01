@@ -17,8 +17,7 @@ const push = PushNotification.init({
 		alert: "true",
 		badge: true,
 		sound: 'false'
-	},
-	windows: {}
+	}
 });
 
 push.on('registration', (data) => {

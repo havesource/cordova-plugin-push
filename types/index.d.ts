@@ -107,9 +107,17 @@ declare namespace PhonegapPluginPush {
 		/**
 		 * Tells the OS to clear all notifications from the Notification Center
 		 * @param successHandler Is called when the api successfully clears the notifications.
-		 * @param errorHandler Is called when the api encounters an error when attempting to clears the notifications.
+		 * @param errorHandler Is called when the api encounters an error when attempting to clear the notifications.
 		 */
 		clearAllNotifications(successHandler: () => any, errorHandler: () => any): void
+
+		/**
+		 * Tells the OS to clear the notification that corresponds to the id argument, from the Notification Center
+		 * @param successHandler Is called when the api successfully clears the notification.
+		 * @param errorHandler Is called when the api encounters an error when attempting to clear the notification.
+		 * @param id The ID of the notification that will be cleared.
+		 */
+		clearNotification(successHandler: () => any, errorHandler: () => any, id?: number): void
 	}
 
 	/**
@@ -138,7 +146,7 @@ declare namespace PhonegapPluginPush {
 			 */
 			vibrate?: boolean
 			/**
-			 * If true the icon badge will be cleared on init and before push messages are processed. Default is false.
+			 * If true the icon badge and notifications will be cleared on init and before push messages are processed. Default is false.
 			 */
 			clearBadge?: boolean
 			/**
@@ -221,20 +229,27 @@ declare namespace PhonegapPluginPush {
 			 */
 			categories?: CategoryArray
 			/**
-			 * Whether to use prod or sandbox GCM setting. Defaults to false.
+			 * If `true` the device can show up critical alerts. (Possible since iOS 12 with a special entitlement)
+			 * Default is false|"false".
+       * Note: the value you set this option to the first time you call the init method will be how the application always acts.
+       * Once this is set programmatically in the init method it can only be changed manually by the user in Settings > Notifications > `App Name`.
+       * This is normal iOS behaviour.
 			 */
-			fcmSandbox?: boolean
+			critical?: boolean
 			/**
 			 * If the array contains one or more strings each string will be used to subscribe to a FcmPubSub topic. Defaults to [].
 			 */
-			topics?: string[]
-		}
-
-		/**
-		 * Windows specific initialization options.
-		 */
-		windows?: {
-
+			topics?: string[],
+			/**
+			 * If true will always show a notification, even when the app is on the foreground. Default is false.
+			 */
+			forceShow?: boolean
+      /**
+			 * If true the app will register for remote notifications, even if the user has denied notification permissions.
+			 * On iOS, notification permissions only control user-facing notifications – background pushes can still be received.
+			 * Default is false.
+			 */
+			forceRegister?: boolean
 		}
 	}
 
@@ -249,9 +264,21 @@ declare namespace PhonegapPluginPush {
 	}
 
 	interface CategoryActionData {
+		/**
+		 * The javascript event you want to fire.
+		 */
 		callback: string
+		/**
+		 * The label for the button.
+		 */
 		title: string
+		/**
+		 * Whether or not to bring your app to the foreground
+		 */
 		foreground: boolean
+		/**
+		 * Colors the button red as a warning to the user that the action may be destructive.
+		 */
 		destructive: boolean
 	}
 
@@ -273,7 +300,6 @@ declare namespace PhonegapPluginPush {
 		title?: string
 		/**
 		 * The number of messages to be displayed in the badge iOS or message count in the notification shade in Android.
-		 * For windows, it represents the value in the badge notification which could be a number or a status glyph.
 		 */
 		count: string
 		/**
@@ -302,7 +328,7 @@ declare namespace PhonegapPluginPush {
 		[name: string]: any
 
 		/**
-		 * Whether the notification was received while the app was in the foreground
+		 * Whether the notification was received while the app was in the foreground.
 		 */
 		foreground?: boolean
 		/**

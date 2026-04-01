@@ -23,360 +23,218 @@
  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//  See GGLInstanceID.h
-#define GMP_NO_MODULES true
-
 #import "PushPlugin.h"
-#import "AppDelegate+notification.h"
+#import "PushPluginConstants.h"
+#import "PushPluginFCM.h"
+#import "PushPluginSettings.h"
 
-@import Firebase;
-@import FirebaseCore;
-// @import FirebaseInstanceID;
-@import FirebaseMessaging;
+@interface PushPlugin ()
 
-@implementation PushPlugin : CDVPlugin
+@property (nonatomic, strong) PushPluginFCM *pushPluginFCM;
 
-@synthesize notificationMessage;
-@synthesize isInline;
-@synthesize coldstart;
+@property (nonatomic, strong) NSDictionary *launchNotification;
+@property (nonatomic, strong) NSDictionary *notificationMessage;
+@property (nonatomic, strong) NSMutableDictionary *handlerObj;
+@property (nonatomic, strong) UNNotification *previousNotification;
+
+@property (nonatomic, assign) BOOL isInitialized;
+@property (nonatomic, assign) BOOL isForeground;
+@property (nonatomic, assign) BOOL clearBadge;
+@property (nonatomic, assign) BOOL forceShow;
+@property (nonatomic, assign) BOOL forceRegister;
+@property (nonatomic, assign) BOOL coldstart;
+
+@property (nonatomic, copy) void (^backgroundTaskcompletionHandler)(UIBackgroundFetchResult);
+
+@end
+
+@implementation PushPlugin
 
 @synthesize callbackId;
-@synthesize notificationCallbackId;
-@synthesize callback;
-@synthesize clearBadge;
-@synthesize handlerObj;
 
-@synthesize usesFCM;
-@synthesize fcmSandbox;
-@synthesize fcmSenderId;
-@synthesize fcmRegistrationOptions;
-@synthesize fcmRegistrationToken;
-@synthesize fcmTopics;
+- (void)pluginInitialize {
+    self.pushPluginFCM = [[PushPluginFCM alloc] initWithGoogleServicePlist];
 
--(void)initRegistration;
-{
-    [[FIRMessaging messaging] tokenWithCompletion:^(NSString *token, NSError *error) {
-        if (error != nil) {
-            NSLog(@"Error getting FCM registration token: %@", error);
-        } else {
-            NSLog(@"FCM registration token: %@", token);
+    if([self.pushPluginFCM isFCMEnabled]) {
+        [self.pushPluginFCM configure:self.commandDelegate];
+    }
 
-            [self setFcmRegistrationToken: token];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didRegisterForRemoteNotificationsWithDeviceToken:)
+                                                 name:PluginDidRegisterForRemoteNotificationsWithDeviceToken
+                                               object:nil];
 
-            NSString* message = [NSString stringWithFormat:@"Remote InstanceID token: %@", token];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didFailToRegisterForRemoteNotificationsWithError:)
+                                                 name:PluginDidFailToRegisterForRemoteNotificationsWithError
+                                               object:nil];
 
-            id topics = [self fcmTopics];
-            if (topics != nil) {
-                for (NSString *topic in topics) {
-                    NSLog(@"subscribe to topic: %@", topic);
-                    id pubSub = [FIRMessaging messaging];
-                    [pubSub subscribeToTopic:topic];
-                }
-            }
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didReceiveRemoteNotification:)
+                                                 name:PluginDidReceiveRemoteNotification
+                                               object:nil];
 
-            [self registerWithToken: token];
-        }
-    }];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(pushPluginOnApplicationDidBecomeActive:)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willPresentNotification:)
+                                                 name:PluginWillPresentNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didReceiveNotificationResponse:)
+                                                 name:PluginDidReceiveNotificationResponse
+                                               object:nil];
 }
 
-//  FCM refresh token
-//  Unclear how this is testable under normal circumstances
-- (void)onTokenRefresh {
-#if !TARGET_IPHONE_SIMULATOR
-    // A rotation of the registration tokens is happening, so the app needs to request a new token.
-    NSLog(@"The FCM registration token needs to be changed.");
-    [self initRegistration];
-#endif
-}
-
-// contains error info
-- (void)didSendDataMessageWithID:messageID {
-    NSLog(@"didSendDataMessageWithID");
-}
-
-- (void)willSendDataMessageWithID:messageID error:error {
-    NSLog(@"willSendDataMessageWithID");
-}
-
-- (void)unregister:(CDVInvokedUrlCommand*)command;
-{
+- (void)unregister:(CDVInvokedUrlCommand *)command {
     NSArray* topics = [command argumentAtIndex:0];
 
     if (topics != nil) {
-        id pubSub = [FIRMessaging messaging];
-        for (NSString *topic in topics) {
-            NSLog(@"unsubscribe from topic: %@", topic);
-            [pubSub unsubscribeFromTopic:topic];
-        }
+        [self.pushPluginFCM unsubscribeFromTopics:topics];
     } else {
         [[UIApplication sharedApplication] unregisterForRemoteNotifications];
         [self successWithMessage:command.callbackId withMsg:@"unregistered"];
     }
 }
 
-- (void)subscribe:(CDVInvokedUrlCommand*)command;
-{
-    NSString* topic = [command argumentAtIndex:0];
+- (void)subscribe:(CDVInvokedUrlCommand *)command {
+    if (!self.pushPluginFCM.isFCMEnabled) {
+        NSLog(@"[PushPlugin] The 'subscribe' API not allowed. FCM is not enabled.");
+        [self successWithMessage:command.callbackId withMsg:@"The 'subscribe' API not allowed. FCM is not enabled."];
+        return;
+    }
 
-    if (topic != nil) {
-        NSLog(@"subscribe from topic: %@", topic);
-        id pubSub = [FIRMessaging messaging];
-        [pubSub subscribeToTopic:topic];
-        NSLog(@"Successfully subscribe to topic %@", topic);
-        [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully subscribe to topic %@", topic]];
-    } else {
-        NSLog(@"There is no topic to subscribe");
+    NSString* topic = [command argumentAtIndex:0];
+    if (topic == nil) {
+        NSLog(@"[PushPlugin] There is no topic to subscribe");
         [self successWithMessage:command.callbackId withMsg:@"There is no topic to subscribe"];
+        return;
     }
+
+    [self.pushPluginFCM subscribeToTopic:topic];
+    [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully subscribe to topic %@", topic]];
 }
 
-- (void)unsubscribe:(CDVInvokedUrlCommand*)command;
-{
+- (void)unsubscribe:(CDVInvokedUrlCommand *)command {
+    if (!self.pushPluginFCM.isFCMEnabled) {
+        NSLog(@"[PushPlugin] The 'unsubscribe' API not allowed. FCM is not enabled.");
+        [self successWithMessage:command.callbackId withMsg:@"The 'unsubscribe' API not allowed. FCM is not enabled."];
+        return;
+    }
+
     NSString* topic = [command argumentAtIndex:0];
-
-    if (topic != nil) {
-        NSLog(@"unsubscribe from topic: %@", topic);
-        id pubSub = [FIRMessaging messaging];
-        [pubSub unsubscribeFromTopic:topic];
-        NSLog(@"Successfully unsubscribe from topic %@", topic);
-        [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully unsubscribe from topic %@", topic]];
-    } else {
-        NSLog(@"There is no topic to unsubscribe");
-        [self successWithMessage:command.callbackId withMsg:@"There is no topic to unsubscribe"];
+    if (topic == nil) {
+        NSLog(@"[PushPlugin] There is no topic to unsubscribe from.");
+        [self successWithMessage:command.callbackId withMsg:@"There is no topic to unsubscribe from."];
+        return;
     }
+
+    [self.pushPluginFCM unsubscribeFromTopic:topic];
+    [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully unsubscribe from topic %@", topic]];
 }
 
-- (void)init:(CDVInvokedUrlCommand*)command;
-{
+- (void)init:(CDVInvokedUrlCommand *)command {
     NSMutableDictionary* options = [command.arguments objectAtIndex:0];
-    NSMutableDictionary* iosOptions = [options objectForKey:@"ios"];
-    id voipArg = [iosOptions objectForKey:@"voip"];
-    if (([voipArg isKindOfClass:[NSString class]] && [voipArg isEqualToString:@"true"]) || [voipArg boolValue]) {
+    [[PushPluginSettings sharedInstance] updateSettingsWithOptions:[options objectForKey:@"ios"]];
+    PushPluginSettings *settings = [PushPluginSettings sharedInstance];
+
+    if ([self.pushPluginFCM isFCMEnabled]) {
+        self.pushPluginFCM.callbackId = command.callbackId;
+    }
+
+    self.callbackId = command.callbackId;
+
+    if ([settings voipEnabled]) {
         [self.commandDelegate runInBackground:^ {
-            NSLog(@"Push Plugin VoIP set to true");
-
-            self.callbackId = command.callbackId;
-
+            NSLog(@"[PushPlugin] VoIP set to true");
             PKPushRegistry *pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
             pushRegistry.delegate = self;
             pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
+
+            self.isInitialized = YES;
         }];
     } else {
-        NSLog(@"Push Plugin VoIP missing or false");
-        [[NSNotificationCenter defaultCenter]
-          addObserver:self selector:@selector(onTokenRefresh)
-          name:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
+        NSLog(@"[PushPlugin] VoIP missing or false");
 
         [self.commandDelegate runInBackground:^ {
-            NSLog(@"Push Plugin register called");
-            self.callbackId = command.callbackId;
-
-            NSArray* topics = [iosOptions objectForKey:@"topics"];
-            [self setFcmTopics:topics];
+            NSLog(@"[PushPlugin] register called");
+            self.isForeground = NO;
+            self.forceShow = [settings forceShowEnabled];
+            self.clearBadge = [settings clearBadgeEnabled];
+            self.forceRegister = [settings forceRegisterEnabled];
+            if (self.clearBadge) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+                });
+            }
 
             UNAuthorizationOptions authorizationOptions = UNAuthorizationOptionNone;
-
-            id badgeArg = [iosOptions objectForKey:@"badge"];
-            id soundArg = [iosOptions objectForKey:@"sound"];
-            id alertArg = [iosOptions objectForKey:@"alert"];
-            id criticalArg = [iosOptions objectForKey:@"critical"];
-            id clearBadgeArg = [iosOptions objectForKey:@"clearBadge"];
-
-            if (([badgeArg isKindOfClass:[NSString class]] && [badgeArg isEqualToString:@"true"]) || [badgeArg boolValue])
-            {
+            if ([settings badgeEnabled]) {
                 authorizationOptions |= UNAuthorizationOptionBadge;
             }
-
-            if (([soundArg isKindOfClass:[NSString class]] && [soundArg isEqualToString:@"true"]) || [soundArg boolValue])
-            {
+            if ([settings soundEnabled]) {
                 authorizationOptions |= UNAuthorizationOptionSound;
             }
-
-            if (([alertArg isKindOfClass:[NSString class]] && [alertArg isEqualToString:@"true"]) || [alertArg boolValue])
-            {
+            if ([settings alertEnabled]) {
                 authorizationOptions |= UNAuthorizationOptionAlert;
             }
-
             if (@available(iOS 12.0, *))
             {
-                if ((([criticalArg isKindOfClass:[NSString class]] && [criticalArg isEqualToString:@"true"]) || [criticalArg boolValue]))
-                {
+                if ([settings criticalEnabled]) {
                     authorizationOptions |= UNAuthorizationOptionCriticalAlert;
                 }
             }
-
-            if (clearBadgeArg == nil || ([clearBadgeArg isKindOfClass:[NSString class]] && [clearBadgeArg isEqualToString:@"false"]) || ![clearBadgeArg boolValue]) {
-                NSLog(@"PushPlugin.register: setting badge to false");
-                clearBadge = NO;
-            } else {
-                NSLog(@"PushPlugin.register: setting badge to true");
-                clearBadge = YES;
-                [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-            }
-            NSLog(@"PushPlugin.register: clear badge is set to %d", clearBadge);
-
-            isInline = NO;
-
-            NSLog(@"PushPlugin.register: better button setup");
-            // setup action buttons
-            NSMutableSet<UNNotificationCategory *> *categories = [[NSMutableSet alloc] init];
-            id categoryOptions = [iosOptions objectForKey:@"categories"];
-            if (categoryOptions != nil && [categoryOptions isKindOfClass:[NSDictionary class]]) {
-                for (id key in categoryOptions) {
-                    NSLog(@"categories: key %@", key);
-                    id category = [categoryOptions objectForKey:key];
-
-                    id yesButton = [category objectForKey:@"yes"];
-                    UNNotificationAction *yesAction;
-                    if (yesButton != nil && [yesButton  isKindOfClass:[NSDictionary class]]) {
-                        yesAction = [self createAction: yesButton];
-                    }
-                    id noButton = [category objectForKey:@"no"];
-                    UNNotificationAction *noAction;
-                    if (noButton != nil && [noButton  isKindOfClass:[NSDictionary class]]) {
-                        noAction = [self createAction: noButton];
-                    }
-                    id maybeButton = [category objectForKey:@"maybe"];
-                    UNNotificationAction *maybeAction;
-                    if (maybeButton != nil && [maybeButton  isKindOfClass:[NSDictionary class]]) {
-                        maybeAction = [self createAction: maybeButton];
-                    }
-
-                    // Identifier to include in your push payload and local notification
-                    NSString *identifier = key;
-
-                    NSMutableArray<UNNotificationAction *> *actions = [[NSMutableArray alloc] init];
-                    if (yesButton != nil) {
-                        [actions addObject:yesAction];
-                    }
-                    if (noButton != nil) {
-                        [actions addObject:noAction];
-                    }
-                    if (maybeButton != nil) {
-                        [actions addObject:maybeAction];
-                    }
-
-                    UNNotificationCategory *notificationCategory = [UNNotificationCategory categoryWithIdentifier:identifier
-                                                                                                          actions:actions
-                                                                                                intentIdentifiers:@[]
-                                                                                                          options:UNNotificationCategoryOptionNone];
-
-                    NSLog(@"Adding category %@", key);
-                    [categories addObject:notificationCategory];
-                }
-
-            }
-
-            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-            [center setNotificationCategories:categories];
             [self handleNotificationSettingsWithAuthorizationOptions:[NSNumber numberWithInteger:authorizationOptions]];
 
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(handleNotificationSettings:)
-                                                         name:pushPluginApplicationDidBecomeActiveNotification
-                                                       object:nil];
+            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+            [center setNotificationCategories:[settings categories]];
 
-
-
-            // Read GoogleService-Info.plist
-            NSString *path = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
-
-            // Load the file content and read the data into arrays
-            NSDictionary *dict = [[NSDictionary alloc] initWithContentsOfFile:path];
-            fcmSenderId = [dict objectForKey:@"GCM_SENDER_ID"];
-            BOOL isGcmEnabled = [[dict valueForKey:@"IS_GCM_ENABLED"] boolValue];
-
-            NSLog(@"FCM Sender ID %@", fcmSenderId);
-
-            //  GCM options
-            [self setFcmSenderId: fcmSenderId];
-            if(isGcmEnabled && [[self fcmSenderId] length] > 0) {
-                NSLog(@"Using FCM Notification");
-                [self setUsesFCM: YES];
+            // If there is a pending startup notification, we will delay to allow JS event handlers to setup
+            if (self.notificationMessage && !self.isInitialized) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    if([FIRApp defaultApp] == nil)
-                        [FIRApp configure];
-                    [self initRegistration];
-                });
-            } else {
-                NSLog(@"Using APNS Notification");
-                [self setUsesFCM:NO];
-            }
-            id fcmSandboxArg = [iosOptions objectForKey:@"fcmSandbox"];
-
-            [self setFcmSandbox:@NO];
-            if ([self usesFCM] &&
-                (([fcmSandboxArg isKindOfClass:[NSString class]] && [fcmSandboxArg isEqualToString:@"true"]) ||
-                 [fcmSandboxArg boolValue]))
-            {
-                NSLog(@"Using FCM Sandbox");
-                [self setFcmSandbox:@YES];
-            }
-
-            if (notificationMessage) {            // if there is a pending startup notification
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    // delay to allow JS event handlers to be setup
                     [self performSelector:@selector(notificationReceived) withObject:nil afterDelay: 0.5];
                 });
             }
 
+            self.isInitialized = YES;
         }];
     }
 }
 
-- (UNNotificationAction *)createAction:(NSDictionary *)dictionary {
-    NSString *identifier = [dictionary objectForKey:@"callback"];
-    NSString *title = [dictionary objectForKey:@"title"];
-    UNNotificationActionOptions options = UNNotificationActionOptionNone;
+- (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSNotification *)notification {
+    NSData *deviceToken = notification.object;
 
-    id mode = [dictionary objectForKey:@"foreground"];
-    if (mode != nil && (([mode isKindOfClass:[NSString class]] && [mode isEqualToString:@"true"]) || [mode boolValue])) {
-        options |= UNNotificationActionOptionForeground;
-    }
-    id destructive = [dictionary objectForKey:@"destructive"];
-    if (destructive != nil && (([destructive isKindOfClass:[NSString class]] && [destructive isEqualToString:@"true"]) || [destructive boolValue])) {
-        options |= UNNotificationActionOptionDestructive;
-    }
-
-    return [UNNotificationAction actionWithIdentifier:identifier title:title options:options];
-}
-
-- (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     if (self.callbackId == nil) {
-        NSLog(@"Unexpected call to didRegisterForRemoteNotificationsWithDeviceToken, ignoring: %@", deviceToken);
+        NSLog(@"[PushPlugin] An unexpected case was triggered where the callbackId is missing during the register for remote notification. (device token: %@)", deviceToken);
         return;
     }
-    NSLog(@"Push Plugin register success: %@", deviceToken);
 
+    NSLog(@"[PushPlugin] Successfully registered device for remote notification. (device token: %@)", deviceToken);
+
+    if ([self.pushPluginFCM isFCMEnabled]) {
+        [self.pushPluginFCM configureTokens:deviceToken];
+    } else {
+        [self registerWithToken:[self convertTokenToString:deviceToken]];
+    }
+}
+
+- (NSString *)convertTokenToString:(NSData *)deviceToken {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     // [deviceToken description] is like "{length = 32, bytes = 0xd3d997af 967d1f43 b405374a 13394d2f ... 28f10282 14af515f }"
-    NSString *token = [self hexadecimalStringFromData:deviceToken];
+    return [self hexadecimalStringFromData:deviceToken];
 #else
     // [deviceToken description] is like "<124686a5 556a72ca d808f572 00c323b9 3eff9285 92445590 3225757d b83967be>"
-    NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""]
+    return [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""]
                         stringByReplacingOccurrencesOfString:@">" withString:@""]
                        stringByReplacingOccurrencesOfString: @" " withString: @""];
 #endif
-
-#if !TARGET_IPHONE_SIMULATOR
-
-    // Check what Notifications the user has turned on.  We registered for all three, but they may have manually disabled some or all of them.
-
-    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    __weak PushPlugin *weakSelf = self;
-    [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-
-        if(![weakSelf usesFCM]) {
-            [weakSelf registerWithToken: token];
-        }
-    }];
-
-
-#endif
 }
 
-- (NSString *)hexadecimalStringFromData:(NSData *)data
-{
+- (NSString *)hexadecimalStringFromData:(NSData *)data {
     NSUInteger dataLength = data.length;
     if (dataLength == 0) {
         return nil;
@@ -390,31 +248,273 @@
     return [hexString copy];
 }
 
-- (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
-{
+- (void)didFailToRegisterForRemoteNotificationsWithError:(NSNotification *)notification {
+    NSError *error = (NSError *)notification.object;
+
     if (self.callbackId == nil) {
-        NSLog(@"Unexpected call to didFailToRegisterForRemoteNotificationsWithError, ignoring: %@", error);
+        NSLog(@"[PushPlugin] An unexpected case was triggered where the callbackId is missing during the failure to register for remote notification. (error: %@)", error);
         return;
     }
-    NSLog(@"Push Plugin register failed");
-    [self failWithMessage:self.callbackId withMsg:@"" withError:error];
+
+    NSLog(@"[PushPlugin] Failed to register for remote notification with error: %@", error);
+    [self failWithMessage:self.callbackId withMsg:@"Failed to register for remote notification." withError:error];
+}
+
+- (void)didReceiveRemoteNotification:(NSNotification *)notification {
+    NSDictionary *userInfo = notification.userInfo[@"userInfo"];
+
+    NSLog(@"[PushPlugin] Received remote notification (userInfo: %@)", userInfo);
+
+    void (^completionHandler)(UIBackgroundFetchResult) = notification.userInfo[@"completionHandler"];
+
+    // app is in the background or inactive, so only call notification callback if this is a silent push
+    if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
+        NSLog(@"[PushPlugin] app in-active");
+        // do some convoluted logic to find out if this should be a silent push.
+        long silent = 0;
+        id aps = [userInfo objectForKey:@"aps"];
+
+        id contentAvailable = [aps objectForKey:@"content-available"];
+        if ([contentAvailable isKindOfClass:[NSString class]] && [contentAvailable isEqualToString:@"1"]) {
+            silent = 1;
+        } else if ([contentAvailable isKindOfClass:[NSNumber class]]) {
+            silent = [contentAvailable integerValue];
+        }
+
+        if (silent == 1) {
+            NSLog(@"[PushPlugin] this should be a silent push");
+            void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionHandler(result);
+                });
+            };
+
+            if (self.handlerObj == nil) {
+                self.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
+            }
+
+            // Get the notId
+            NSMutableDictionary *mutableUserInfo = [userInfo mutableCopy];
+            id notId = [mutableUserInfo objectForKey:@"notId"];
+            NSString *notIdKey = notId != nil ? [NSString stringWithFormat:@"%@", notId] : nil;
+
+            if (notIdKey == nil) {
+                // Create a unique notId
+                notIdKey = [NSString stringWithFormat:@"pushplugin-handler-%f", [NSDate timeIntervalSinceReferenceDate]];
+                // Add the unique notId to the userInfo. Passes to front-end payload.
+                [mutableUserInfo setValue:notIdKey forKey:@"notId"];
+                // Store the handler for the uniquly created notId.
+            }
+
+            [self.handlerObj setObject:safeHandler forKey:notIdKey];
+
+            NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
+
+            self.notificationMessage = [mutableUserInfo copy];
+            self.isForeground = NO;
+            [self notificationReceived];
+        } else {
+            NSLog(@"[PushPlugin] Application is not active, saving notification for later.");
+
+            self.launchNotification = userInfo;
+            completionHandler(UIBackgroundFetchResultNewData);
+        }
+    } else {
+        completionHandler(UIBackgroundFetchResultNoData);
+    }
+}
+
+- (void)pushPluginOnApplicationDidBecomeActive:(NSNotification *)notification {
+    NSLog(@"[PushPlugin] pushPluginOnApplicationDidBecomeActive");
+
+    NSString *firstLaunchKey = @"firstLaunchKey";
+    NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"phonegap-plugin-push"];
+    if (![defaults boolForKey:firstLaunchKey]) {
+        NSLog(@"[PushPlugin] application first launch: remove badge icon number");
+        [defaults setBool:YES forKey:firstLaunchKey];
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    }
+
+    UIApplication *application = notification.object;
+
+    if (self.clearBadge) {
+        NSLog(@"[PushPlugin] clearing badge");
+        application.applicationIconBadgeNumber = 0;
+    } else {
+        NSLog(@"[PushPlugin] skip clear badge");
+    }
+
+    if (self.launchNotification) {
+        self.notificationMessage = self.launchNotification;
+        self.launchNotification = nil;
+        [self performSelectorOnMainThread:@selector(notificationReceived) withObject:self waitUntilDone:NO];
+    }
+}
+
+- (void)willPresentNotification:(NSNotification *)notification {
+    NSLog(@"[PushPlugin] Notification was received while the app was in the foreground. (willPresentNotification)");
+
+    UIApplicationState applicationState = [UIApplication sharedApplication].applicationState;
+    NSNumber *applicationStateNumber = @((int)applicationState);
+
+    // The original notification that comes from the AppDelegate's willPresentNotification.
+    UNNotification *originalNotification = notification.userInfo[@"notification"];
+    NSDictionary *originalUserInfo = originalNotification.request.content.userInfo;
+    NSMutableDictionary *modifiedUserInfo = [originalUserInfo mutableCopy];
+    [modifiedUserInfo setObject:applicationStateNumber forKey:@"applicationState"];
+
+    void (^completionHandler)(UNNotificationPresentationOptions) = notification.userInfo[@"completionHandler"];
+
+    if (@available(iOS 18.0, *)) {
+        if (@available(iOS 18.1, *)) {
+            // Do nothing for iOS 18.1 and higher.
+        } else {
+            // Note: In iOS 18.0, there is a known issue where "willPresentNotification" is triggered twice for a single payload.
+            // The "willPresentNotification" method is normally triggered when a notification is received while the app is in the
+            // foreground. Due to this bug, the notification payload is delivered twice, causing the front-end to process the
+            // notification event twice as well. This behavior is unintended, so this block of code checks if the payload is a
+            // duplicate by comparing the payload content and the timestamp of when it was received.
+            NSLog(@"[PushPlugin] Checking for duplicate notification presentation.");
+            if ([self isDuplicateNotification:originalNotification]) {
+                NSLog(@"[PushPlugin] Duplicate notification detected; processing will be skipped.");
+                if (completionHandler) {
+                    completionHandler(UNNotificationPresentationOptionNone);
+                }
+                // Cleanup to remove previous notification to remove leaks
+                self.previousNotification = nil;
+                return;
+            }
+            // If it was not duplicate, we will store it to check for the potential second notification
+            self.previousNotification = originalNotification;
+        }
+    }
+
+    self.notificationMessage = [modifiedUserInfo copy];
+    self.isForeground = YES;
+
+    UNNotificationPresentationOptions presentationOption = UNNotificationPresentationOptionNone;
+
+    if(self.forceShow) {
+        if (@available(iOS 10, *)) {
+            presentationOption = UNNotificationPresentationOptionAlert;
+        }
+    } else {
+        [self notificationReceived];
+    }
+
+    if (completionHandler) {
+        completionHandler(presentationOption);
+    }
+}
+
+- (void)didReceiveNotificationResponse:(NSNotification *)notification {
+    // The original response that comes from the AppDelegate's didReceiveNotificationResponse.
+    UNNotificationResponse *response = notification.userInfo[@"response"];
+
+    NSLog(@"[PushPlugin] Notification was received. (actionIdentifier %@, notification: %@)",
+          response.actionIdentifier,
+          response.notification.request.content.userInfo);
+
+    void (^completionHandler)(void) = notification.userInfo[@"completionHandler"];
+
+    UIApplicationState applicationState = [UIApplication sharedApplication].applicationState;
+    NSNumber *applicationStateNumber = @((int)applicationState);
+    NSDictionary *originalUserInfo = response.notification.request.content.userInfo;
+    NSMutableDictionary *modifiedUserInfo = [originalUserInfo mutableCopy];
+    [modifiedUserInfo setObject:applicationStateNumber forKey:@"applicationState"];
+    [modifiedUserInfo setObject:response.actionIdentifier forKey:@"actionCallback"];
+
+    switch (applicationState) {
+        case UIApplicationStateActive:
+        {
+            NSLog(@"[PushPlugin] App is active. Notification message set with: %@", modifiedUserInfo);
+
+            self.isForeground = YES;
+            self.notificationMessage = [modifiedUserInfo copy];
+            [self notificationReceived];
+            if (completionHandler) {
+                completionHandler();
+            }
+            break;
+        }
+        case UIApplicationStateInactive:
+        {
+            NSLog(@"[PushPlugin] App is inactive. Storing notification message for later launch with: %@", modifiedUserInfo);
+
+            self.coldstart = YES;
+            self.isForeground = NO;
+            self.launchNotification = [modifiedUserInfo copy];
+            if (completionHandler) {
+                completionHandler();
+            }
+            break;
+        }
+        case UIApplicationStateBackground:
+        {
+            NSLog(@"[PushPlugin] App is in the background. Notification message set with: %@", modifiedUserInfo);
+
+            void (^safeHandler)(void) = ^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (completionHandler) {
+                        completionHandler();
+                    }
+                });
+            };
+
+            if (self.handlerObj == nil) {
+                self.handlerObj = [NSMutableDictionary dictionaryWithCapacity:2];
+            }
+
+            // Get the notId
+            id notId = modifiedUserInfo[@"notId"];
+            NSString *notIdKey = notId != nil ? [NSString stringWithFormat:@"%@", notId] : nil;
+
+            if (notIdKey == nil) {
+                // Create a unique notId
+                notIdKey = [NSString stringWithFormat:@"pushplugin-handler-%f", [NSDate timeIntervalSinceReferenceDate]];
+                // Add the unique notId to the userInfo. Passes to front-end payload.
+                [modifiedUserInfo setValue:notIdKey forKey:@"notId"];
+                // Store the handler for the uniquly created notId.
+            }
+
+            [self.handlerObj setObject:safeHandler forKey:notIdKey];
+
+            NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
+
+            self.isForeground = NO;
+            self.notificationMessage = [modifiedUserInfo copy];
+
+            [self performSelectorOnMainThread:@selector(notificationReceived) withObject:self waitUntilDone:NO];
+            break;
+        }
+    }
 }
 
 - (void)notificationReceived {
-    NSLog(@"Notification received");
+    NSLog(@"[PushPlugin] Notification received");
 
-    if (notificationMessage && self.callbackId != nil)
+    if (self.notificationMessage && self.callbackId != nil)
     {
+        NSMutableDictionary* mutableNotificationMessage = [self.notificationMessage mutableCopy];
         NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:4];
         NSMutableDictionary* additionalData = [NSMutableDictionary dictionaryWithCapacity:4];
 
+        // Exclude "UNNotificationDefaultActionIdentifier" from "actionCallback" as it is platform-specific.
+        // Use the default "notification" callback or a custom-defined callback instead.
+        if ([[mutableNotificationMessage objectForKey:@"actionCallback"] isEqualToString:UNNotificationDefaultActionIdentifier]) {
+            [mutableNotificationMessage removeObjectForKey:@"actionCallback"];
+        }
+        // @todo do not sent applicationState data to front for now. Figure out if we can add
+        // similar data to the other platforms.
+        [mutableNotificationMessage removeObjectForKey:@"applicationState"];
+        self.notificationMessage = [mutableNotificationMessage copy];
 
-        for (id key in notificationMessage) {
+        for (id key in self.notificationMessage) {
             if ([key isEqualToString:@"aps"]) {
-                id aps = [notificationMessage objectForKey:@"aps"];
+                id aps = [self.notificationMessage objectForKey:@"aps"];
 
                 for(id key in aps) {
-                    NSLog(@"Push Plugin key: %@", key);
+                    NSLog(@"[PushPlugin] key: %@", key);
                     id value = [aps objectForKey:key];
 
                     if ([key isEqualToString:@"alert"]) {
@@ -446,17 +546,17 @@
                     }
                 }
             } else {
-                [additionalData setObject:[notificationMessage objectForKey:key] forKey:key];
+                [additionalData setObject:[self.notificationMessage objectForKey:key] forKey:key];
             }
         }
 
-        if (isInline) {
+        if (self.isForeground) {
             [additionalData setObject:[NSNumber numberWithBool:YES] forKey:@"foreground"];
         } else {
             [additionalData setObject:[NSNumber numberWithBool:NO] forKey:@"foreground"];
         }
 
-        if (coldstart) {
+        if (self.coldstart) {
             [additionalData setObject:[NSNumber numberWithBool:YES] forKey:@"coldstart"];
         } else {
             [additionalData setObject:[NSNumber numberWithBool:NO] forKey:@"coldstart"];
@@ -470,12 +570,12 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 
         self.coldstart = NO;
+        self.isForeground = NO;
         self.notificationMessage = nil;
     }
 }
 
-- (void)clearNotification:(CDVInvokedUrlCommand *)command
-{
+- (void)clearNotification:(CDVInvokedUrlCommand *)command {
     NSNumber *notId = [command.arguments objectAtIndex:0];
     [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> * _Nonnull notifications) {
         /*
@@ -496,8 +596,7 @@
     }];
 }
 
-- (void)setApplicationIconBadgeNumber:(CDVInvokedUrlCommand *)command
-{
+- (void)setApplicationIconBadgeNumber:(CDVInvokedUrlCommand *)command {
     NSMutableDictionary* options = [command.arguments objectAtIndex:0];
     int badge = [[options objectForKey:@"badge"] intValue] ?: 0;
 
@@ -508,16 +607,14 @@
     [self.commandDelegate sendPluginResult:commandResult callbackId:command.callbackId];
 }
 
-- (void)getApplicationIconBadgeNumber:(CDVInvokedUrlCommand *)command
-{
+- (void)getApplicationIconBadgeNumber:(CDVInvokedUrlCommand *)command {
     NSInteger badge = [UIApplication sharedApplication].applicationIconBadgeNumber;
 
     CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:(int)badge];
     [self.commandDelegate sendPluginResult:commandResult callbackId:command.callbackId];
 }
 
-- (void)clearAllNotifications:(CDVInvokedUrlCommand *)command
-{
+- (void)clearAllNotifications:(CDVInvokedUrlCommand *)command {
     [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
 
     NSString* message = [NSString stringWithFormat:@"cleared all notifications"];
@@ -525,11 +622,9 @@
     [self.commandDelegate sendPluginResult:commandResult callbackId:command.callbackId];
 }
 
-- (void)hasPermission:(CDVInvokedUrlCommand *)command
-{
-    id<UIApplicationDelegate> appDelegate = [UIApplication sharedApplication].delegate;
-    if ([appDelegate respondsToSelector:@selector(checkUserHasRemoteNotificationsEnabledWithCompletionHandler:)]) {
-        [appDelegate performSelector:@selector(checkUserHasRemoteNotificationsEnabledWithCompletionHandler:) withObject:^(BOOL isEnabled) {
+- (void)hasPermission:(CDVInvokedUrlCommand *)command {
+    if ([self respondsToSelector:@selector(checkUserHasRemoteNotificationsEnabledWithCompletionHandler:)]) {
+        [self performSelector:@selector(checkUserHasRemoteNotificationsEnabledWithCompletionHandler:) withObject:^(BOOL isEnabled) {
             NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:1];
             [message setObject:[NSNumber numberWithBool:isEnabled] forKey:@"isEnabled"];
             CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
@@ -538,8 +633,7 @@
     }
 }
 
--(void)successWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message
-{
+- (void)successWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message {
     if (myCallbackId != nil)
     {
         CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message];
@@ -547,75 +641,89 @@
     }
 }
 
--(void)registerWithToken:(NSString*)token; {
-    // Send result to trigger 'registration' event but keep callback
+- (void)registerWithToken:(NSString *)token {
     NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
     [message setObject:token forKey:@"registrationId"];
-    if ([self usesFCM]) {
-        [message setObject:@"FCM" forKey:@"registrationType"];
-    } else {
-        [message setObject:@"APNS" forKey:@"registrationType"];
-    }
+    [message setObject:@"APNS" forKey:@"registrationType"];
+
+    // Send result to trigger 'registration' event but keep callback
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
     [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 }
 
-
--(void)failWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message withError:(NSError *)error
-{
+- (void)failWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message withError:(NSError *)error {
     NSString        *errorMessage = (error) ? [NSString stringWithFormat:@"%@ - %@", message, [error localizedDescription]] : message;
     CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
 
     [self.commandDelegate sendPluginResult:commandResult callbackId:myCallbackId];
 }
 
--(void) finish:(CDVInvokedUrlCommand*)command
-{
-    NSLog(@"Push Plugin finish called");
-
+- (void) finish:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^ {
         NSString* notId = [command.arguments objectAtIndex:0];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [NSTimer scheduledTimerWithTimeInterval:0.1
-                                             target:self
-                                           selector:@selector(stopBackgroundTask:)
-                                           userInfo:notId
-                                            repeats:NO];
-        });
+        if (notId == nil || [notId isKindOfClass:[NSNull class]]) {
+            // @todo review "didReceiveNotificationResponse"
+            NSLog(@"[PushPlugin] Skipping 'finish' API as notId is unavailable.");
+        } else {
+            NSLog(@"[PushPlugin] The 'finish' API was triggered for notId: %@", notId);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSLog(@"[PushPlugin] Creating timer scheduled for notId: %@", notId);
+                [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                 target:self
+                                               selector:@selector(stopBackgroundTask:)
+                                               userInfo:notId
+                                                repeats:NO];
+            });
+        }
 
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
 
--(void)stopBackgroundTask:(NSTimer*)timer
-{
-    UIApplication *app = [UIApplication sharedApplication];
-
-    NSLog(@"Push Plugin stopBackgroundTask called");
-
-    if (handlerObj) {
-        NSLog(@"Push Plugin handlerObj");
-        completionHandler = [handlerObj[[timer userInfo]] copy];
-        if (completionHandler) {
-            NSLog(@"Push Plugin: stopBackgroundTask (remaining t: %f)", app.backgroundTimeRemaining);
-            completionHandler(UIBackgroundFetchResultNewData);
-            completionHandler = nil;
-        }
-    }
-}
-
-
-- (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type
-{
-    if([credentials.token length] == 0) {
-        NSLog(@"VoIPPush Plugin register error - No device token:");
+- (void)stopBackgroundTask:(NSTimer *)timer {
+    // If the handler object is nil, there is nothing to process
+    if (!self.handlerObj) {
+        NSLog(@"[PushPlugin] Warning (stopBackgroundTask): handlerObj was nil.");
         return;
     }
 
-    NSLog(@"VoIPPush Plugin register success");
+    // Get the notification ID from the timer's userInfo dictionary
+    NSString *notId = (NSString *)[timer userInfo];
+
+    // Get the safe handler (completionHandler) for the notification ID.
+    void (^safeHandler)(UIBackgroundFetchResult) = self.handlerObj[notId];
+
+    // If the handler is missing for the notification ID, nothing to process.
+    if (!safeHandler) {
+        NSLog(@"[PushPlugin] Warning (stopBackgroundTask): No handler was found for notId: %@.", notId);
+        return;
+    }
+
+    UIApplication *app = [UIApplication sharedApplication];
+    if (app.applicationState == UIApplicationStateBackground) {
+        NSLog(@"[PushPlugin] Processing background task for notId: %@. Background time remaining: %f", notId, app.backgroundTimeRemaining);
+    } else {
+        NSLog(@"[PushPlugin] Processing background task for notId: %@. App is now in the foreground.", notId);
+    }
+
+    // Execute the handler to complete the background task
+    safeHandler(UIBackgroundFetchResultNewData);
+
+    // Remove the handler to prevent memory leaks.
+    [self.handlerObj removeObjectForKey:notId];
+    NSLog(@"[PushPlugin] Removed handler for notId: %@", notId);
+}
+
+- (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type {
+    if([credentials.token length] == 0) {
+        NSLog(@"[PushPlugin] VoIP register error - No device token:");
+        return;
+    }
+
+    NSLog(@"[PushPlugin] VoIP register success");
     const unsigned *tokenBytes = [credentials.token bytes];
     NSString *sToken = [NSString stringWithFormat:@"%08x%08x%08x%08x%08x%08x%08x%08x",
                         ntohl(tokenBytes[0]), ntohl(tokenBytes[1]), ntohl(tokenBytes[2]),
@@ -625,55 +733,123 @@
     [self registerWithToken:sToken];
 }
 
-- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type
-{
-    NSLog(@"VoIP Notification received");
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type {
+    NSLog(@"[PushPlugin] VoIP Notification received");
     self.notificationMessage = payload.dictionaryPayload;
     [self notificationReceived];
 }
 
-- (void)handleNotificationSettings:(NSNotification *)notification
-{
-    [self handleNotificationSettingsWithAuthorizationOptions:nil];
-}
-
-- (void)handleNotificationSettingsWithAuthorizationOptions:(NSNumber *)authorizationOptionsObject
-{
+- (void)handleNotificationSettingsWithAuthorizationOptions:(NSNumber *)authorizationOptionsObject {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     UNAuthorizationOptions authorizationOptions = [authorizationOptionsObject unsignedIntegerValue];
 
     __weak UNUserNotificationCenter *weakCenter = center;
     [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+        if (settings.authorizationStatus == UNAuthorizationStatusNotDetermined) {
+            // If the status is not determined, request permissions
+            [weakCenter requestAuthorizationWithOptions:authorizationOptions completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                if (error) {
+                    NSLog(@"[PushPlugin] Error during authorization request: %@", error.localizedDescription);
+                }
 
-        switch (settings.authorizationStatus) {
-            case UNAuthorizationStatusNotDetermined:
-            {
-                [weakCenter requestAuthorizationWithOptions:authorizationOptions completionHandler:^(BOOL granted, NSError * _Nullable error) {
-                    if (granted) {
-                        [self performSelectorOnMainThread:@selector(registerForRemoteNotifications)
-                                               withObject:nil
-                                            waitUntilDone:NO];
+                if (granted || self.forceRegister) {
+                    NSLog(@"[PushPlugin] Notification permissions granted.");
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [[UIApplication sharedApplication] registerForRemoteNotifications];
+                    });
+                } else {
+                    NSLog(@"[PushPlugin] Notification permissions denied.");
+                }
+            }];
+        } else {
+            UNAuthorizationOptions currentGrantedOptions = UNAuthorizationOptionNone;
+
+            // Check for current granted permissions
+            if (settings.badgeSetting == UNNotificationSettingEnabled) {
+                currentGrantedOptions |= UNAuthorizationOptionBadge;
+            }
+            if (settings.soundSetting == UNNotificationSettingEnabled) {
+                currentGrantedOptions |= UNAuthorizationOptionSound;
+            }
+            if (settings.alertSetting == UNNotificationSettingEnabled) {
+                currentGrantedOptions |= UNAuthorizationOptionAlert;
+            }
+            if (@available(iOS 12.0, *)) {
+                if (settings.criticalAlertSetting == UNNotificationSettingEnabled) {
+                    currentGrantedOptions |= UNAuthorizationOptionCriticalAlert;
+                }
+            }
+
+            // Compare the requested with granted permissions. Find which are missing.
+            UNAuthorizationOptions newAuthorizationOptions = authorizationOptions & ~currentGrantedOptions;
+
+            // Request for the permissions that were not already requested for.
+            if (newAuthorizationOptions != UNAuthorizationOptionNone) {
+                [weakCenter requestAuthorizationWithOptions:newAuthorizationOptions completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                    if (error) {
+                        NSLog(@"[PushPlugin] Error during authorization request: %@", error.localizedDescription);
+                    }
+
+                    if (granted || self.forceRegister) {
+                        NSLog(@"[PushPlugin] New notification permissions granted.");
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [[UIApplication sharedApplication] registerForRemoteNotifications];
+                        });
+                    } else {
+                        NSLog(@"[PushPlugin] User denied new notification permissions.");
                     }
                 }];
-                break;
+            } else {
+                NSLog(@"[PushPlugin] All requested permissions were processed.");
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[UIApplication sharedApplication] registerForRemoteNotifications];
+                });
             }
-            case UNAuthorizationStatusAuthorized:
-            {
-                [self performSelectorOnMainThread:@selector(registerForRemoteNotifications)
-                                       withObject:nil
-                                    waitUntilDone:NO];
-                break;
-            }
+        }
+    }];
+}
+
+- (void)checkUserHasRemoteNotificationsEnabledWithCompletionHandler:(nonnull void (^)(BOOL))completionHandler {
+    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+
+        switch (settings.authorizationStatus)
+        {
             case UNAuthorizationStatusDenied:
-            default:
+            case UNAuthorizationStatusNotDetermined:
+                completionHandler(NO);
+                break;
+
+            case UNAuthorizationStatusAuthorized:
+            case UNAuthorizationStatusEphemeral:
+            case UNAuthorizationStatusProvisional:
+                completionHandler(YES);
                 break;
         }
     }];
 }
 
-- (void)registerForRemoteNotifications
-{
-    [[UIApplication sharedApplication] registerForRemoteNotifications];
+- (BOOL)isDuplicateNotification:(UNNotification *)notification {
+    BOOL isDuplicate = NO;
+    if (self.previousNotification) {
+        // Extract relevant data from the current notification
+        NSDate *currentNotificationDate = notification.date;
+        NSDictionary *currentPayload = notification.request.content.userInfo;
+        // Extract relevant data from the previous notification
+        NSDate *previousNotificationDate = self.previousNotification.date;
+        NSDictionary *previousPayload = self.previousNotification.request.content.userInfo;
+        // Compare the date timestamp
+        BOOL isSameDate = [currentNotificationDate isEqualToDate:previousNotificationDate];
+        // Compare the payload content
+        BOOL isSamePayload = [currentPayload isEqualToDictionary:previousPayload];
+        isDuplicate = isSameDate && isSamePayload;
+    }
+    return isDuplicate;
+}
+
+- (void)dealloc {
+    self.previousNotification = nil;
+    self.launchNotification = nil;
+    self.coldstart = nil;
 }
 
 @end

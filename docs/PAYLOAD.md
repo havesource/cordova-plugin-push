@@ -25,7 +25,7 @@
   - [Priority in Notifications](#priority-in-notifications)
   - [Picture Messages](#picture-messages)
   - [Background Notifications](#background-notifications)
-    - [Use of content_available: true](#use-of-content_available-true)
+    - [Use of content\_available: true](#use-of-content_available-true)
     - [Chinese Android Phones](#chinese-android-phones)
     - [Application force closed](#application-force-closed)
     - [Caching](#caching)
@@ -45,11 +45,6 @@
   - [FCM and Additional Data](#fcm-and-additional-data)
   - [FCM Messages Not Arriving](#fcm-messages-not-arriving)
 - [FCM Payload Details](#fcm-payload-details)
-- [Windows Behaviour](#windows-behaviour)
-  - [Notifications](#notifications)
-  - [Setting Toast Capable Option for Windows](#setting-toast-capable-option-for-windows)
-  - [Disabling the default processing of notifications by Windows](#disabling-the-default-processing-of-notifications-by-windows)
-  - [Background Notifications](#background-notifications-2)
 
 # Overview
 
@@ -152,7 +147,7 @@ Note that the properties are "normalized" across platforms, so this is passed to
 
 ## iOS Message Format
 
-The JSON message can contain the following fields, see [Apple developer docs](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html#//apple_ref/doc/uid/TP40008194-CH17-SW5) for a complete list
+For a full list of payload keys, refer to the [Generating a Remote Notification](https://developer.apple.com/documentation/usernotifications/generating-a-remote-notification) documentation on Apple Developer.
 
 ```json
 {
@@ -412,8 +407,7 @@ const push = PushNotification.init({
     alert: 'true',
     badge: 'true',
     sound: 'true'
-  },
-  windows: {}
+  }
 });
 ```
 
@@ -453,8 +447,7 @@ const push = PushNotification.init({
     alert: 'true',
     badge: 'true',
     sound: 'true'
-  },
-  windows: {}
+  }
 });
 ```
 
@@ -1574,9 +1567,9 @@ public void onCreate(Bundle savedInstanceState)
 If you don't see the `if` statement that checks for the appearance of `cdvStartInBackground` you will probably need to do:
 
 ```
-phonegap platform rm android
-phonegap platform add android
-phonegap build android
+cordova platform rm android
+cordova platform add android
+cordova build android
 ```
 
 This should add the correct code to the `MainActivity` class.
@@ -2198,46 +2191,3 @@ More information on how to send push notifications using the FCM HTTP protocol a
 
 - [Send messages using the legacy app server protocols](https://firebase.google.com/docs/cloud-messaging/send-message#send_messages_using_the_legacy_app_server_protocols 'Send messages using the legacy app server protocols')
 - [Firebase Cloud Messaging HTTP Protocol](https://firebase.google.com/docs/cloud-messaging/http-server-ref 'Firebase Cloud Messaging HTTP Protocol')
-
-# Windows Behaviour
-
-## Notifications
-
-The plugin supports all types of windows platform notifications namely [Tile, Toast, Badge and Raw](https://msdn.microsoft.com/en-us/library/windows/apps/Hh779725.aspx). The API supports the basic cases of the notification templates with title corresponding to the first text element and message corresponding to the second if title is present else the first one. The image corresponds to the first image element of the notification xml.
-
-The count is present only for the badge notification in which it represent the value of the notification which could be a number from 0-99 or a status glyph.
-
-For advanced templates and usage, the notification object is included in [`data.additionalData.pushNotificationReceivedEventArgs`](https://msdn.microsoft.com/en-us/library/windows/apps/windows.networking.pushnotifications.pushnotificationreceivedeventargs).
-
-## Setting Toast Capable Option for Windows
-
-This plugin automatically sets the toast capable flag to be true for Cordova 5.1.1+. For lower versions, you must declare that it is Toast Capable in your app's manifest file.
-
-## Disabling the default processing of notifications by Windows
-
-The default handling can be disabled by setting the 'cancel' property in the notification object.
-
-```javascript
-data.additionalData.pushNotificationReceivedEventArgs.cancel = true;
-```
-
-## Background Notifications
-
-On Windows, to trigger the on('notification') event handler when your app is in the background and it is launched through the push notification, you will have to include `activation` data in the payload of the notification. This is done by using the `launch` attribute, which can be any string that can be understood by the app. However it should not cause the XML payload to become invalid.
-
-If you do not include a launch attribute string, your app will be launched normally, as though the user had launched it from the Start screen, and the notification event handler won't be called.
-
-Here is an example of a sample toast notification payload containing the launch attribute:
-
-```xml
-<toast launch="{&quot;myContext&quot;:&quot;12345&quot;}">
-    <visual>
-        <binding template="ToastImageAndText01">
-            <image id="1" src="ms-appx:///images/redWide.png" alt="red graphic"/>
-            <text id="1">Hello World!</text>
-        </binding>
-    </visual>
-</toast>
-```
-
-This launch attribute string is passed on to the app as data.launchArgs through the on('notification') handler. It's important to note that due to the Windows platform design, the other visual payload is not available to the handler on cold start. Notification attributes like message, title, etc., are available through the on('notification') handler when the app is running, and won't be available for background notifications.

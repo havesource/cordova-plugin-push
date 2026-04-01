@@ -1,4 +1,3 @@
-
 // Client ID and Client Secret received from ADM
 // For more info, see: https://developer.amazon.com/public/apis/engage/device-messaging/tech-docs/02-obtaining-adm-credentials
 const CLIENT_ID = 'amzn1.application-oa2-client.8e838f6629554e26ae3f43a6c663cd60';

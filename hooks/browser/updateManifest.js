@@ -1,9 +1,9 @@
 module.exports = function (context) {
   console.log('Updating manifest.json with push properties…');
-  var path = require('path');
-  var fs = require('fs');
+  const path = require('path');
+  const fs = require('fs');
 
-  var platformProjPath = path.join(
+  let platformProjPath = path.join(
     context.opts.projectRoot,
     'platforms/browser'
   );
@@ -12,7 +12,7 @@ module.exports = function (context) {
     platformProjPath = context.opts.projectRoot;
   }
 
-  var platformManifestJson = path.join(platformProjPath, 'www/manifest.json');
+  const platformManifestJson = path.join(platformProjPath, 'www/manifest.json');
 
   if (!fs.existsSync(platformManifestJson)) {
     return;
@@ -20,16 +20,16 @@ module.exports = function (context) {
 
   fs.readFile(platformManifestJson, 'utf8', function (err, platformJson) {
     if (err) throw err; // we'll not consider error handling for now
-    var platformManifest = JSON.parse(platformJson);
+    const platformManifest = JSON.parse(platformJson);
 
-    var pluginManifestPath = path.join(
+    const pluginManifestPath = path.join(
       context.opts.projectRoot,
       'plugins/@havesource/cordova-plugin-push/src/browser/manifest.json'
     );
 
     fs.readFile(pluginManifestPath, 'utf8', function (err, pluginJson) {
       if (err) throw err; // we'll not consider error handling for now
-      var pluginManifest = JSON.parse(pluginJson);
+      const pluginManifest = JSON.parse(pluginJson);
 
       platformManifest.gcm_sender_id = pluginManifest.gcm_sender_id;
 
