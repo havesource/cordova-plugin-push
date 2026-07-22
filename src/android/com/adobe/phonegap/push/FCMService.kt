@@ -101,7 +101,7 @@ class FCMService : FirebaseMessagingService() {
       messageMap[notId] = messageList
     }
 
-    if (message == null || message.isEmpty()) {
+    if (message.isNullOrEmpty()) {
       messageList.clear()
     } else {
       messageList.add(message)
@@ -166,7 +166,8 @@ class FCMService : FirebaseMessagingService() {
     /*
      * Change a values key in the extras bundle
      */
-    var value = extras[oldKey]
+    @Suppress("DEPRECATION")
+    var value = extras.get(oldKey)
     if (value != null) {
       when (value) {
         is String -> {
@@ -313,10 +314,10 @@ class FCMService : FirebaseMessagingService() {
         key == PushConstants.MESSAGE ||
         key == messageKey
       ) {
-        val json = extras[key]
+        val json = extras.getString(key)
 
         // Make sure data is in json object string format
-        if (json is String && json.startsWith("{")) {
+        if (json != null && json.startsWith("{")) {
           Log.d(TAG, "extracting nested message data from key = $key")
 
           try {
@@ -366,8 +367,10 @@ class FCMService : FirebaseMessagingService() {
           Log.d(TAG, "Replace key $notificationKey with $newKey")
 
           var valueData = value.getString(notificationKey)
-          valueData = localizeKey(newKey, valueData!!)
-          newExtras.putString(newKey, valueData)
+          if (valueData != null) {
+            valueData = localizeKey(newKey, valueData)
+            newExtras.putString(newKey, valueData)
+          }
         }
         continue
         // In case we weren't working on the payload data node or the notification node,
@@ -422,8 +425,8 @@ class FCMService : FirebaseMessagingService() {
       Log.d(TAG, "forceStart=$forceStart")
       Log.d(TAG, "badgeCount=$badgeCount")
 
-      val hasMessage = message != null && message.isNotEmpty()
-      val hasTitle = title != null && title.isNotEmpty()
+      val hasMessage = !message.isNullOrEmpty()
+      val hasTitle = !title.isNullOrEmpty()
 
       if (hasMessage || hasTitle) {
         Log.d(TAG, "Create Notification")
@@ -608,20 +611,20 @@ class FCMService : FirebaseMessagingService() {
         channelID = extras.getString(PushConstants.ANDROID_CHANNEL_ID)
       }
 
-      // if the push payload specifies a channel use it
-      return if (channelID != null) {
-        NotificationCompat.Builder(context, channelID)
+    // if the push payload specifies a channel use it
+    return if (channelID != null) {
+      NotificationCompat.Builder(context, channelID)
+    } else {
+      val channels = notificationManager.notificationChannels
+
+      channelID = if (channels.size == 1) {
+        channels[0].id
       } else {
-        val channels = notificationManager.notificationChannels
+        PushConstants.DEFAULT_CHANNEL_ID
+      }
 
-        channelID = if (channels.size == 1) {
-          channels[0].id.toString()
-        } else {
-          PushConstants.DEFAULT_CHANNEL_ID
-        }
-
-        Log.d(TAG, "Using channel ID = $channelID")
-        NotificationCompat.Builder(context, channelID)
+      Log.d(TAG, "Using channel ID = $channelID")
+      NotificationCompat.Builder(context, channelID)
       }
     } else {
       return NotificationCompat.Builder(context)
@@ -740,8 +743,6 @@ class FCMService : FirebaseMessagingService() {
             pIntent
           )
 
-          var remoteInput: RemoteInput?
-
           if (inline) {
             Log.d(TAG, "Create Remote Input")
 
@@ -750,7 +751,7 @@ class FCMService : FirebaseMessagingService() {
               "Enter your reply here"
             )
 
-            remoteInput = RemoteInput.Builder(PushConstants.INLINE_REPLY)
+            val remoteInput = RemoteInput.Builder(PushConstants.INLINE_REPLY)
               .setLabel(replyLabel)
               .build()
 
@@ -758,7 +759,7 @@ class FCMService : FirebaseMessagingService() {
           }
 
           val wAction: NotificationCompat.Action = actionBuilder.build()
-          wActions.add(actionBuilder.build())
+          wActions.add(wAction)
 
           if (inline) {
             mBuilder.addAction(wAction)
@@ -1130,19 +1131,21 @@ class FCMService : FirebaseMessagingService() {
     localIconColor: String?,
   ) {
     val iconColor = when {
-      color != null && color != "" -> {
+      !color.isNullOrEmpty() -> {
         try {
           Color.parseColor(color)
         } catch (e: IllegalArgumentException) {
           Log.e(TAG, "Couldn't parse color from Android options")
+          0
         }
       }
 
-      localIconColor != null && localIconColor != "" -> {
+      !localIconColor.isNullOrEmpty() -> {
         try {
           Color.parseColor(localIconColor)
         } catch (e: IllegalArgumentException) {
           Log.e(TAG, "Couldn't parse color from android options")
+          0
         }
       }
 
@@ -1177,7 +1180,7 @@ class FCMService : FirebaseMessagingService() {
     var returnVal = 0
 
     try {
-      returnVal = extras!!.getString(PushConstants.NOT_ID)!!.toInt()
+      returnVal = extras?.getString(PushConstants.NOT_ID)?.toInt() ?: 0
     } catch (e: NumberFormatException) {
       Log.e(TAG, "NumberFormatException occurred: ${PushConstants.NOT_ID}: ${e.message}")
     } catch (e: Exception) {
@@ -1194,6 +1197,6 @@ class FCMService : FirebaseMessagingService() {
   private fun isAvailableSender(from: String?): Boolean {
     val savedSenderID = pushSharedPref.getString(PushConstants.SENDER_ID, "")
     Log.d(TAG, "sender id = $savedSenderID")
-    return from == savedSenderID || from!!.startsWith("/topics/")
+    return from == savedSenderID || (from != null && from.startsWith("/topics/"))
   }
 }
