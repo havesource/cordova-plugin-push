@@ -19,8 +19,10 @@ name: Node CI
 
 on:
   push:
-    branches-ignore:
-      - 'dependabot/**'
+    branches:
+      - 'master'
+      - '[0-9]+.[0-9]+.x'
+
   pull_request:
     branches:
       - '*'
