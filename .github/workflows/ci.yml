@@ -43,6 +43,8 @@ jobs:
           persist-credentials: false
           fetch-depth: 1
 
+      # The "www/push.js" generated file is ignored as the source file
+      # "src/js/push.js" will be checked.
       - uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
         with:
           languages: javascript
@@ -50,6 +52,7 @@ jobs:
           config: |
             paths-ignore:
               - node_modules
+              - www/push.js
 
       - uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
 
