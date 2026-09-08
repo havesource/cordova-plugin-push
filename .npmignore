@@ -4,3 +4,4 @@ example
 spec
 bower.json
 eslint.config.js
+babel.config.js
