@@ -3,6 +3,8 @@
   "spec_files": [
     "**/*[sS]pec.js"
   ],
-  "stopSpecOnExpectationFailure": false,
-  "random": false
+  "env": {
+    "random": false,
+    "stopSpecOnExpectationFailure": false
+  }
 }
