@@ -611,20 +611,20 @@ class FCMService : FirebaseMessagingService() {
         channelID = extras.getString(PushConstants.ANDROID_CHANNEL_ID)
       }
 
-    // if the push payload specifies a channel use it
-    return if (channelID != null) {
-      NotificationCompat.Builder(context, channelID)
-    } else {
-      val channels = notificationManager.notificationChannels
-
-      channelID = if (channels.size == 1) {
-        channels[0].id
+      // if the push payload specifies a channel use it
+      return if (channelID != null) {
+        NotificationCompat.Builder(context, channelID)
       } else {
-        PushConstants.DEFAULT_CHANNEL_ID
-      }
+        val channels = notificationManager.notificationChannels
 
-      Log.d(TAG, "Using channel ID = $channelID")
-      NotificationCompat.Builder(context, channelID)
+        channelID = if (channels.size == 1) {
+          channels[0].id
+        } else {
+          PushConstants.DEFAULT_CHANNEL_ID
+        }
+
+        Log.d(TAG, "Using channel ID = $channelID")
+        NotificationCompat.Builder(context, channelID)
       }
     } else {
       return NotificationCompat.Builder(context)
