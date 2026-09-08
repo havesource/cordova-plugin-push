@@ -174,7 +174,7 @@ class PushNotification {
   clearNotification(successCallback = () => {}, errorCallback = () => {}, id) {
     const idNumber = parseInt(id, 10);
     if (Number.isNaN(idNumber) || idNumber > Number.MAX_SAFE_INTEGER || idNumber < 0) {
-      console.log('PushNotification.clearNotification failure: id parameter must' + 'be a valid integer.');
+      console.log('PushNotification.clearNotification failure: id parameter must ' + 'be a valid integer.');
       return;
     }
     exec(successCallback, errorCallback, 'PushNotification', 'clearNotification', [idNumber]);
