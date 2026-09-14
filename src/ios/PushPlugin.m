@@ -24,6 +24,7 @@
  */
 
 #import "PushPlugin.h"
+#import "CDVAppDelegate+notification.h"
 #import "PushPluginConstants.h"
 #import "PushPluginFCM.h"
 #import "PushPluginSettings.h"
@@ -360,7 +361,7 @@
     UIApplicationState applicationState = [UIApplication sharedApplication].applicationState;
     NSNumber *applicationStateNumber = @((int)applicationState);
 
-    // The original notification that comes from the AppDelegate's willPresentNotification.
+    // The original notification that comes from the CDVAppDelegate's willPresentNotification.
     UNNotification *originalNotification = notification.userInfo[@"notification"];
     NSDictionary *originalUserInfo = originalNotification.request.content.userInfo;
     NSMutableDictionary *modifiedUserInfo = [originalUserInfo mutableCopy];
@@ -411,7 +412,7 @@
 }
 
 - (void)didReceiveNotificationResponse:(NSNotification *)notification {
-    // The original response that comes from the AppDelegate's didReceiveNotificationResponse.
+    // The original response that comes from the CDVAppDelegate's didReceiveNotificationResponse.
     UNNotificationResponse *response = notification.userInfo[@"response"];
 
     NSLog(@"[PushPlugin] Notification was received. (actionIdentifier %@)", response.actionIdentifier);
