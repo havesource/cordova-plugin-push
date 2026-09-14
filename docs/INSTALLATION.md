@@ -31,6 +31,7 @@
 | 5.0.0          | 10.0.0      | 12.0.0          | 6.0.0       | 1.8.0     |
 | 6.0.0          | 10.0.0      | 12.0.0          | 6.0.0       | 1.8.0     |
 | 7.0.0          | 10.0.0      | 12.0.0          | 6.0.0       | 1.8.0     |
+| 8.0.0          | 10.0.0      | 12.0.0          | 8.0.0       | 1.16.0    |
 
 To install from the command line:
 
@@ -195,14 +196,14 @@ Firefox 46+
 
 **System:**
 
-- `Xcode`: `11.0` or greater.
-- `CocoaPods`: `1.8.0` or greater. Preferably `1.9.x`
-- `Ruby`: `2.0.0` or greater.
+- `Xcode`: `15.0.0` or greater.
+- `CocoaPods`: `1.16.0` or greater.
+- `Ruby`: `2.6.10` or greater.
 
 **Cordova:**
 
 - `cordova-cli`: `10.0.0` or greater.
-- `cordova-ios`: `6.0.0` or greater. Preferably `6.1.x`
+- `cordova-ios`: `8.0.0` or greater. Preferably `8.1.x`
 
 ### Bitcode
 
