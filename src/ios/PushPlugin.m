@@ -194,9 +194,9 @@
             [center setNotificationCategories:[settings categories]];
 
             // If there is a pending startup notification, we will delay to allow JS event handlers to setup
-            if (self.notificationMessage && !self.isInitialized) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self performSelector:@selector(notificationReceived) withObject:nil afterDelay: 0.5];
+            if (self.notificationMessage) {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self notificationReceived:YES];
                 });
             }
 
@@ -491,6 +491,10 @@
 }
 
 - (void)notificationReceived {
+    [self notificationReceived:NO];
+}
+
+- (void)notificationReceived:(BOOL)shouldForceClear {
     NSLog(@"[PushPlugin] Notification received");
 
     if (self.notificationMessage && self.callbackId != nil)
@@ -504,9 +508,7 @@
         if ([[mutableNotificationMessage objectForKey:@"actionCallback"] isEqualToString:UNNotificationDefaultActionIdentifier]) {
             [mutableNotificationMessage removeObjectForKey:@"actionCallback"];
         }
-        // @todo do not sent applicationState data to front for now. Figure out if we can add
-        // similar data to the other platforms.
-        [mutableNotificationMessage removeObjectForKey:@"applicationState"];
+
         self.notificationMessage = [mutableNotificationMessage copy];
 
         for (id key in self.notificationMessage) {
@@ -569,9 +571,25 @@
         [pluginResult setKeepCallbackAsBool:YES];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 
+        // When application state is inactive, do not clear notificationMessage.
+        // The init method will trigger when returning to foreground and trigger notification process.
+        NSNumber *applicationState = self.notificationMessage[@"applicationState"];
+        if (applicationState && [applicationState isKindOfClass:[NSNumber class]]) {
+            if ([applicationState integerValue] != UIApplicationStateInactive) {
+                self.notificationMessage = nil;
+            }
+        } else {
+            // Handle unexpected cases where applicationState is missing or invalid
+            self.notificationMessage = nil;
+        }
+
+        // Force clear comes from init. This ensure that it will be processed once.
+        if (shouldForceClear) {
+            self.notificationMessage = nil;
+        }
+
         self.coldstart = NO;
         self.isForeground = NO;
-        self.notificationMessage = nil;
     }
 }
 

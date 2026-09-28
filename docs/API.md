@@ -390,6 +390,7 @@ The event `notification` will be triggered each time a push notification is rece
 | `data.additionalData.foreground` | `boolean` | Whether the notification was received while the app was in the foreground                                                                                                                                                           |
 | `data.additionalData.coldstart`  | `boolean` | Will be `true` if the application is started by clicking on the push notification, `false` if the app is already started.                                                                                                           |
 | `data.additionalData.dismissed`  | `boolean` | Is set to `true` if the notification was dismissed by the user                                                                                                                                                                      |
+| `data.additionalData.applicationState`  | `number` | (iOS Only Flag) Contains the application state of the received notification. 0: `UIApplicationStateActive`, 1: `UIApplicationStateInactive`, 2: `UIApplicationStateBackground` |
 
 ### Example
 
