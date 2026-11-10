@@ -31,7 +31,6 @@ class BackgroundActionButtonHandler : BroadcastReceiver() {
     notificationManager.cancel(FCMService.getAppName(context), notId)
 
     intent.extras?.let { extras ->
-      Log.d(TAG, "Intent Extras: $extras")
       extras.getBundle(PushConstants.PUSH_BUNDLE)?.apply {
         putBoolean(PushConstants.FOREGROUND, false)
         putBoolean(PushConstants.COLDSTART, false)
@@ -42,7 +41,7 @@ class BackgroundActionButtonHandler : BroadcastReceiver() {
 
         RemoteInput.getResultsFromIntent(intent)?.let { remoteInputResults ->
           val results = remoteInputResults.getCharSequence(PushConstants.INLINE_REPLY).toString()
-          Log.d(TAG, "Inline Reply: $results")
+          Log.d(TAG, "Inline Reply received")
 
           putString(PushConstants.INLINE_REPLY, results)
         }

@@ -103,8 +103,6 @@ class PushPlugin : CordovaPlugin() {
             val key = it.next()
             val value = extras[key]
 
-            Log.d(TAG, "Extras Iteration: key=$key")
-
             when {
               jsonKeySet.contains(key) -> {
                 json.put(key, value)
@@ -147,7 +145,6 @@ class PushPlugin : CordovaPlugin() {
 
           json.put(PushConstants.ADDITIONAL_DATA, additionalData)
 
-          Log.v(TAG, "Extras To JSON Result: $json")
           return json
         } catch (e: JSONException) {
           Log.e(TAG, "convertBundleToJson had a JSON Exception")
@@ -449,8 +446,6 @@ class PushPlugin : CordovaPlugin() {
     }
 
     cordova.threadPool.execute(Runnable {
-      Log.v(TAG, formatLogMessage("Data=$data"))
-
       val sharedPref = applicationContext.getSharedPreferences(
         PushConstants.COM_ADOBE_PHONEGAP_PUSH,
         Context.MODE_PRIVATE
@@ -487,16 +482,10 @@ class PushPlugin : CordovaPlugin() {
         // Creates the default notification channel if missing
         createDefaultNotificationChannelIfNeeded(jo)
 
-        // Log the JSON object and sender ID
-        Log.v(TAG, formatLogMessage("JSONObject=$jo"))
-        Log.v(TAG, formatLogMessage("senderID=$senderID"))
-
         // Prepare the registration object
         val registration = JSONObject().put(PushConstants.REGISTRATION_ID, token).apply {
           put(PushConstants.REGISTRATION_TYPE, PushConstants.FCM)
         }
-
-        Log.v(TAG, formatLogMessage("onRegistered=$registration"))
 
         // Retrieve and subscribe to topics
         val topics = jo.optJSONArray(PushConstants.TOPICS)

@@ -96,7 +96,7 @@ class PushHandlerActivity : Activity() {
 
         RemoteInput.getResultsFromIntent(intent)?.let { results ->
           val reply = results.getCharSequence(PushConstants.INLINE_REPLY).toString()
-          Log.d(TAG, "Inline Reply: $reply")
+          Log.d(TAG, "Inline Reply received")
 
           putString(PushConstants.INLINE_REPLY, reply)
           notHaveInlineReply = false
