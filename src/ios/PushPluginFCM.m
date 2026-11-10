@@ -66,7 +66,7 @@
         if (error != nil) {
             NSLog(@"[PushPlugin] Error getting FCM registration token: %@", error);
         } else {
-            NSLog(@"[PushPlugin] FCM registration token: %@", token);
+            NSLog(@"[PushPlugin] FCM registration token received.");
             [weakSelf subscribeToTopics:[PushPluginSettings sharedInstance].fcmTopics];
             [weakSelf sendRegistrationPluginResult:token];
             [weakSelf attachFCMTokenRefreshObserver];

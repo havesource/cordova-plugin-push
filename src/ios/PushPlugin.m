@@ -209,11 +209,11 @@
     NSData *deviceToken = notification.object;
 
     if (self.callbackId == nil) {
-        NSLog(@"[PushPlugin] An unexpected case was triggered where the callbackId is missing during the register for remote notification. (device token: %@)", deviceToken);
+        NSLog(@"[PushPlugin] An unexpected case was triggered where the callbackId is missing during the register for remote notification.");
         return;
     }
 
-    NSLog(@"[PushPlugin] Successfully registered device for remote notification. (device token: %@)", deviceToken);
+    NSLog(@"[PushPlugin] Successfully registered device for remote notification.");
 
     if ([self.pushPluginFCM isFCMEnabled]) {
         [self.pushPluginFCM configureTokens:deviceToken];
@@ -263,7 +263,7 @@
 - (void)didReceiveRemoteNotification:(NSNotification *)notification {
     NSDictionary *userInfo = notification.userInfo[@"userInfo"];
 
-    NSLog(@"[PushPlugin] Received remote notification (userInfo: %@)", userInfo);
+    NSLog(@"[PushPlugin] Received remote notification.");
 
     void (^completionHandler)(UIBackgroundFetchResult) = notification.userInfo[@"completionHandler"];
 
@@ -411,9 +411,7 @@
     // The original response that comes from the AppDelegate's didReceiveNotificationResponse.
     UNNotificationResponse *response = notification.userInfo[@"response"];
 
-    NSLog(@"[PushPlugin] Notification was received. (actionIdentifier %@, notification: %@)",
-          response.actionIdentifier,
-          response.notification.request.content.userInfo);
+    NSLog(@"[PushPlugin] Notification was received. (actionIdentifier %@)", response.actionIdentifier);
 
     void (^completionHandler)(void) = notification.userInfo[@"completionHandler"];
 
@@ -427,7 +425,7 @@
     switch (applicationState) {
         case UIApplicationStateActive:
         {
-            NSLog(@"[PushPlugin] App is active. Notification message set with: %@", modifiedUserInfo);
+            NSLog(@"[PushPlugin] App is active. Notification message set.");
 
             self.isForeground = YES;
             self.notificationMessage = [modifiedUserInfo copy];
@@ -439,7 +437,7 @@
         }
         case UIApplicationStateInactive:
         {
-            NSLog(@"[PushPlugin] App is inactive. Storing notification message for later launch with: %@", modifiedUserInfo);
+            NSLog(@"[PushPlugin] App is inactive. Storing notification message for later launch.");
 
             self.coldstart = YES;
             self.isForeground = NO;
@@ -451,7 +449,7 @@
         }
         case UIApplicationStateBackground:
         {
-            NSLog(@"[PushPlugin] App is in the background. Notification message set with: %@", modifiedUserInfo);
+            NSLog(@"[PushPlugin] App is in the background. Notification message set.");
 
             void (^safeHandler)(void) = ^{
                 dispatch_async(dispatch_get_main_queue(), ^{
