@@ -724,11 +724,7 @@
     }
 
     NSLog(@"[PushPlugin] VoIP register success");
-    const unsigned *tokenBytes = [credentials.token bytes];
-    NSString *sToken = [NSString stringWithFormat:@"%08x%08x%08x%08x%08x%08x%08x%08x",
-                        ntohl(tokenBytes[0]), ntohl(tokenBytes[1]), ntohl(tokenBytes[2]),
-                        ntohl(tokenBytes[3]), ntohl(tokenBytes[4]), ntohl(tokenBytes[5]),
-                        ntohl(tokenBytes[6]), ntohl(tokenBytes[7])];
+    NSString *sToken = [self hexadecimalStringFromData:credentials.token];
 
     [self registerWithToken:sToken];
 }
