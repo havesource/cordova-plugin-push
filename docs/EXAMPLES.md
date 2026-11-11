@@ -13,7 +13,7 @@ const push = PushNotification.init({
 	android: {
 	},
     browser: {
-        pushServiceURL: 'http://push.api.phonegap.com/v1/push'
+        pushServiceURL: 'https://push.example.com/v1/push'
     },
 	ios: {
 		alert: "true",

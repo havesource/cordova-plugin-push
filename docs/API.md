@@ -110,7 +110,7 @@ All available option attributes are described bellow.
 
 | Attribute                      | Type     | Default                                                      | Description                                             |
 | ------------------------------ | -------- | ------------------------------------------------------------ | ------------------------------------------------------- |
-| `browser.pushServiceURL`       | `string` | `http://push.api.phonegap.com/v1/push`                       | Optional. URL for the push server you want to use.      |
+| `browser.pushServiceURL`       | `string` |                                                              | Optional. URL for the push server you want to use.      |
 | `browser.applicationServerKey` | `string` |                                                              | Optional. Your GCM API key if you are using VAPID keys. |
 
 #### iOS
@@ -189,7 +189,7 @@ The "finish" method has not use too when the VoIP notifications are enabled.
 const push = PushNotification.init({
   android: {},
   browser: {
-    pushServiceURL: 'http://push.api.phonegap.com/v1/push'
+    pushServiceURL: 'https://push.example.com/v1/push'
   },
   ios: {
     alert: 'true',
