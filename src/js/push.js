@@ -4,6 +4,9 @@
 
 const exec = cordova.require('cordova/exec');
 
+// Reserved actions that actionCallback can't use.
+const RESERVED_ACTION_EVENTS = ['registration', 'error'];
+
 class PushNotification {
   /**
    * PushNotification constructor.
@@ -33,7 +36,8 @@ class PushNotification {
       } else if (
         result &&
         result.additionalData &&
-        typeof result.additionalData.actionCallback !== 'undefined'
+        typeof result.additionalData.actionCallback === 'string' &&
+        !RESERVED_ACTION_EVENTS.includes(result.additionalData.actionCallback)
       ) {
         this.emit(result.additionalData.actionCallback, result);
       } else if (result) {
