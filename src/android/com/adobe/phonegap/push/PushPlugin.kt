@@ -204,6 +204,35 @@ class PushPlugin : CordovaPlugin() {
      */
     val isActive: Boolean
       get() = gWebView != null
+
+    /**
+     * Returns the callback only when it matches an action declared in the push bundle.
+     */
+    @JvmStatic
+    fun findMatchingActionCallback(pushBundle: Bundle?, callback: String?): String? {
+      if (pushBundle == null || callback.isNullOrEmpty()) {
+        return null
+      }
+
+      return try {
+        val actions = JSONArray(
+          pushBundle.getString(PushConstants.ACTIONS) ?: return null
+        )
+
+        for (index in 0 until actions.length()) {
+          val action = actions.optJSONObject(index) ?: continue
+          val actionCallback = action.optString(PushConstants.CALLBACK)
+
+          if (actionCallback == callback) {
+            return actionCallback
+          }
+        }
+
+        null
+      } catch (e: JSONException) {
+        null
+      }
+    }
   }
 
   private val activity: Activity

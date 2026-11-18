@@ -84,7 +84,7 @@ class BackgroundHandlerActivity : Activity() {
       originalExtras.putBoolean(PushConstants.DISMISSED, extras.getBoolean(PushConstants.DISMISSED))
       originalExtras.putString(
         PushConstants.ACTION_CALLBACK,
-        extras.getString(PushConstants.CALLBACK)
+        PushPlugin.findMatchingActionCallback(originalExtras, extras.getString(PushConstants.CALLBACK))
       )
       originalExtras.remove(PushConstants.NO_CACHE)
 
