@@ -80,7 +80,7 @@ class FCMService : FirebaseMessagingService() {
    */
   override fun onNewToken(token: String) {
     super.onNewToken(token)
-    Log.d(TAG, "Refreshed token: $token")
+    Log.d(TAG, "Refreshed token")
 
     // TODO: Implement this method to send any registration to your app's servers.
     //sendRegistrationToServer(token);
@@ -418,12 +418,6 @@ class FCMService : FirebaseMessagingService() {
         val mNotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         mNotificationManager.cancelAll()
       }
-
-      Log.d(TAG, "message=$message")
-      Log.d(TAG, "title=$title")
-      Log.d(TAG, "contentAvailable=$contentAvailable")
-      Log.d(TAG, "forceStart=$forceStart")
-      Log.d(TAG, "badgeCount=$badgeCount")
 
       val hasMessage = !message.isNullOrEmpty()
       val hasTitle = !title.isNullOrEmpty()
@@ -1196,7 +1190,6 @@ class FCMService : FirebaseMessagingService() {
 
   private fun isAvailableSender(from: String?): Boolean {
     val savedSenderID = pushSharedPref.getString(PushConstants.SENDER_ID, "")
-    Log.d(TAG, "sender id = $savedSenderID")
     return from == savedSenderID || (from != null && from.startsWith("/topics/"))
   }
 }

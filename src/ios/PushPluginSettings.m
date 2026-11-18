@@ -59,7 +59,7 @@
         }
     }
 
-    NSLog(@"[PushPlugin] Settings: %@", self.settingsDictionary);
+    NSLog(@"[PushPlugin] Settings updated.");
 }
 
 - (BOOL)parseOption:(NSString *)key fromOptions:(NSDictionary *)options withDefault:(BOOL)defaultValue {

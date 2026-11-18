@@ -90,7 +90,7 @@ class BackgroundHandlerActivity : Activity() {
 
       RemoteInput.getResultsFromIntent(intent)?.apply {
         val reply = getCharSequence(PushConstants.INLINE_REPLY).toString()
-        Log.d(TAG, "Inline Reply: $reply")
+        Log.d(TAG, "Inline Reply received")
 
         originalExtras.putString(PushConstants.INLINE_REPLY, reply)
       }
