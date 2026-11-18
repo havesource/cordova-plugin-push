@@ -176,7 +176,7 @@ declare namespace PhonegapPluginPush {
 		 */
 		browser?: {
 			/**
-			 * URL for the push server you want to use. Default is 'http://push.api.phonegap.com/v1/push'.
+			 * URL for the push server you want to use. When not set, the subscription is not sent to any server.
 			 */
 			pushServiceURL?: string
 			/**

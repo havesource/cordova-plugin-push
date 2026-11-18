@@ -57,15 +57,17 @@ var PushNotification = function (options) {
           result = { registrationId: sub.endpoint.substring(sub.endpoint.lastIndexOf('/') + 1) };
           that.emit('registration', result);
 
-          // send encryption keys to push server
-          var xmlHttp = new XMLHttpRequest();
-          var xmlURL = (options.browser.pushServiceURL || 'http://push.api.phonegap.com/v1/push') + '/keys';
-          xmlHttp.open('POST', xmlURL, true);
+          // send encryption keys to push server, when one is configured
+          var pushServiceURL = options.browser && options.browser.pushServiceURL;
+          if (pushServiceURL) {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open('POST', pushServiceURL + '/keys', true);
 
-          var formData = new FormData();
-          formData.append('subscription', JSON.stringify(sub));
+            var formData = new FormData();
+            formData.append('subscription', JSON.stringify(sub));
 
-          xmlHttp.send(formData);
+            xmlHttp.send(formData);
+          }
 
           navigator.serviceWorker.controller.postMessage(result, [channel.port2]);
         }).catch(function () {
@@ -115,12 +117,14 @@ PushNotification.prototype.unregister = function (successCallback, errorCallback
   if (serviceWorker) {
     serviceWorker.unregister().then(function (isSuccess) {
       if (isSuccess) {
-        var deviceID = subscription.endpoint.substring(subscription.endpoint.lastIndexOf('/') + 1);
-        var xmlHttp = new XMLHttpRequest();
-        var xmlURL = (that.options.browser.pushServiceURL || 'http://push.api.phonegap.com/v1/push') +
-                    '/keys/' + deviceID;
-        xmlHttp.open('DELETE', xmlURL, true);
-        xmlHttp.send();
+        var pushServiceURL = that.options.browser && that.options.browser.pushServiceURL;
+
+        if (pushServiceURL && subscription) {
+          var deviceID = subscription.endpoint.substring(subscription.endpoint.lastIndexOf('/') + 1);
+          var xmlHttp = new XMLHttpRequest();
+          xmlHttp.open('DELETE', pushServiceURL + '/keys/' + deviceID, true);
+          xmlHttp.send();
+        }
 
         successCallback();
       } else {
