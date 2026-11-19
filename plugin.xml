@@ -78,15 +78,6 @@
     <source-file src="src/android/com/adobe/phonegap/push/PushDismissedHandler.kt" target-dir="java/com/adobe/phonegap/push/"/>
   </platform>
 
-  <platform name="browser">
-    <js-module src="www/browser/push.js" name="BrowserPush">
-      <clobbers target="PushNotification"/>
-    </js-module>
-
-    <asset src="src/browser/ServiceWorker.js" target="ServiceWorker.js"/>
-    <asset src="src/browser/manifest.json" target="manifest.json"/>
-  </platform>
-
   <platform name="ios">
     <preference name="IOS_FIREBASE_MESSAGING_VERSION" default="11.8.0"/>
 

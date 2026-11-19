@@ -7,8 +7,8 @@
 /**
  * cordova.js for node.
  *
- * Think of this as cordova-node, which would be simliar to cordova-android
- * or cordova-browser. The purpose of this module is to enable testing
+ * Think of this as cordova-node, which would be simliar to cordova-android.
+ * The purpose of this module is to enable testing
  * of a plugin's JavaScript interface.
  *
  * When this module is first required, it will insert a global cordova
