@@ -32,6 +32,7 @@
     "nodemon": "^3.1.14"
   },
   "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0",
     "cordovaDependencies": {
       "7.0.0": {
         "cordova": ">=10.0.0",
@@ -78,5 +79,9 @@
       "android",
       "browser"
     ]
+  },
+  "dependencies": {
+    "nopt": "^10.0.1",
+    "semver": "^7.8.5"
   }
 }
