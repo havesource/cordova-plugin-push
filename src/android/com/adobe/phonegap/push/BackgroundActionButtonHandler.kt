@@ -36,7 +36,7 @@ class BackgroundActionButtonHandler : BroadcastReceiver() {
         putBoolean(PushConstants.COLDSTART, false)
         putString(
           PushConstants.ACTION_CALLBACK,
-          extras.getString(PushConstants.CALLBACK)
+          PushPlugin.findMatchingActionCallback(this, extras.getString(PushConstants.CALLBACK))
         )
 
         RemoteInput.getResultsFromIntent(intent)?.let { remoteInputResults ->

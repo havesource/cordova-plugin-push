@@ -90,7 +90,7 @@ class PushHandlerActivity : Activity() {
         putBoolean(PushConstants.DISMISSED, extras.getBoolean(PushConstants.DISMISSED))
         putString(
           PushConstants.ACTION_CALLBACK,
-          extras.getString(PushConstants.CALLBACK)
+          PushPlugin.findMatchingActionCallback(this, extras.getString(PushConstants.CALLBACK))
         )
         remove(PushConstants.NO_CACHE)
 
