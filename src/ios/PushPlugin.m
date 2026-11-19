@@ -273,8 +273,7 @@
         // do some convoluted logic to find out if this should be a silent push.
         long silent = 0;
         id aps = [userInfo objectForKey:@"aps"];
-
-        id contentAvailable = [aps objectForKey:@"content-available"];
+        id contentAvailable = [aps isKindOfClass:[NSDictionary class]] ? [aps objectForKey:@"content-available"] : nil;
         if ([contentAvailable isKindOfClass:[NSString class]] && [contentAvailable isEqualToString:@"1"]) {
             silent = 1;
         } else if ([contentAvailable isKindOfClass:[NSNumber class]]) {
@@ -306,6 +305,10 @@
                 // Store the handler for the uniquly created notId.
             }
 
+            void (^existingHandler)(UIBackgroundFetchResult) = self.handlerObj[notIdKey];
+            if (existingHandler) {
+                existingHandler(UIBackgroundFetchResultNoData);
+            }
             [self.handlerObj setObject:safeHandler forKey:notIdKey];
 
             NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
@@ -451,7 +454,7 @@
         {
             NSLog(@"[PushPlugin] App is in the background. Notification message set.");
 
-            void (^safeHandler)(void) = ^{
+            void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (completionHandler) {
                         completionHandler();
@@ -475,6 +478,10 @@
                 // Store the handler for the uniquly created notId.
             }
 
+            void (^existingHandler)(UIBackgroundFetchResult) = self.handlerObj[notIdKey];
+            if (existingHandler) {
+                existingHandler(UIBackgroundFetchResultNoData);
+            }
             [self.handlerObj setObject:safeHandler forKey:notIdKey];
 
             NSLog(@"[PushPlugin] Stored the completion handler for the background processing of notId %@", notIdKey);
@@ -508,7 +515,7 @@
         self.notificationMessage = [mutableNotificationMessage copy];
 
         for (id key in self.notificationMessage) {
-            if ([key isEqualToString:@"aps"]) {
+            if ([key isEqualToString:@"aps"] && [[self.notificationMessage objectForKey:@"aps"] isKindOfClass:[NSDictionary class]]) {
                 id aps = [self.notificationMessage objectForKey:@"aps"];
 
                 for(id key in aps) {

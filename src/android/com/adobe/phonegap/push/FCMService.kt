@@ -226,6 +226,9 @@ class FCMService : FirebaseMessagingService() {
         } catch (e: JSONException) {
           Log.d(TAG, "No Locale Found (key= $key, error=${e.message})")
           value
+        } catch (e: IllegalFormatException) {
+          Log.d(TAG, "Locale format mismatch (key= $key)")
+          value
         }
       }
       else -> value
