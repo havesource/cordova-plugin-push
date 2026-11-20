@@ -46,7 +46,7 @@ or
 cordova plugin add github:havesource/cordova-plugin-push
 ```
 
-To configure the `SENDER_ID`, place your `google-services.json` (Android) and/or `GoogleService-Info.plist` in the root folder of your project and then add the following lines into your config.xml.
+To configure Firebase, place your `google-services.json` (Android) and/or `GoogleService-Info.plist` in the root folder of your project and then add the following lines into your config.xml.
 
 In the `platform` tag for Android add the following `resource-file` tag if you are using `cordova-android` 8.0 or greater:
 
@@ -64,22 +64,6 @@ By default, on iOS, the plugin will register with APNS. If you want to use FCM o
 <platform name="ios">
   <resource-file src="GoogleService-Info.plist" />
 </platform>
-```
-
-> Note: if you are using Ionic you may need to specify the SENDER_ID variable in your package.json.
-
-```json
-  "cordovaPlugins": [
-    {
-      "locator": "phonegap-plugin-push"
-    }
-  ]
-```
-
-> Note: You need to specify the SENDER_ID variable in your config.xml if you plan on installing/restoring plugins using the prepare method. The prepare method will skip installing the plugin otherwise.
-
-```xml
-<plugin name="@havesource/cordova-plugin-push" spec="5.0.0" />
 ```
 
 ### Cordova-Android 9.x Specifics
