@@ -24,7 +24,7 @@ This plugin does not provide a way to determine which platform you are running o
 
 # Do you like tutorial? You get tutorial!
 
-* [PhoneGap Day US Push Workshop 2016 (using node-gcm)](http://macdonst.github.io/push-workshop/)
+* [PhoneGap Day US Push Workshop 2016 (using node-gcm)](https://macdonst.github.io/push-workshop/)
 
 # Thanks to all our contributors
 

@@ -42,7 +42,7 @@ You may also want to include:
 - logs taken while the problem was reproduced.
 - screenshots!
 
-If the code or logs are huge, let's say over 20 lines please think about using a web service like [Gist](https://gist.github.com/) or [Pastebin](http://pastebin.com/).
+If the code or logs are huge, let's say over 20 lines please think about using a web service like [Gist](https://gist.github.com/) or [Pastebin](https://pastebin.com).
 
 ### An example issue
 

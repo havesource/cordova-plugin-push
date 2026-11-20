@@ -134,7 +134,7 @@ declare namespace PhonegapPluginPush {
 			icon?: string
 			/**
 			 * Sets the background color of the small icon on Android 5.0 and greater.
-			 * Supported Formats - http://developer.android.com/reference/android/graphics/Color.html#parseColor(java.lang.String)
+			 * Supported Formats - https://developer.android.com/reference/android/graphics/Color.html#parseColor(java.lang.String)
 			 */
 			iconColor?: string
 			/**
