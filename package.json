@@ -7,9 +7,9 @@
     "build:watch": "nodemon -w ./src/js -e js -x npm run build",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
-    "jasmine": "jasmine --config=spec/unit.json",
+    "test:unit": "node --test --test-timeout=5000 'test/**/*.test.js'",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
-    "test": "npm run build && npm run lint && npm run jasmine"
+    "test": "npm run build && npm run lint && npm run test:unit"
   },
   "repository": "github:havesource/cordova-plugin-push",
   "keywords": [
@@ -28,7 +28,6 @@
     "@babel/eslint-parser": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
     "@cordova/eslint-config": "^6.0.1",
-    "jasmine": "^7.0.0",
     "nodemon": "^3.1.14"
   },
   "engines": {

@@ -25,7 +25,7 @@ module.exports = defineConfig([
     }
   })),
   ...nodeTestConfig.map(config => ({
-    files: ['spec/**/*.js', 'example/server/**/*.js'],
+    files: ['test/**/*.js', 'example/server/**/*.js'],
     ...config,
     rules: {
       ...(config.rules || {}),
