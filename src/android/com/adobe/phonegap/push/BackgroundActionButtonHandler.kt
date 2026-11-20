@@ -30,24 +30,25 @@ class BackgroundActionButtonHandler : BroadcastReceiver() {
       context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     notificationManager.cancel(FCMService.getAppName(context), notId)
 
-    intent.extras?.let { extras ->
-      extras.getBundle(PushConstants.PUSH_BUNDLE)?.apply {
-        putBoolean(PushConstants.FOREGROUND, false)
-        putBoolean(PushConstants.COLDSTART, false)
-        putString(
-          PushConstants.ACTION_CALLBACK,
-          PushPlugin.findMatchingActionCallback(this, extras.getString(PushConstants.CALLBACK))
-        )
+    val extras = intent.extras ?: return
+    val pushBundle = extras.getBundle(PushConstants.PUSH_BUNDLE) ?: return
 
-        RemoteInput.getResultsFromIntent(intent)?.let { remoteInputResults ->
-          val results = remoteInputResults.getCharSequence(PushConstants.INLINE_REPLY).toString()
-          Log.d(TAG, "Inline Reply received")
+    pushBundle.apply {
+      putBoolean(PushConstants.FOREGROUND, false)
+      putBoolean(PushConstants.COLDSTART, false)
+      putString(
+        PushConstants.ACTION_CALLBACK,
+        PushPlugin.findMatchingActionCallback(this, extras.getString(PushConstants.CALLBACK))
+      )
 
-          putString(PushConstants.INLINE_REPLY, results)
-        }
+      RemoteInput.getResultsFromIntent(intent)?.let { remoteInputResults ->
+        val results = remoteInputResults.getCharSequence(PushConstants.INLINE_REPLY).toString()
+        Log.d(TAG, "Inline Reply received")
+
+        putString(PushConstants.INLINE_REPLY, results)
       }
-
-      PushPlugin.sendExtras(extras)
     }
+
+    PushPlugin.sendExtras(pushBundle)
   }
 }
