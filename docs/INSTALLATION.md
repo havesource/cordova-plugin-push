@@ -86,7 +86,7 @@ _Note:_ This plugin's default `FCM_VERSION` is 24.1.0.
 
 ## Browser details
 
-For the time being, push support on the browser is not supported. The original plugin used the PhoneGap push server which may no longer be active.
+For the time being, push support on the browser is not supported. The original plugin used the PhoneGap push server which is no longer active.
 
 ### Browser Support
 
