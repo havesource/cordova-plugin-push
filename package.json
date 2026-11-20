@@ -78,5 +78,10 @@
       "android",
       "browser"
     ]
+  },
+  "overrides": {
+    "nodemon": {
+      "minimatch": "11.0.9"
+    }
   }
 }
