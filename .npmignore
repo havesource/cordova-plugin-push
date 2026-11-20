@@ -1,7 +1,6 @@
 .*
 docs
 test
-bower.json
 eslint.config.js
 babel.config.js
 lcov.info
