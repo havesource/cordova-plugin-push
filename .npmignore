@@ -1,7 +1,8 @@
 .*
 docs
 example
-spec
+test
 bower.json
 eslint.config.js
 babel.config.js
+lcov.info
