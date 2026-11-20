@@ -14,9 +14,9 @@ This plugin does not provide a way to determine which platform you are running o
 
 * [Reporting Issues](docs/ISSUES.md)
 * [Installation](docs/INSTALLATION.md)
+* [Platform support](docs/INSTALLATION.md#installation-requirements)
 * [API reference](docs/API.md)
 * [Typescript support](docs/TYPESCRIPT.md)
-* [Platform support](docs/PLATFORM_SUPPORT.md)
 * [Push notification payload details](docs/PAYLOAD.md)
 * [Contributing](.github/CONTRIBUTING.md)
 * [License (MIT)](MIT-LICENSE)
