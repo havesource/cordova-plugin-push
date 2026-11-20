@@ -48,7 +48,7 @@
 
 # Overview
 
-The following flowchart attempts to give you a picture of what happens when a push message arrives on your device when you have an app using phonegap-plugin-push.
+The following flowchart attempts to give you a picture of what happens when a push message arrives on your device when you have an app using cordova-plugin-push.
 
 ![push-flowchart](https://cloud.githubusercontent.com/assets/353180/15752003/36b80afa-28ba-11e6-818b-c6f5f2966d8f.png)
 
@@ -440,7 +440,7 @@ To specify an alternate icon and background color to be shown when receiving a p
 ```javascript
 const push = PushNotification.init({
   android: {
-    icon: 'phonegap',
+    icon: 'notification',
     iconColor: 'blue'
   },
   browser: {
@@ -454,7 +454,7 @@ const push = PushNotification.init({
 });
 ```
 
-Where _icon_ is the name of an `.png` image file in the Android `res/drawable` folder. For example: `platforms/android/res/drawable/phonegap.png`
+Where _icon_ is the name of an `.png` image file in the Android `res/drawable` folder. For example: `platforms/android/res/drawable/notification.png`
 
 You can use a `resource-file` tag to copy the image to the `res/drawable` folder like this:
 

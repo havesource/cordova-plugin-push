@@ -21,10 +21,6 @@ This plugin does not provide a way to determine which platform you are running o
 * [Contributing](.github/CONTRIBUTING.md)
 * [License (MIT)](MIT-LICENSE)
 
-# Do you like tutorial? You get tutorial!
-
-* [PhoneGap Day US Push Workshop 2016 (using node-gcm)](https://macdonst.github.io/push-workshop/)
-
 # Thanks to all our contributors
 
 [<img alt="10ko" src="https://avatars1.githubusercontent.com/u/2706375?v=4&s=117" width="117">](https://github.com/10ko)[<img alt="TVolly" src="https://avatars3.githubusercontent.com/u/20628284?v=4&s=117" width="117">](https://github.com/TVolly)[<img alt="waptaxi" src="https://avatars2.githubusercontent.com/u/6575569?v=4&s=117" width="117">](https://github.com/waptaxi)[<img alt="viktormuller" src="https://avatars1.githubusercontent.com/u/8171222?v=4&s=117" width="117">](https://github.com/viktormuller)[<img alt="devgeeks" src="https://avatars0.githubusercontent.com/u/554999?v=4&s=117" width="117">](https://github.com/devgeeks)[<img alt="rastafan" src="https://avatars3.githubusercontent.com/u/7632849?v=4&s=117" width="117">](https://github.com/rastafan)

@@ -18,7 +18,7 @@ Before we can start submitting code contributions, we setup locally a workspace 
 2. [Clone](https://help.github.com/articles/cloning-a-repository/) the newly forked repo locally.
 
     ```bash
-    git clone git@github.com:your-username/phonegap-plugin-push.git
+    git clone git@github.com:your-username/cordova-plugin-push.git
     ```
 
 ## Make First Codde Contribution

@@ -6,7 +6,6 @@
   - [Opening a new issue](#opening-a-new-issue)
     - [Provide details](#provide-details)
     - [An example issue](#an-example-issue)
-  - [Voting on an issue](#voting-on-an-issue)
 
 The following tips are for users of this plugin who want to get help.
 
@@ -75,7 +74,3 @@ I/chromium(11669): [INFO:CONSOLE(54)] "Uncaught ReferenceError: PushNotification
 This leads me to line [4](https://gist.github.com/macdonst/191f74ac75b6802c047d#file-app-js-L4) of your code where you are initializing push before you get the `deviceready` event. Like all Cordova API's you have to wait until you receive the `deviceready` event before you initialize Push.
 
 Check out [https://github.com/havesource/cordova-plugin-push/blob/20f489a90cf519f962fd957700f92115f142594b/example/www/js/index.js](https://github.com/havesource/cordova-plugin-push/blob/20f489a90cf519f962fd957700f92115f142594b/example/www/js/index.js) for an example of how to wait for `deviceready`.
-
-## Voting on an issue
-
-Did you know you can vote on issues in the phonegap-plugin-push repository? If you install the [ZenHub](https://chrome.google.com/webstore/detail/zenhub-for-github/ogcgkffhplmphkaahpmffcafajaocjbd) Chrome Extension you will be able to +1 issues to indicate how popular they are to the community. It's a way better way for the contributors to keep track of important issues.
