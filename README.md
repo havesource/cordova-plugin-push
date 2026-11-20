@@ -16,7 +16,6 @@ This plugin does not provide a way to determine which platform you are running o
 * [Installation](docs/INSTALLATION.md)
 * [API reference](docs/API.md)
 * [Typescript support](docs/TYPESCRIPT.md)
-* [Examples](docs/EXAMPLES.md)
 * [Platform support](docs/PLATFORM_SUPPORT.md)
 * [Push notification payload details](docs/PAYLOAD.md)
 * [Contributing](.github/CONTRIBUTING.md)
