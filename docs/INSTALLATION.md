@@ -83,10 +83,7 @@ If you are using **Cordova Android 8.x** please continue reading in the **Cordov
 
 Problems may arise when push plugin is used along plugins that implement Firebase functionality (e.g. `cordova-plugin-firebase-analytics`). Both plugins include a version of the FCM libraries.
 
-To make the two work together, you need to migrate your GCM project from Google console to Firebase console:
-
-1. In Firebase console - [import your existing GCM project](https://firebase.google.com/support/guides/google-android#migrate_your_console_project), don't create a new one.
-2. Set your `FCM_VERSION` variable to match the version used in the other plugin. In case of Cordova, your `package.json` contains something like this:
+To work together, make sure your `FCM_VERSION` variable matches the version used in the other plugin. In case of Cordova, your `package.json` contains something like this:
 
 ```json
 {
@@ -101,8 +98,6 @@ To make the two work together, you need to migrate your GCM project from Google 
   }
 }
 ```
-
-_Note:_ No changes on the back-end side are needed: [even though recommended](https://developers.google.com/cloud-messaging/android/android-migrate-fcm#update_server_endpoints), it isn't yet required and sending messages through GCM gateway should work just fine.
 
 _Note:_ This plugin's default `FCM_VERSION` is 24.1.0.
 
