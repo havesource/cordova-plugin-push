@@ -34,7 +34,6 @@
     - [Callback parameters](#callback-parameters-2)
     - [Example](#example-5)
     - [Common Problems](#common-problems)
-      - [Got JSON Exception TIMEOUT](#got-json-exception-timeout)
   - [push.on('notification', callback)](#pushonnotification-callback)
     - [Callback parameters](#callback-parameters-3)
     - [Example](#example-6)
@@ -360,16 +359,6 @@ For APNS users: the `registrationId` you will get will be a production or sandbo
 > Note: There is a separate persistent connection to the push service for each environment. The operating system establishes a persistent connection to the sandbox environment for development builds; ad hoc and distribution builds connect to the production environment.
 
 ### Common Problems
-
-#### Got JSON Exception TIMEOUT
-
-If you run this plugin on older versions of Android and you get an error:
-
-```
-E/PushPlugin(20077): execute: Got JSON Exception TIMEOUT
-```
-
-It means you are running an older version of Google Play Services. You will need to open the Google Play Store app and update your version of Google Play Services.
 
 ## push.on('notification', callback)
 
