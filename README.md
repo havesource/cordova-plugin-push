@@ -14,18 +14,12 @@ This plugin does not provide a way to determine which platform you are running o
 
 * [Reporting Issues](docs/ISSUES.md)
 * [Installation](docs/INSTALLATION.md)
+* [Platform support](docs/INSTALLATION.md#installation-requirements)
 * [API reference](docs/API.md)
 * [Typescript support](docs/TYPESCRIPT.md)
-* [Examples](docs/EXAMPLES.md)
-* [Platform support](docs/PLATFORM_SUPPORT.md)
-* [Cloud build support (PG Build, IntelXDK)](docs/PHONEGAP_BUILD.md)
 * [Push notification payload details](docs/PAYLOAD.md)
 * [Contributing](.github/CONTRIBUTING.md)
 * [License (MIT)](MIT-LICENSE)
-
-# Do you like tutorial? You get tutorial!
-
-* [PhoneGap Day US Push Workshop 2016 (using node-gcm)](http://macdonst.github.io/push-workshop/)
 
 # Thanks to all our contributors
 

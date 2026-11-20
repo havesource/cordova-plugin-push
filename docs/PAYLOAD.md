@@ -4,7 +4,7 @@
   - [User clicks on notification in notification center](#user-clicks-on-notification-in-notification-center)
 - [Push Notification Message Format Overview](#push-notification-message-format-overview)
   - [Android Message Format](#android-message-format)
-    - [Using AWS-SNS with GCM](#using-aws-sns-with-gcm)
+    - [Using AWS-SNS with FCM](#using-aws-sns-with-fcm)
     - [Message Received in JavaScript](#message-received-in-javascript)
   - [iOS Message Format](#ios-message-format)
     - [Special Format for Critical Alerts](#special-format-for-critical-alerts)
@@ -32,7 +32,7 @@
   - [Visibility of Notifications](#visibility-of-notifications)
   - [Ongoing Notifications](#ongoing-notifications)
   - [Badges](#badges)
-  - [Support for Twilio Notify](#support-for-twilio-notify)
+  - [Twilio Notify](#twilio-notify)
   - [Notification ID](#notification-id)
   - [Clicking Notification Does Not Bring App to Foreground](#clicking-notification-does-not-bring-app-to-foreground)
   - [Notification Channels](#notification-channels)
@@ -48,7 +48,7 @@
 
 # Overview
 
-The following flowchart attempts to give you a picture of what happens when a push message arrives on your device when you have an app using phonegap-plugin-push.
+The following flowchart attempts to give you a picture of what happens when a push message arrives on your device when you have an app using cordova-plugin-push.
 
 ![push-flowchart](https://cloud.githubusercontent.com/assets/353180/15752003/36b80afa-28ba-11e6-818b-c6f5f2966d8f.png)
 
@@ -102,13 +102,16 @@ var content = {
 };
 ```
 
-### Using AWS-SNS with GCM
+### Using AWS-SNS with FCM
 
 This is the JSON-encoded format you can e.g. send via AWS-SNS's web UI.
 Note, that the core message is json-encoded twice, so if we take the `content` from above you convert it this way
 
+> [!NOTE]
+> Amazon Web Services SNS still uses the GCM key while it uses FCM.
+
 ```javascript
-var gcm_message = JSON.stringify({
+var payload = JSON.stringify({
   GCM: JSON.stringify(content),
   default: 'plain text message again'
 });
@@ -437,7 +440,7 @@ To specify an alternate icon and background color to be shown when receiving a p
 ```javascript
 const push = PushNotification.init({
   android: {
-    icon: 'phonegap',
+    icon: 'notification',
     iconColor: 'blue'
   },
   browser: {
@@ -451,7 +454,7 @@ const push = PushNotification.init({
 });
 ```
 
-Where _icon_ is the name of an `.png` image file in the Android `res/drawable` folder. For example: `platforms/android/res/drawable/phonegap.png`
+Where _icon_ is the name of an `.png` image file in the Android `res/drawable` folder. For example: `platforms/android/res/drawable/notification.png`
 
 You can use a `resource-file` tag to copy the image to the `res/drawable` folder like this:
 
@@ -573,13 +576,18 @@ Would look for the _logo.png_ file in the assets/www/img folder. Since your apps
 
 The third is the remote _URL_. This JSON sent from FCM:
 
+> [!NOTE]
+> In production, `https://` should be used strictly. Android blocks `http://` URLs by default.
+> To test with a local server, the app's [network security config](https://developer.android.com/privacy-and-security/security-config)
+> needs to allow cleartext for that host. Do not enable cleartext for production.
+
 ```json
 {
   "registration_ids": ["my device id"],
   "data": {
     "title": "Large Icon",
     "message": "Loaded from URL",
-    "image": "https://dl.dropboxusercontent.com/u/887989/antshot.png"
+    "image": "https://example.com/image.png"
   }
 }
 ```
@@ -598,7 +606,7 @@ const message = {
   data: {
     title: 'Large Icon',
     message: 'Loaded from URL',
-    image: 'https://dl.dropboxusercontent.com/u/887989/antshot.png'
+    image: 'https://example.com/image.png'
   }
 };
 
@@ -618,13 +626,18 @@ Produces the following notification.
 
 Finally, the Material UI guidelines recommend using a circular icon for the large icon if the subject of the image is a person. This JSON sent from FCM:
 
+> [!NOTE]
+> In production, `https://` should be used strictly. Android blocks `http://` URLs by default.
+> To test with a local server, the app's [network security config](https://developer.android.com/privacy-and-security/security-config)
+> needs to allow cleartext for that host. Do not enable cleartext for production.
+
 ```json
 {
   "registration_ids": ["my device id"],
   "data": {
     "title": "Large Circular Icon",
     "message": "Loaded from URL",
-    "image": "https://pbs.twimg.com/profile_images/837060031895896065/VHIQ4oUf_400x400.jpg",
+    "image": "https://example.com/image.png",
     "image-type": "circle"
   }
 }
@@ -644,9 +657,8 @@ const message = {
   data: {
     title: 'Large Circular Icon',
     message: 'Loaded from URL',
-    image:
-      'https://pbs.twimg.com/profile_images/837060031895896065/VHIQ4oUf_400x400.jpg',
-    'image-type': 'circular'
+    image: 'https://example.com/image.png',
+    'image-type': 'circle'
   }
 };
 
@@ -1360,6 +1372,11 @@ Do not confuse this with the FCM option of setting the [delivery priority of the
 
 ## Picture Messages
 
+> [!NOTE]
+> In production, `https://` should be used strictly. Android blocks `http://` URLs by default.
+> To test with a local server, the app's [network security config](https://developer.android.com/privacy-and-security/security-config)
+> needs to allow cleartext for that host. Do not enable cleartext for production.
+
 Perhaps you want to include a large picture in the notification that you are sending to your users. Luckily you can do that too by sending the following JSON from FCM.
 
 ```json
@@ -1369,7 +1386,7 @@ Perhaps you want to include a large picture in the notification that you are sen
     "title": "Big Picture",
     "message": "This is my big picture message",
     "style": "picture",
-    "picture": "http://36.media.tumblr.com/c066cc2238103856c9ac506faa6f3bc2/tumblr_nmstmqtuo81tssmyno1_1280.jpg",
+    "picture": "https://example.com/image.png",
     "summaryText": "The internet is built on cat pictures"
   }
 }
@@ -1389,8 +1406,7 @@ const message = {
   data: {
     title: 'Big Picture',
     message: 'This is my big picture message',
-    picture:
-      'http://36.media.tumblr.com/c066cc2238103856c9ac506faa6f3bc2/tumblr_nmstmqtuo81tssmyno1_1280.jpg',
+    picture: 'https://example.com/image.png',
     summaryText: 'The internet is built on cat pictures'
   }
 };
@@ -1762,7 +1778,12 @@ fcm.send(message, (err, response) => {
 });
 ```
 
-## Support for Twilio Notify
+## Twilio Notify
+
+> [!WARNING]
+> Twilio Notify is deprecated and will reach its end-of-life on October 31, 2027.
+> This plugin continues to map the Twilio payload keys but will be removed in a
+> future release after the service's EoL.
 
 This plugin seamlessly supports payloads generated by Twilio Notify on Android. Specifically the parameters passed in to the Twilio REST API are available in the message payload passed to your app as follows:
 
@@ -1773,10 +1794,10 @@ This plugin seamlessly supports payloads generated by Twilio Notify on Android. 
 Here is an example request to Twilio REST API and the corresponding JSON received by your app.
 
 ```
-curl 'https://notify.twilio.com/v1/Services/IS1e928b239609199df31d461071fd3d23/Notifications' -X POST \
---data-urlencode 'Identity=Bob' \
---data-urlencode 'Body=Hello Bob! Twilio Notify + Phonegap is awesome!' \
---data-urlencode 'Title=Hello Bob!' \
+curl 'https://notify.twilio.com/v1/Services/.../Notifications' -X POST \
+--data-urlencode 'Identity=Name' \
+--data-urlencode 'Body=Some Content' \
+--data-urlencode 'Title=Some Title' \
 --data-urlencode 'Sound=chime' \
 -u [AccountSID]:[AuthToken]
 ```
@@ -1787,8 +1808,8 @@ The JSON received by your app will comply with the standards described in the se
 {
   "registration_ids": ["my device id"],
   "data": {
-    "title": "Hello Bob!",
-    "message": "Hello Bob! Twilio Notify + Phonegap is awesome!",
+    "title": "Some Title",
+    "message": "Some Content",
     "sound": "chime"
   }
 }
@@ -1828,8 +1849,8 @@ Now when you send a push payload to the device you'll need to specify a channel:
 {
   "registration_ids": ["my device id"],
   "data": {
-    "title": "Hello Bob!",
-    "message": "Phonegap is awesome!",
+    "title": "Some Title",
+    "message": "Some Content",
     "android_channel_id": "testchannel2"
   }
 }
