@@ -2,7 +2,6 @@
 
 - [Installation](#installation)
   - [Installation Requirements](#installation-requirements)
-    - [Cordova-Android 9.x Specifics](#cordova-android-9x-specifics)
   - [Android details](#android-details)
     - [Co-existing with plugins that use Firebase](#co-existing-with-plugins-that-use-firebase)
   - [Browser details](#browser-details)
@@ -60,18 +59,6 @@ By default, on iOS, the plugin will register with APNS. If you want to use FCM o
   <resource-file src="GoogleService-Info.plist" />
 </platform>
 ```
-
-### Cordova-Android 9.x Specifics
-
-**Using AndroidX Library:**
-
-As of version **3.0.0**, this plugin has migrated from the Android Support Library to AndroidX. Since Cordova-Android 9.x does not use the AndroidX library by default, you will need to install the [`cordova-plugin-androidx-adapter`](https://www.npmjs.com/package/cordova-plugin-androidx-adapter) plugin.
-
-This plugin will migrate any Android Support Library references to AndroidX.
-
-Please note that this will also migrate references of other plugins.
-
-If you are using **Cordova Android 8.x** please continue reading in the **Cordova Android 8.x Specifics** section.
 
 ## Android details
 
