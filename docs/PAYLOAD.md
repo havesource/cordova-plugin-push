@@ -4,7 +4,7 @@
   - [User clicks on notification in notification center](#user-clicks-on-notification-in-notification-center)
 - [Push Notification Message Format Overview](#push-notification-message-format-overview)
   - [Android Message Format](#android-message-format)
-    - [Using AWS-SNS with GCM](#using-aws-sns-with-gcm)
+    - [Using AWS-SNS with FCM](#using-aws-sns-with-fcm)
     - [Message Received in JavaScript](#message-received-in-javascript)
   - [iOS Message Format](#ios-message-format)
     - [Special Format for Critical Alerts](#special-format-for-critical-alerts)
@@ -102,13 +102,16 @@ var content = {
 };
 ```
 
-### Using AWS-SNS with GCM
+### Using AWS-SNS with FCM
 
 This is the JSON-encoded format you can e.g. send via AWS-SNS's web UI.
 Note, that the core message is json-encoded twice, so if we take the `content` from above you convert it this way
 
+> [!NOTE]
+> Amazon Web Services SNS still uses the GCM key while it uses FCM.
+
 ```javascript
-var gcm_message = JSON.stringify({
+var payload = JSON.stringify({
   GCM: JSON.stringify(content),
   default: 'plain text message again'
 });
