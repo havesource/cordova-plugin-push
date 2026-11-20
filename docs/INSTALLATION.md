@@ -4,7 +4,6 @@
   - [Installation Requirements](#installation-requirements)
     - [Cordova-Android 9.x Specifics](#cordova-android-9x-specifics)
   - [Android details](#android-details)
-    - [Co-existing with Facebook Plugin](#co-existing-with-facebook-plugin)
     - [Co-existing with plugins that use Firebase](#co-existing-with-plugins-that-use-firebase)
     - [Common errors](#common-errors)
       - [Multidex](#multidex)
@@ -79,16 +78,6 @@ Please note that this will also migrate references of other plugins.
 If you are using **Cordova Android 8.x** please continue reading in the **Cordova Android 8.x Specifics** section.
 
 ## Android details
-
-### Co-existing with Facebook Plugin
-
-There are a number of Cordova Facebook Plugins available but the one that we recommend is [Jeduan's fork](https://github.com/jeduan/cordova-plugin-facebook4) of the original Wizcorp plugin. It is setup to use Gradle/Maven and the latest Facebook SDK properly.
-
-To add to your app:
-
-```bash
-cordova plugin add cordova-plugin-facebook4 --variable APP_ID="App ID" --variable APP_NAME="App Name"
-```
 
 ### Co-existing with plugins that use Firebase
 
