@@ -5,9 +5,6 @@
     - [Cordova-Android 9.x Specifics](#cordova-android-9x-specifics)
   - [Android details](#android-details)
     - [Co-existing with plugins that use Firebase](#co-existing-with-plugins-that-use-firebase)
-    - [Common errors](#common-errors)
-      - [Multidex](#multidex)
-      - [More than one library with package name 'com.google.android.gms'](#more-than-one-library-with-package-name-comgoogleandroidgms)
   - [Browser details](#browser-details)
     - [Browser Support](#browser-support)
   - [iOS details](#ios-details)
@@ -99,53 +96,6 @@ To work together, make sure your `FCM_VERSION` variable matches the version used
 ```
 
 _Note:_ This plugin's default `FCM_VERSION` is 24.1.0.
-
-### Common errors
-
-#### Multidex
-
-If you have an issue compiling the app and you're getting an error similar to this (`com.android.dex.DexException: Multiple dex files define`):
-
-```
-UNEXPECTED TOP-LEVEL EXCEPTION:
-com.android.dex.DexException: Multiple dex files define Landroid/support/annotation/AnimRes;
-	at com.android.dx.merge.DexMerger.readSortableTypes(DexMerger.java:596)
-	at com.android.dx.merge.DexMerger.getSortedTypes(DexMerger.java:554)
-	at com.android.dx.merge.DexMerger.mergeClassDefs(DexMerger.java:535)
-	at com.android.dx.merge.DexMerger.mergeDexes(DexMerger.java:171)
-	at com.android.dx.merge.DexMerger.merge(DexMerger.java:189)
-	at com.android.dx.command.dexer.Main.mergeLibraryDexBuffers(Main.java:502)
-	at com.android.dx.command.dexer.Main.runMonoDex(Main.java:334)
-	at com.android.dx.command.dexer.Main.run(Main.java:277)
-	at com.android.dx.command.dexer.Main.main(Main.java:245)
-	at com.android.dx.command.Main.main(Main.java:106)
-```
-
-Then at least one other plugin you have installed is using an outdated way to declare dependencies such as `android-support` or `play-services-gcm`.
-This causes gradle to fail, and you'll need to identify which plugin is causing it and request an update to the plugin author, so that it uses the proper way to declare dependencies for cordova.
-See [this for the reference on the cordova plugin specification](https://cordova.apache.org/docs/en/5.4.0/plugin_ref/spec.html#link-18), it'll be usefull to mention it when creating an issue or requesting that plugin to be updated.
-
-Common plugins to suffer from this outdated dependency management are plugins related to _facebook_, _google+_, _notifications_, _crosswalk_ and _google maps_.
-
-#### More than one library with package name 'com.google.android.gms'
-
-When some other packages include `cordova-google-play-services` as a dependency, such as is the case with the `cordova-admob` and `cordova-plugin-analytics` plugins, it is impossible to also add the `@havesource/cordova-plugin-push`, for the following error will rise during the build process:
-
-```
-:processDebugResources FAILED
-FAILURE: Build failed with an exception.
-
-What went wrong: Execution failed for task ':processDebugResources'. > Error: more than one library with package name 'com.google.android.gms'
-```
-
-Those plugins should be using gradle to include the Google Play Services package but instead they include the play services jar directly or via a plugin dependency. So all of that is bad news. These plugins should be updated to use gradle. Please raise issues on those plugins as the change is not hard to make.
-
-In fact there is a PR open to do just that appfeel/analytics-google#11 for cordova-plugin-analytics. You should bug the team at appfeel to merge that PR.
-
-Alternatively, switch to another plugin that provides the same functionality but uses gradle:
-
-[https://github.com/danwilson/google-analytics-plugin](https://github.com/danwilson/google-analytics-plugin)
-[https://github.com/cmackay/google-analytics-plugin](https://github.com/cmackay/google-analytics-plugin)
 
 ## Browser details
 
