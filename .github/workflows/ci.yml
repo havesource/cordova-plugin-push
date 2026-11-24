@@ -57,8 +57,6 @@ jobs:
       - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
 
   test:
-    name: NodeJS ${{ matrix.node-version }} on ${{ matrix.os }}
-
     runs-on: ${{ matrix.os }}
 
     permissions:
@@ -66,7 +64,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-26]
+        os: [ubuntu-latest, windows-latest, macos-27]
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -77,6 +75,7 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 26
+          package-manager-cache: false
 
       - name: Environment Information
         run: |
@@ -89,3 +88,31 @@ jobs:
           npm cit
         env:
           CI: true
+
+      - name: Check for uncommitted changes
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          npm install --package-lock-only --ignore-scripts
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            git diff
+            echo "::error::Changed files detected. Ensure built files are commited and package-lock is synced"
+            exit 1
+          fi
+
+      - name: Ensure synced versions
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          set -euo pipefail
+
+          PLUGIN_XML=$(python3 -c 'import xml.etree.ElementTree as ET; print(ET.parse("plugin.xml").getroot().get("version"))')
+          PACKAGE_JSON=$(npm pkg get version | tr -d '"')
+
+          echo "plugin.xml:   $PLUGIN_XML"
+          echo "package.json: $PACKAGE_JSON"
+
+          if [ "$PLUGIN_XML" != "$PACKAGE_JSON" ]; then
+            echo "::error::Versions don't match between pacakge and plugin.xml."
+            exit 1
+          fi
