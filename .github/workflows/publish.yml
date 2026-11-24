@@ -1,0 +1,54 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-dev.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+
+permissions: {}
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    environment: npm
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+
+      - name: Check release
+        env:
+          TAG: ${{ github.ref_name }}
+
+        run: |
+          set -euo pipefail
+          
+          VERSION=$(npm pkg get version | tr -d '"')
+          if [ "$VERSION" != "$TAG" ]; then
+            echo "::error::Tag $TAG does not match package.json version $VERSION"
+            exit 1
+          fi
+
+          if ! git branch -r --contains "$GITHUB_SHA" | grep -Eq '^ *origin/(master|[0-9]+\.[0-9]+\.x)$'; then
+            echo "::error::$TAG is not on master or a release branch"
+            exit 1
+          fi
+
+      - name: Publish
+        run: npm stage publish --ignore-scripts
