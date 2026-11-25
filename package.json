@@ -22,6 +22,10 @@
   "license": "MIT",
   "bugs": "https://github.com/havesource/cordova-plugin-push/issues",
   "homepage": "https://github.com/havesource/cordova-plugin-push#readme",
+  "dependencies": {
+    "nopt": "^10.0.1",
+    "semver": "^7.8.5"
+  },
   "devDependencies": {
     "@babel/cli": "^8.1.0",
     "@babel/core": "^8.1.2",
@@ -31,11 +35,12 @@
     "nodemon": "^3.1.14"
   },
   "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0",
     "cordovaDependencies": {
       "8.0.0": {
         "cordova": ">=10.0.0",
         "cordova-android": ">=12.0.0",
-        "cordova-ios": ">=6.0.0"
+        "cordova-ios": ">=7.0.0"
       },
       "7.0.0": {
         "cordova": ">=10.0.0",
