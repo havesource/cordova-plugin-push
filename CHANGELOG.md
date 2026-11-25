@@ -1,5 +1,56 @@
 # Change Log
 
+## 7.0.1
+
+**Recommended upgrade.** This release improves reliability and hardens how notification events are handled:
+
+**Android:**
+
+- Background action buttons and inline replies now pass the original push data to JS. Data added to the notification intent by other apps is ignored. Apps using `"inline": true` actions should upgrade.
+- Action-button callbacks must match an action declared in the push payload. Otherwise the event is delivered to the `notification` event.
+
+**Android and iOS:**
+
+- `actionCallback` can no longer be `registration` or `error`. Otherwise the event is delivered to the `notification` event.
+- Fixed some crashes caused by unexpected or malformed payloads.
+- Certain data is no longer written to device logs.
+
+---
+
+**Fixes:**
+
+- fix: prevent actionCallback from triggering reserved events ([#389](https://github.com/havesource/cordova-plugin-push/pull/389)) [[aea1ff2](https://github.com/havesource/cordova-plugin-push/commit/aea1ff2)]
+- fix(android): background action button handler regression ([#396](https://github.com/havesource/cordova-plugin-push/pull/396)) [[4d6554d](https://github.com/havesource/cordova-plugin-push/commit/4d6554d)]
+- fix(android): find matching action callbacks from declared actions ([#391](https://github.com/havesource/cordova-plugin-push/pull/391)) [[0a0cd07](https://github.com/havesource/cordova-plugin-push/commit/0a0cd07)]
+- fix(android|ios): handle unexpected notification payloads more gracefully ([#392](https://github.com/havesource/cordova-plugin-push/pull/392)) [[c030218](https://github.com/havesource/cordova-plugin-push/commit/c030218)]
+- fix(browser): skip subscription upload when pushServiceURL is not set ([#390](https://github.com/havesource/cordova-plugin-push/pull/390)) [[da20dec](https://github.com/havesource/cordova-plugin-push/commit/da20dec)]
+
+**Chores:**
+
+- chore: add .npmrc file ([#398](https://github.com/havesource/cordova-plugin-push/pull/398)) [[7ab05c5](https://github.com/havesource/cordova-plugin-push/commit/7ab05c5)]
+- chore: various cleanup ([#395](https://github.com/havesource/cordova-plugin-push/pull/395)) [[e31d9d0](https://github.com/havesource/cordova-plugin-push/commit/e31d9d0)]
+- chore: various dev related updates ([#393](https://github.com/havesource/cordova-plugin-push/pull/393)) [[5e80a20](https://github.com/havesource/cordova-plugin-push/commit/5e80a20)]
+- chore: update dependencies ([#381](https://github.com/havesource/cordova-plugin-push/pull/381)) [[9db06c4](https://github.com/havesource/cordova-plugin-push/commit/9db06c4)]
+- chore: update workflows & config files ([#380](https://github.com/havesource/cordova-plugin-push/pull/380)) [[3fca8c6](https://github.com/havesource/cordova-plugin-push/commit/3fca8c6)]
+- chore: bump devDependencies ([#365](https://github.com/havesource/cordova-plugin-push/pull/365)) [[f075ed4](https://github.com/havesource/cordova-plugin-push/commit/f075ed4)]
+- chore(android|ios): reduce verbose logging ([#386](https://github.com/havesource/cordova-plugin-push/pull/386)) [[6fa117a](https://github.com/havesource/cordova-plugin-push/commit/6fa117a)]
+- chore(browser): remove legacy gcm ([#388](https://github.com/havesource/cordova-plugin-push/pull/388)) [[34b5139](https://github.com/havesource/cordova-plugin-push/commit/34b5139)]
+- chore(ci): updated workflows ([#397](https://github.com/havesource/cordova-plugin-push/pull/397)) [[f918a36](https://github.com/havesource/cordova-plugin-push/commit/f918a36)]
+- chore(deps-dev): bump js-yaml from 4.3.0 to 4.3.2 ([#379](https://github.com/havesource/cordova-plugin-push/pull/379)) [[ec6df61](https://github.com/havesource/cordova-plugin-push/commit/ec6df61)]
+- chore(deps-dev): bump @babel/plugin-transform-modules-systemjs ([#373](https://github.com/havesource/cordova-plugin-push/pull/373)) [[e1ed848](https://github.com/havesource/cordova-plugin-push/commit/e1ed848)]
+- chore(deps-dev): bump brace-expansion from 1.1.12 to 1.1.18 ([#378](https://github.com/havesource/cordova-plugin-push/pull/378)) [[bb948cb](https://github.com/havesource/cordova-plugin-push/commit/bb948cb)]
+- chore(deps-dev): bump js-yaml from 4.1.1 to 4.3.0 ([#374](https://github.com/havesource/cordova-plugin-push/pull/374)) [[58a5c3c](https://github.com/havesource/cordova-plugin-push/commit/58a5c3c)]
+- chore(deps-dev): bump flatted from 3.3.3 to 3.4.2 ([#368](https://github.com/havesource/cordova-plugin-push/pull/368)) [[fb2739e](https://github.com/havesource/cordova-plugin-push/commit/fb2739e)]
+- chore(deps-dev): bump js-yaml from 4.1.0 to 4.1.1 ([#364](https://github.com/havesource/cordova-plugin-push/pull/364)) [[6dfd136](https://github.com/havesource/cordova-plugin-push/commit/6dfd136)]
+- chore(deps): bump the gh-actions-patch-minor group with 3 updates ([#394](https://github.com/havesource/cordova-plugin-push/pull/394)) [[634f909](https://github.com/havesource/cordova-plugin-push/commit/634f909)]
+- chore(deps): bump picomatch ([#369](https://github.com/havesource/cordova-plugin-push/pull/369)) [[9da3aad](https://github.com/havesource/cordova-plugin-push/commit/9da3aad)]
+- chore(deps): bump minimatch ([#367](https://github.com/havesource/cordova-plugin-push/pull/367)) [[d9a04d7](https://github.com/havesource/cordova-plugin-push/commit/d9a04d7)]
+
+**Refactors:**
+
+- refactor(android): FCMService ([#376](https://github.com/havesource/cordova-plugin-push/pull/376)) [[e0a1e55](https://github.com/havesource/cordova-plugin-push/commit/e0a1e55)]
+- refactor(ios): reuse hex helper for VoIP token formatting ([#387](https://github.com/havesource/cordova-plugin-push/pull/387)) [[3ff065c](https://github.com/havesource/cordova-plugin-push/commit/3ff065c)]
+
 ## 7.0.0
 
 **Breaking Changes:**
