@@ -15,8 +15,7 @@
   "keywords": [
     "ecosystem:cordova",
     "cordova-ios",
-    "cordova-android",
-    "cordova-browser"
+    "cordova-android"
   ],
   "author": "HaveSource",
   "license": "MIT",
@@ -79,8 +78,7 @@
     "id": "@havesource/cordova-plugin-push",
     "platforms": [
       "ios",
-      "android",
-      "browser"
+      "android"
     ]
   },
   "overrides": {

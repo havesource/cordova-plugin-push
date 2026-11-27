@@ -4,8 +4,6 @@
   - [Installation Requirements](#installation-requirements)
   - [Android details](#android-details)
     - [Co-existing with plugins that use Firebase](#co-existing-with-plugins-that-use-firebase)
-  - [Browser details](#browser-details)
-    - [Browser Support](#browser-support)
   - [iOS details](#ios-details)
     - [System \& Cordova Requirements](#system--cordova-requirements)
     - [CocoaPods](#cocoapods)
@@ -83,15 +81,6 @@ To work together, make sure your `FCM_VERSION` variable matches the version used
 ```
 
 _Note:_ This plugin's default `FCM_VERSION` is 24.1.0.
-
-## Browser details
-
-For the time being, push support on the browser is not supported. The original plugin used the PhoneGap push server which is no longer active.
-
-### Browser Support
-
-Chrome 49+
-Firefox 46+
 
 ## iOS details
 

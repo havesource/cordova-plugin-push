@@ -5,7 +5,6 @@
     - [Returns](#returns)
     - [Parameters](#parameters)
       - [Android](#android)
-      - [Browser](#browser)
       - [iOS](#ios)
       - [iOS FCM support](#ios-fcm-support)
         - [How FCM on iOS works.](#how-fcm-on-ios-works)
@@ -105,13 +104,6 @@ All available option attributes are described bellow.
 | `android.messageKey`         | `string`  | `'message'` | Optional. The key to search for text of notification.                                                                                                                                                                                                                                                                                                                                                                          |
 | `android.titleKey`           | `string`  | `'title'`   | Optional. The key to search for title of notification.                                                                                                                                                                                                                                                                                                                                                                         |
 
-#### Browser
-
-| Attribute                      | Type     | Default                                                      | Description                                             |
-| ------------------------------ | -------- | ------------------------------------------------------------ | ------------------------------------------------------- |
-| `browser.pushServiceURL`       | `string` |                                                              | Optional. URL for the push server you want to use.      |
-| `browser.applicationServerKey` | `string` |                                                              | Optional. Your GCM API key if you are using VAPID keys. |
-
 #### iOS
 
 All iOS boolean options can also be specified as `string`
@@ -185,9 +177,6 @@ The "finish" method has not use too when the VoIP notifications are enabled.
 ```javascript
 const push = PushNotification.init({
   android: {},
-  browser: {
-    pushServiceURL: 'https://push.example.com/v1/push'
-  },
   ios: {
     alert: 'true',
     badge: true,

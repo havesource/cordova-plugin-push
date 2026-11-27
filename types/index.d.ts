@@ -172,20 +172,6 @@ declare namespace PhonegapPluginPush {
 		}
 
 		/**
-		 * Browser specific initialization options.
-		 */
-		browser?: {
-			/**
-			 * URL for the push server you want to use. When not set, the subscription is not sent to any server.
-			 */
-			pushServiceURL?: string
-			/**
-			 * Your GCM API key if you are using VAPID keys.
-			 */
-			applicationServerKey?: string
-		}
-
-		/**
 		 * iOS specific initialization options.
 		 */
 		ios?: {

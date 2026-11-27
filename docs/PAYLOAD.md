@@ -403,9 +403,6 @@ By default the icon displayed in your push notification will be your apps icon. 
 ```javascript
 const push = PushNotification.init({
   android: {},
-  browser: {
-    pushServiceURL: 'https://push.example.com/v1/push'
-  },
   ios: {
     alert: 'true',
     badge: 'true',
@@ -442,9 +439,6 @@ const push = PushNotification.init({
   android: {
     icon: 'notification',
     iconColor: 'blue'
-  },
-  browser: {
-    pushServiceURL: 'https://push.example.com/v1/push'
   },
   ios: {
     alert: 'true',
